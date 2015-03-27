@@ -1,0 +1,937 @@
+<?php
+
+/*
+ * This file is part of the Blackfire SDK package.
+ *
+ * (c) SensioLabs <contact@sensiolabs.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+if (!defined('UPROFILER_FLAGS_NO_BUILTINS')) {
+    define('UPROFILER_FLAGS_NO_BUILTINS', defined('XHPROF_FLAGS_NO_BUILTINS') ? XHPROF_FLAGS_NO_BUILTINS : 1);
+}
+
+if (!defined('UPROFILER_FLAGS_CPU')) {
+    define('UPROFILER_FLAGS_CPU', defined('XHPROF_FLAGS_CPU') ? XHPROF_FLAGS_CPU : 2);
+}
+
+if (!defined('UPROFILER_FLAGS_MEMORY')) {
+    define('UPROFILER_FLAGS_MEMORY', defined('XHPROF_FLAGS_MEMORY') ? XHPROF_FLAGS_MEMORY : 4);
+}
+
+/**
+ * This is a PHP 5.2 compatible fallback implementation of the Blackfire extension.
+ * The interfaces and behavior are the same, or as close as possible.
+ * It uses xhprof or uprofiler to gather profiling metrics and push them to Blackfire.
+ * When the extension is loaded, this PHP fallback is not loaded.
+ *
+ * A general rule of design is that this fallback (as the extension) does not generate any exception
+ * nor any PHP notice/warning/etc. Instead, a log facility is provided where all messages shall be written.
+ */
+class BlackfireProbe
+{
+    private $seqId;
+    private $fileFormat = 'BlackfireProbe';
+    private $autoEnabled = false;
+    private $stale = false;
+    private $profiler;
+    private $agentSocket;
+    private $agentTimeout;
+    private $outputStream;
+    private $logLevel = 1;
+    private $logFile = '';
+    private $isEnabled = false;
+    private $responseLine = '';
+    private $challenge;
+    private $signedArgs;
+    private $signature;
+    private $flags;
+    private $options = array(
+        'server_keys' => array(
+            'HTTP_HOST',
+            'HTTP_USER_AGENT',
+            'HTTPS',
+            'REQUEST_METHOD',
+            'REQUEST_URI',
+            'SERVER_ADDR',
+            'SERVER_PORT',
+            'SERVER_SOFTWARE',
+            '_',
+            'argv',
+        ),
+        'ignored_functions' => array(
+            'array_map',
+            'array_filter',
+            'array_reduce',
+            'array_walk',
+            'array_walk_recursive',
+            'call_user_func',
+            'call_user_func_array',
+            'call_user_method',
+            'call_user_method_array',
+            'forward_static_call',
+            'forward_static_call_array',
+            'iterator_apply',
+        ),
+    );
+    private static $nextSeqId = 1;
+    private static $probe;
+    private static $profilerIsEnabled = false;
+    private static $shutdownFunctionRegistered = false;
+    private static $defaultAgentSocket = 'unix:///var/run/blackfire/agent.sock';
+    private static $urlEncMap = array(
+        '%21' => '!', '%22' => '"', '%23' => '#', '%24' => '$', '%27' => "'",
+        '%28' => '(', '%29' => ')', '%2A' => '*', '%2C' => ',', '%2F' => '/',
+        '%3A' => ':', '%3B' => ';', '%3C' => '<', '%3D' => '=', '%3E' => '>',
+        '%40' => '@', '%5B' => '[', '%5C' => '\\','%5D' => ']', '%5E' => '^',
+        '%60' => '`', '%7B' => '{', '%7C' => '|', '%7D' => '}', '%7E' => '~',
+    );
+
+    /**
+     * Returns a global singleton and enables it by default.
+     *
+     * Uses the X-Blackfire-Query HTTP header to create this singleton on its first use.
+     *
+     * Additionally, this function enables the probe, except when the just said string
+     * contains an auto_enable=0 URL parameter.
+     *
+     * @return self
+     *
+     * @api
+     */
+    public static function getMainInstance()
+    {
+        if (null !== self::$probe) {
+            return self::$probe;
+        }
+
+        if (isset($_SERVER['HTTP_X_BLACKFIRE_QUERY'])) {
+            $query = $_SERVER['HTTP_X_BLACKFIRE_QUERY'];
+        } elseif (isset($_SERVER['BLACKFIRE_QUERY'])) {
+            $query = $_SERVER['BLACKFIRE_QUERY'];
+        } else {
+            $query = '';
+        }
+
+        if (!file_exists(substr(self::$defaultAgentSocket, 7))) {
+            self::$defaultAgentSocket = null;
+        }
+
+        $probe = new self($query);
+
+        parse_str($query, $query);
+
+        if (!isset($query['auto_enable']) || $query['auto_enable']) {
+            if ($probe->isVerified()) {
+                $probe->autoEnabled = $probe->enable();
+            }
+        }
+
+        return self::$probe = $probe;
+    }
+
+    /**
+     * Instantiate a probe object.
+     *
+     * @param string $query       An URL-encoded string that configures the probe. Part of the string is signed.
+     * @param string $serverId    An id that is given to the agent for signature impersonation.
+     * @param string $serverToken The token associated to $serverId.
+     * @param string $agentSocket The URL where profiles will be written (directory, socket or TCP destination).
+     *
+     * @api
+     */
+    public function __construct($query, $serverId = null, $serverToken = null, $agentSocket = null)
+    {
+        $this->seqId = self::$nextSeqId++;
+        $query = preg_split('/(?:^|&)signature=(.+?)(?:&|$)/', $query, 2, PREG_SPLIT_DELIM_CAPTURE);
+        list($this->challenge, $this->signature, $args) = $query + array(1 => '', '');
+        $this->signature = rawurldecode($this->signature);
+        parse_str($args, $args);
+        parse_str($this->challenge, $this->signedArgs);
+        $query = array(
+            'BLACKFIRE_SERVER_ID' => null,
+            'BLACKFIRE_SERVER_TOKEN' => null,
+            'BLACKFIRE_AGENT_SOCKET' => null,
+            'BLACKFIRE_AGENT_TIMEOUT' => null,
+            'BLACKFIRE_LOG_LEVEL' => null,
+            'BLACKFIRE_LOG_FILE' => null,
+        );
+        foreach ($query as $k => $v) {
+            if (isset($_SERVER[$k])) {
+                $query[$k] = $_SERVER[$k];
+            }
+        }
+
+        $this->serverId = $serverId ? $serverId : $query['BLACKFIRE_SERVER_ID'];
+        $this->serverToken = $serverToken ? $serverToken : $query['BLACKFIRE_SERVER_TOKEN'];
+        $this->agentSocket = $agentSocket;
+        $this->agentSocket or $this->agentSocket = $query['BLACKFIRE_AGENT_SOCKET'];
+        $this->agentSocket or $this->agentSocket = self::$defaultAgentSocket;
+        $this->agentSocket or $this->agentSocket = ini_get('uprofiler.output_dir');
+        $this->agentSocket or $this->agentSocket = ini_get('xhprof.output_dir');
+        $this->agentTimeout = 1000000 * $query['BLACKFIRE_AGENT_TIMEOUT'];
+        $this->agentTimeout or $this->agentTimeout = 250000;
+        $query['BLACKFIRE_LOG_LEVEL'] and $this->logLevel = $query['BLACKFIRE_LOG_LEVEL'];
+        $query['BLACKFIRE_LOG_FILE'] and $this->logFile = $query['BLACKFIRE_LOG_FILE'];
+        $this->aggregSamples = isset($args['aggreg_samples']) && is_string($args['aggreg_samples']) ? max((int) $args['aggreg_samples'], 1) : 1;
+
+        if ($this->logFile && strpos($this->logFile, '://') === false) {
+            $this->logFile = 'file://'.$this->logFile;
+        } elseif (!$this->logFile) {
+            $this->logFile = 'php://stderr';
+        }
+
+        empty($args['flag_cpu']) or $this->flags |= UPROFILER_FLAGS_CPU;
+        empty($args['flag_memory']) or $this->flags |= UPROFILER_FLAGS_MEMORY;
+        empty($args['flag_no_builtins']) or $this->flags |= UPROFILER_FLAGS_NO_BUILTINS;
+
+        if (function_exists('uprofiler_enable')) {
+            $this->profiler = 'uprofiler';
+        } elseif (function_exists('xhprof_enable')) {
+            $this->profiler = 'xhprof';
+        }
+
+        if ($this->logLevel >= 4) {
+            $this->debug('New probe instanciated');
+            foreach ($this as $k => $v) {
+                if ('options' !== $k && 'signedArgs' !== $k) {
+                    if ('' !== $v = (string) $v) {
+                        $this->debug('  '.$k.': '.$v);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Tells if the probe is cryptographically verified, i.e. if the signature in $query is valid.
+     *
+     * @return bool
+     *
+     * @api
+     */
+    public function isVerified()
+    {
+        return $this->box('doVerify', false);
+    }
+
+    /**
+     * Gets the response message/status/line
+     *
+     * This lines gives details about the status of the probe. That can be:
+     * - an error: `Blackfire-Error: $errNumber $urlEncodedErrorMessage`
+     * - or not: `Blackfire-Response: $rfc1738EncodedMessage`
+     *
+     * @return string The response line
+     *
+     * @api
+     */
+    public function getResponseLine()
+    {
+        return $this->responseLine;
+    }
+
+    /**
+     * Enables profiling instrumentation and data aggregation.
+     *
+     * One and only one probe can be enabled at the same time.
+     *
+     * @see getResponseLine() for error/status reporting
+     *
+     * @return bool False if enabling failed.
+     *
+     * @api
+     */
+    public function enable()
+    {
+        if ($this->autoEnabled) {
+            $this->autoEnabled = false;
+            $this->discard();
+        }
+
+        $enabled = $this->box('doEnable', false,
+            $this->getErrorHandler('error', array(__CLASS__, 'onError'))
+            .$this->getErrorHandler('exception', array($this, 'onException'))
+        );
+
+        if ($enabled && self::$probe === $this && null !== $this->outputStream) {
+            self::boxPostEnable();
+        }
+
+        return $enabled;
+    }
+
+    /**
+     * Discard collected data and disables instrumentation.
+     *
+     * Does not close the profile payload, allowing to re-enable the probe and aggregate data in the same profile.
+     *
+     * @return bool False if the probe was not enabled.
+     *
+     * @api
+     */
+    public function discard()
+    {
+        return $this->box('doDiscard', true);
+    }
+
+    /**
+     * Disables profiling instrumentation and data aggregation.
+     *
+     * Does not close the profile payload, allowing to re-enable the probe and aggregate data in the same profile.
+     * As a side-effect, flushes the collected profile to the output.
+     *
+     * @return bool False if the probe was not enabled.
+     *
+     * @api
+     */
+    public function disable()
+    {
+        return $this->box('doDisable', true, false);
+    }
+
+    /**
+     * Disables and closes profiling instrumentation and data aggregation.
+     *
+     * Closing means that a later enable() will create a new profile on the output.
+     * As a side-effect, flushes the collected profile to the output.
+     *
+     * @return bool False if the probe was not enabled.
+     *
+     * @api
+     */
+    public function close()
+    {
+        return $this->box('doDisable', true, true);
+    }
+
+    // XXX
+    // XXX - END OF PUBLIC API - XXX
+    // XXX
+
+    /**
+     * @internal
+     */
+    private static function boxPostEnable()
+    {
+        if (!self::$shutdownFunctionRegistered) {
+            self::$shutdownFunctionRegistered = true;
+
+            register_shutdown_function(array(self::$probe, 'onShutdown'));
+        }
+
+        if (!headers_sent()) {
+            header('X-'.self::$probe->getResponseLine());
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private static function restoreErrorHandler()
+    {
+        restore_error_handler();
+    }
+
+    /**
+     * @internal
+     */
+    public function __destruct()
+    {
+        $this->close();
+    }
+
+    /**
+     * Wraps internal functions and handles any error/exception.
+     *
+     * @internal
+     */
+    private function box($method, $returnValue)
+    {
+        set_error_handler(__CLASS__.'::onInternalError');
+
+        try {
+            $args = func_get_args();
+            unset($args[0], $args[1]);
+            $this->debug('Boxing '.$method);
+            $returnValue = call_user_func_array(array($this, $method), $args);
+        } catch (Exception $e) {
+            $this->warn(get_class($e).': '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine());
+            restore_error_handler();
+            $this->profilerDisable();
+            $this->responseLine = 'Blackfire-Error: 101 '.rawurlencode($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
+        }
+
+        self::restoreErrorHandler();
+
+        return $returnValue;
+    }
+
+    /**
+     * @internal
+     */
+    private function doVerify()
+    {
+        if (null === $this->outputStream) {
+            $signature = strtr($this->signature, '-_', '+/');
+            $signature = base64_decode($signature, true);
+
+            // XXX Crypto checks are done here in the C version.
+            //     In the PHP version, this is delegated to the agent,
+            //     no verification occurs when the output is a directory.
+
+            $s = $this->signedArgs;
+
+            if (!isset($s['expires'], $s['profileSlot'], $s['agentIds'], $s['userId'], $s['collabToken'])) {
+                $this->info('Missing signed args: expires, profileSlot, agentIds, userId or collabToken');
+            } elseif (time() > (int) $s['expires']) {
+                $this->info('Expired signature');
+            } elseif (!$signature) {
+                $this->info('Invalid signature');
+            } else {
+                $this->debug('Signature looks OK');
+                $this->openOutput();
+            }
+        }
+
+        return (bool) $this->outputStream;
+    }
+
+    /**
+     * @internal
+     */
+    private function doEnable($extra)
+    {
+        if ($this->isEnabled) {
+            return true;
+        }
+        if ($this->stale) {
+            $this->responseLine = 'Blackfire-Error: 103 Samples quota is out';
+
+            return false;
+        }
+        if (self::$profilerIsEnabled) {
+            $this->responseLine = "Blackfire-Error: 101 An other probe is already profiling";
+
+            return false;
+        }
+
+        if ($this->doVerify()) {
+            $this->writeChunkProlog($extra);
+            $this->profilerEnable();
+            $this->isEnabled = true;
+        }
+
+        return $this->isEnabled;
+    }
+
+    /**
+     * @internal
+     */
+    private function doDiscard()
+    {
+        if (!$this->isEnabled) {
+            return false;
+        }
+        $this->isEnabled = false;
+        $this->profilerDisable();
+
+        return true;
+    }
+
+    /**
+     * @internal
+     */
+    private function doDisable($close = false)
+    {
+        if (!$this->isEnabled) {
+            return false;
+        }
+        $this->isEnabled = false;
+        $this->profilerWrite(true);
+        if ($close && $this->outputStream) {
+            $this->debug('Closing output stream');
+            flock($this->outputStream, LOCK_UN);
+            fclose($this->outputStream);
+            $this->outputStream = null;
+
+            if (false === strpos($this->responseLine, 'continue=true')) {
+                $this->stale = true;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @internal
+     */
+    private function openOutput()
+    {
+        if (null !== $this->outputStream) {
+            return $this->outputStream;
+        }
+
+        $this->outputStream = false;
+        $url = $this->agentSocket;
+
+        if (($i = strpos($url, '://')) && in_array(substr($url, 0, $i), stream_get_transports(), true)) {
+            $this->debug('Lets open '.$url);
+            if ($h = stream_socket_client($url, $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT)) {
+                stream_set_timeout($h, 0, $this->agentTimeout);
+                stream_set_write_buffer($h, 0);
+                $i = array(null, array($h), null);
+                if (stream_select($i[0], $i[1], $i[2], 0, $this->agentTimeout)) {
+                    $this->writeHelloProlog($h);
+                    if (false !== $response = fgets($h, 4096)) {
+                        $response = rtrim($response);
+                        while ('' !== rtrim(fgets($h, 4096))) {
+                            // No-op
+                        }
+
+                        if (0 !== strpos($response, 'Blackfire-Response: ')) {
+                            fclose($h);
+                            $h = false;
+                            if (0 !== strpos($response, 'Blackfire-Error: ')) {
+                                $response = "Blackfire-Error: 102 Invalid agent response ($response)";
+                            }
+                        }
+                    } else {
+                        fclose($h);
+                        $h = false;
+                        $response = "Blackfire-Error: 101 Agent connection timeout (read)";
+                    }
+                } else {
+                    fclose($h);
+                    $h = false;
+                    $response = "Blackfire-Error: 101 Agent connection timeout (write)";
+                }
+            } else {
+                $response = "Blackfire-Error: 101 $errstr ($errno)";
+            }
+        } elseif ($i && 'blackfire' === substr($url, 0, $i)) {
+            $this->debug('Lets open '.$url);
+            if (!in_array('blackfire', stream_get_wrappers())) {
+                stream_wrapper_register('blackfire', 'BlackfireWrapper', STREAM_IS_URL);
+            }
+            $h = fopen($url, 'wb');
+            $this->writeHelloProlog($h);
+
+            $response = "Blackfire-Response: continue=false";
+        } else {
+            $i = sprintf('%019.6F', microtime(true)).'-';
+            $i .= substr(str_replace(array('+', '/'), array('', ''), base64_encode(md5(mt_rand(), true))), 0, 6);
+            $url .= '/'.$i.'.log';
+
+            $this->debug('Lets open '.$url);
+            $h = fopen($url, 'wb');
+            flock($h, LOCK_SH); // This shared lock allows readers to wait for the end of the stream
+            stream_set_write_buffer($h, 0);
+
+            $response = "Blackfire-Response: continue=false";
+        }
+
+        $this->responseLine = $response;
+        $this->outputStream = $h;
+
+        $this->debug($response);
+
+        if ($h) {
+            $this->writeMainProlog();
+        }
+
+        return $h;
+    }
+
+    /**
+     * @internal
+     */
+    private function writeHelloProlog($h)
+    {
+        $hello = '';
+        if ($this->serverId && $this->serverToken) {
+            $line = $this->serverId.':'.$this->serverToken;
+            if (strlen($line) !== strcspn($line, "\r\n") || 1 < substr_count($line, ':')) {
+                $this->warn('Invalid server id/token');
+            } else {
+                $hello .= 'Blackfire-Auth: '.$line."\n";
+            }
+        }
+        $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples."\n";
+        isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
+        $hello .= 'Blackfire-Query: '.$line."\n";
+
+        self::fwrite($h, $hello);
+    }
+
+    /**
+     * @internal
+     */
+    private function writeMainProlog()
+    {
+        // Loaded extensions list helps understanding runtime behavior
+        $extensions = array();
+        foreach (get_loaded_extensions() as $e) {
+            $extensions[$e] = phpversion($e);
+        }
+
+        // Keep only keys from $_COOKIE
+        $cookies = array_keys($_COOKIE);
+
+        // Keep selected keys from $_SERVER
+        $servers = array();
+        foreach ($this->options['server_keys'] as $e) {
+            if (isset($_SERVER[$e])) {
+                $servers[$e] = $_SERVER[$e];
+            }
+        }
+
+        // Get request's URI
+        if (isset($_SERVER['HTTP_X_ORIGINAL_URL'])) {
+            $e = $_SERVER['HTTP_X_ORIGINAL_URL'];
+        } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
+            $e = $_SERVER['HTTP_X_REWRITE_URL'];
+        } elseif (!empty($_SERVER['IIS_WasUrlRewritten']) && !empty($_SERVER['UNENCODED_URL'])) {
+            $e = $_SERVER['UNENCODED_URL'];
+        } elseif (isset($_SERVER['REQUEST_URI'][0])) {
+            $e = $_SERVER['REQUEST_URI'];
+            if ('/' !== $e[0]) {
+                $e = preg_replace('#^https?://[^/]+#', '', $e);
+            }
+        } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
+            $e = $_SERVER['ORIG_PATH_INFO'];
+            if (!empty($_SERVER['QUERY_STRING'])) {
+                $e .= '?'.$_SERVER['QUERY_STRING'];
+            }
+        } else {
+            $e = '';
+        }
+
+        if (!empty($e)) {
+            $servers['REQUEST_URI'] = $e;
+        }
+
+        self::fwrite($this->outputStream, 'file-format: '.$this->fileFormat."\n"
+            .'php-os: '.PHP_OS."\n"
+            .'php-sapi: '.PHP_SAPI."\n"
+            .'php-version: '.PHP_VERSION_ID."\n"
+            .'php-extensions: '.strtr(http_build_query($extensions, '', '&'), self::$urlEncMap)."\n"
+            .'_COOKIE: '.strtr(http_build_query($cookies, '', '&'), self::$urlEncMap)."\n"
+            .'_SERVER: '.strtr(http_build_query($servers, '', '&'), self::$urlEncMap)."\n"
+            ."\nmain()//1 0 0 0 0\n\n"
+        );
+
+        $this->debug('Main prolog pushed');
+    }
+
+    /**
+     * @internal
+     */
+    private function writeChunkProlog($extra)
+    {
+        $data = 'request-mu: '.memory_get_usage(true)."\n"
+            .'request-pmu: '.memory_get_peak_usage(true)."\n"
+            .'request-start: '.microtime(true)."\n"
+            .$extra;
+
+        if (function_exists('sys_getloadavg')) {
+            $data .= 'sys-load-avg: '.implode(' ', sys_getloadavg())."\n";
+        }
+
+        self::fwrite($this->outputStream, $data);
+    }
+
+    /**
+     * @internal
+     */
+    private function getErrorHandler($type, $default = 'var_dump')
+    {
+        $s = "set_{$type}_handler";
+
+        if ($h = $s($default)) {
+            $s = "restore_{$type}_handler";
+            $s();
+        } elseif ('var_dump' !== $default) {
+            $h = $default;
+        }
+
+        $type .= '-handler: ';
+
+        if ($h instanceof Closure) {
+            $h = new ReflectionFunction($h);
+
+            if (PHP_VERSION_ID >= 50400 && $s = $h->getClosureScopeClass()) {
+                $h = $s->name.'::{closure}/'.$h->getStartLine().'-'.$h->getEndLine();
+            } else {
+                $h = $h->name.'::'.implode('/', array_slice(explode('/', $h->getFileName()), -2)).'/'.$h->getStartLine().'-'.$h->getEndLine();
+            }
+        } else {
+            if (!is_array($h)) {
+                if (is_object($h)) {
+                    $h = array($h, '__invoke');
+                } else {
+                    $h = explode('::', $h, 2);
+                }
+            }
+
+            if (isset($h[1])) {
+                $h = new ReflectionMethod($h[0], $h[1]);
+                $h = $h->getDeclaringClass()->name.'::'.$h->name;
+            } else {
+                $h = $h[0];
+            }
+        }
+
+        $type .= $h;
+        $this->debug('Extracted '.$type);
+
+        return $type."\n";
+    }
+
+    /**
+     * @internal
+     */
+    private function profilerEnable()
+    {
+        self::$profilerIsEnabled = true;
+
+        if (is_string($this->profiler)) {
+            $p = $this->profiler.'_enable';
+            $this->debug($p);
+
+            $p($this->flags, $this->options);
+        } else {
+            $this->info('No profiler to enable');
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private function profilerDisable()
+    {
+        self::$profilerIsEnabled = false;
+
+        if (is_string($this->profiler)) {
+            $p = $this->profiler.'_disable';
+            $this->debug($p);
+
+            return $p();
+        } elseif (is_array($this->profiler)) {
+            $this->debug('data array profiler_disable');
+
+            return $this->profiler;
+        } else {
+            $this->info('No profiler to disable');
+
+            return array();
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private function profilerWrite($disable, $chunk = '')
+    {
+        $data = $this->profilerDisable();
+
+        $chunk .= "request-end: ".microtime(true)
+            ."\nrequest-mu: ".memory_get_usage(true)
+            ."\nrequest-pmu: ".memory_get_peak_usage(true)
+            ."\n\n";
+
+        $this->debug('Pushing '.count($data).' call pairs');
+
+        if (!$disable) {
+            $this->profilerEnable();
+        }
+        $h = $this->outputStream;
+        $i = 50; // 50 ~= 4Ko chunks
+
+        // Speed optimized paths
+
+        if (!$data) {
+            // No-op
+        } elseif ((UPROFILER_FLAGS_CPU & $this->flags) && (UPROFILER_FLAGS_MEMORY & $this->flags)) {
+            foreach ($data as $k => $v) {
+                $chunk .= "{$k}//{$v['ct']} {$v['wt']} {$v['cpu']} {$v['mu']} {$v['pmu']}\n";
+
+                if (0 === --$i) {
+                    self::fwrite($h, $chunk);
+                    $chunk = '';
+                    $i = 50;
+                }
+            }
+        } elseif (UPROFILER_FLAGS_MEMORY & $this->flags) {
+            foreach ($data as $k => $v) {
+                $chunk .= "{$k}//{$v['ct']} {$v['wt']} 0 {$v['mu']} {$v['pmu']}\n";
+
+                if (0 === --$i) {
+                    self::fwrite($h, $chunk);
+                    $chunk = '';
+                    $i = 50;
+                }
+            }
+        } elseif (UPROFILER_FLAGS_CPU & $this->flags) {
+            foreach ($data as $k => $v) {
+                $chunk .= "{$k}//{$v['ct']} {$v['wt']} {$v['cpu']} 0 0\n";
+
+                if (0 === --$i) {
+                    self::fwrite($h, $chunk);
+                    $chunk = '';
+                    $i = 50;
+                }
+            }
+        } else {
+            foreach ($data as $k => $v) {
+                $chunk .= "{$k}//{$v['ct']} {$v['wt']} 0 0 0\n";
+
+                if (0 === --$i) {
+                    self::fwrite($h, $chunk);
+                    $chunk = '';
+                    $i = 50;
+                }
+            }
+        }
+
+        if (isset($data['main()'])) {
+            $chunk .= "main()//-{$data['main()']['ct']} 0 0 0 0\n";
+        }
+
+        $chunk .= "\n";
+
+        return self::fwrite($h, $chunk);
+    }
+
+    /**
+     * @internal
+     */
+    private static function fwrite($stream, $data)
+    {
+        $len = strlen($data);
+        $written = fwrite($stream, $data);
+
+        if (false !== $written) {
+            while ($written < $len) {
+                fflush($stream);
+                $w = fwrite($stream, substr($data, $written));
+                $written += $w ? $w : $len + 1;
+            }
+
+            if ($written === $len) {
+                return true;
+            }
+        }
+    }
+
+    /**
+     * @internal
+     */
+    public static function onInternalError($type, $message, $file, $line)
+    {
+        throw new ErrorException($message, 0, $type, $file, $line);
+    }
+
+    /**
+     * @internal
+     */
+    public static function onError()
+    {
+        return false; // Delegate error handling to the internal handler, but adds a line in profiler's data
+    }
+
+    /**
+     * @internal
+     */
+    public function onException($e)
+    {
+        // Rethrow only, but adds a line in profiler's data
+        $this->box('profilerWrite', null, true); // Prevents a crash with XHProf
+
+        throw $e;
+    }
+
+    /**
+     * @internal
+     */
+    public function onShutdown()
+    {
+        $this->box('doShutdown', null,
+            $this->getErrorHandler('error')
+            .$this->getErrorHandler('exception')
+        );
+    }
+
+    /**
+     * @internal
+     */
+    private function doShutdown($extra)
+    {
+        // Get and write data now so that any later fatal error
+        // does not prevent collecting what we already have.
+
+        if (!$this->isEnabled) {
+            return;
+        }
+
+        $e = error_get_last();
+
+        if (function_exists('http_response_code')) {
+            $extra .= 'response-code: '.http_response_code()."\n";
+        }
+
+        if (isset($e['type'])) {
+            switch ($e['type']) {
+                case E_ERROR:
+                case E_PARSE:
+                case E_USER_ERROR:
+                case E_CORE_ERROR:
+                case E_COMPILE_ERROR:
+                case E_RECOVERABLE_ERROR:
+                    $h = explode("\r", $e['message'], 2);
+                    $h = explode("\n", $h[0], 2);
+                    $h[1] = " in {$e['file']}:{$e['line']}";
+                    $h[0] = str_replace($h[1], '', $h[0]);
+                    $h = "fatal-error: {$h[0]}{$h[1]}\n";
+                    $this->info('Got '.$h);
+                    self::fwrite($this->outputStream, $h);
+
+                    break;
+            }
+        }
+
+        $this->profilerWrite(false, $extra);
+    }
+
+    /**
+     * @internal
+     */
+    private function warn($msg)
+    {
+        if ($this->logLevel >= 2) {
+            file_put_contents($this->logFile, sprintf("[%3x] WARN: %s\n", $this->seqId, $msg), FILE_APPEND);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private function info($msg)
+    {
+        if ($this->logLevel >= 3) {
+            file_put_contents($this->logFile, sprintf("[%3x] INFO: %s\n", $this->seqId, $msg), FILE_APPEND);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private function debug($msg)
+    {
+        if ($this->logLevel >= 4) {
+            file_put_contents($this->logFile, sprintf("[%3x] DBUG: %s\n", $this->seqId, $msg), FILE_APPEND);
+        }
+    }
+}
