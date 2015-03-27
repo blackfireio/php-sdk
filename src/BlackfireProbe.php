@@ -513,9 +513,6 @@ class BlackfireProbe
             }
         } elseif ($i && 'blackfire' === substr($url, 0, $i)) {
             $this->debug('Lets open '.$url);
-            if (!in_array('blackfire', stream_get_wrappers())) {
-                stream_wrapper_register('blackfire', 'BlackfireWrapper', STREAM_IS_URL);
-            }
             $h = fopen($url, 'wb');
             $this->writeHelloProlog($h);
 
