@@ -68,9 +68,12 @@ while ($upstream = stream_socket_accept($proxy, -1)) {
                 } else {
                     fwrite($log, ($upstream === $socket ? $OUT : $IN).'COMPRESSED DATA ('.strlen($zip)." bytes). Enable zlib extension to inflate.\n");
                 }
+            } elseif ($json = @json_decode($line, true)) {
+              fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim(json_encode($json, JSON_PRETTY_PRINT), "\n")."\n");
+            } else {
+              fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($line, "\n")."\n");
             }
 
-            fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($line, "\n")."\n");
             fwrite($upstream === $socket ? $backend : $upstream, $line, strlen($line));
         }
     }
