@@ -63,15 +63,17 @@ while ($upstream = stream_socket_accept($proxy, -1)) {
                     }
 
                     foreach (explode("\n", $zip) as $zip) {
-                        fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($zip, "\n")."\n");
+                        fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($zip, "\r\n").PHP_EOL);
                     }
                 } else {
-                    fwrite($log, ($upstream === $socket ? $OUT : $IN).'COMPRESSED DATA ('.strlen($zip)." bytes). Enable zlib extension to inflate.\n");
+                    fwrite($log, ($upstream === $socket ? $OUT : $IN).'COMPRESSED DATA ('.strlen($zip).' bytes). Enable zlib extension to inflate.'.PHP_EOL);
                 }
-            } elseif ($json = @json_decode($line, true)) {
-              fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim(json_encode($json, JSON_PRETTY_PRINT), "\n")."\n");
+            } elseif (PHP_VERSION_ID >= 50400 && is_array($json = @json_decode($line, true))) {
+                foreach (explode("\n", json_encode($json, JSON_PRETTY_PRINT)) as $json) {
+                    fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($json, "\r").PHP_EOL);
+                }
             } else {
-              fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($line, "\n")."\n");
+              fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($line, "\r\n").PHP_EOL);
             }
 
             fwrite($upstream === $socket ? $backend : $upstream, $line, strlen($line));
