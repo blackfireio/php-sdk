@@ -73,7 +73,7 @@ while ($upstream = stream_socket_accept($proxy, -1)) {
                     fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($json, "\r").PHP_EOL);
                 }
             } else {
-              fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($line, "\r\n").PHP_EOL);
+                fwrite($log, ($upstream === $socket ? $OUT : $IN).rtrim($line, "\r\n").PHP_EOL);
             }
 
             fwrite($upstream === $socket ? $backend : $upstream, $line, strlen($line));
