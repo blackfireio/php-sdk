@@ -218,7 +218,7 @@ class BlackfireProbe
     }
 
     /**
-     * Gets the response message/status/line
+     * Gets the response message/status/line.
      *
      * This lines gives details about the status of the probe. That can be:
      * - an error: `Blackfire-Error: $errNumber $urlEncodedErrorMessage`
@@ -413,7 +413,7 @@ class BlackfireProbe
             return false;
         }
         if (self::$profilerIsEnabled) {
-            $this->responseLine = "Blackfire-Error: 101 An other probe is already profiling";
+            $this->responseLine = 'Blackfire-Error: 101 An other probe is already profiling';
 
             return false;
         }
@@ -501,12 +501,12 @@ class BlackfireProbe
                     } else {
                         fclose($h);
                         $h = false;
-                        $response = "Blackfire-Error: 101 Agent connection timeout (read)";
+                        $response = 'Blackfire-Error: 101 Agent connection timeout (read)';
                     }
                 } else {
                     fclose($h);
                     $h = false;
-                    $response = "Blackfire-Error: 101 Agent connection timeout (write)";
+                    $response = 'Blackfire-Error: 101 Agent connection timeout (write)';
                 }
             } else {
                 $response = "Blackfire-Error: 101 $errstr ($errno)";
@@ -516,7 +516,7 @@ class BlackfireProbe
             $h = fopen($url, 'wb');
             $this->writeHelloProlog($h);
 
-            $response = "Blackfire-Response: continue=false";
+            $response = 'Blackfire-Response: continue=false';
         } else {
             $i = sprintf('%019.6F', microtime(true)).'-';
             $i .= substr(str_replace(array('+', '/'), array('', ''), base64_encode(md5(mt_rand(), true))), 0, 6);
@@ -527,7 +527,7 @@ class BlackfireProbe
             flock($h, LOCK_SH); // This shared lock allows readers to wait for the end of the stream
             stream_set_write_buffer($h, 0);
 
-            $response = "Blackfire-Response: continue=false";
+            $response = 'Blackfire-Response: continue=false';
         }
 
         $this->responseLine = $response;
@@ -611,9 +611,9 @@ class BlackfireProbe
         }
 
         self::fwrite($this->outputStream, 'file-format: '.$this->fileFormat."\n"
-            .'php-os: '.PHP_OS."\n"
-            .'php-sapi: '.PHP_SAPI."\n"
-            .'php-version: '.PHP_VERSION_ID."\n"
+            .'probed-os: '.PHP_OS."\n"
+            .'probed-language: php'."\n"
+            .'probed-runtime: '.(defined('HHVM_VERSION') ? 'HHVM '.HHVM_VERSION : ('PHP '.PHP_VERSION)).' ('.PHP_SAPI.")\n"
             .'php-extensions: '.strtr(http_build_query($extensions, '', '&'), self::$urlEncMap)."\n"
             .'_COOKIE: '.strtr(http_build_query($cookies, '', '&'), self::$urlEncMap)."\n"
             .'_SERVER: '.strtr(http_build_query($servers, '', '&'), self::$urlEncMap)."\n"
@@ -734,7 +734,7 @@ class BlackfireProbe
     {
         $data = $this->profilerDisable();
 
-        $chunk .= "request-end: ".microtime(true)
+        $chunk .= 'request-end: '.microtime(true)
             ."\nrequest-mu: ".memory_get_usage(true)
             ."\nrequest-pmu: ".memory_get_peak_usage(true)
             ."\n\n";
