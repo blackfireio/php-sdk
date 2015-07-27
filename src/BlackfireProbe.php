@@ -614,6 +614,7 @@ class BlackfireProbe
             .'probed-os: '.PHP_OS."\n"
             .'probed-language: php'."\n"
             .'probed-runtime: '.(defined('HHVM_VERSION') ? 'HHVM '.HHVM_VERSION : ('PHP '.PHP_VERSION)).' ('.PHP_SAPI.")\n"
+            .'probed-features: '.((UPROFILER_FLAGS_CPU & $this->flags) ? 'flag_cpu=1&' : '').((UPROFILER_FLAGS_MEMORY & $this->flags) ? 'flag_memory=1&' : '')."\n"
             .'php-extensions: '.strtr(http_build_query($extensions, '', '&'), self::$urlEncMap)."\n"
             .'_COOKIE: '.strtr(http_build_query($cookies, '', '&'), self::$urlEncMap)."\n"
             .'_SERVER: '.strtr(http_build_query($servers, '', '&'), self::$urlEncMap)."\n"
