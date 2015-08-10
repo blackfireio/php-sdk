@@ -80,7 +80,7 @@ class BlackfireProbe
     private static $probe;
     private static $profilerIsEnabled = false;
     private static $shutdownFunctionRegistered = false;
-    private static $defaultAgentSocket = 'unix:///var/run/blackfire/agent.sock';
+    private static $defaultAgentSocket = false;
     private static $urlEncMap = array(
         '%21' => '!', '%22' => '"', '%23' => '#', '%24' => '$', '%27' => "'",
         '%28' => '(', '%29' => ')', '%2A' => '*', '%2C' => ',', '%2F' => '/',
@@ -115,10 +115,6 @@ class BlackfireProbe
             $query = '';
         }
 
-        if (!file_exists(substr(self::$defaultAgentSocket, 7))) {
-            self::$defaultAgentSocket = null;
-        }
-
         $probe = new self($query);
 
         parse_str($query, $query);
@@ -144,6 +140,20 @@ class BlackfireProbe
      */
     public function __construct($query, $serverId = null, $serverToken = null, $agentSocket = null)
     {
+        if (false === self::$defaultAgentSocket) {
+            if ('Darwin' === PHP_OS) {
+                $defaultAgentSocket = '/usr/local/var/run/blackfire-agent.sock';
+            } else {
+                $defaultAgentSocket = '/var/run/blackfire/agent.sock';
+            }
+
+            if (!file_exists($defaultAgentSocket)) {
+                self::$defaultAgentSocket = null;
+            } else {
+                self::$defaultAgentSocket = 'unix://'.$defaultAgentSocket;
+            }
+        }
+
         $this->seqId = self::$nextSeqId++;
         $query = preg_split('/(?:^|&)signature=(.+?)(?:&|$)/', $query, 2, PREG_SPLIT_DELIM_CAPTURE);
         list($this->challenge, $this->signature, $args) = $query + array(1 => '', '');
