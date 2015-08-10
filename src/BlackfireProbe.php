@@ -115,17 +115,17 @@ class BlackfireProbe
             $query = '';
         }
 
-        $probe = new self($query);
+        self::$probe = new self($query);
 
         parse_str($query, $query);
 
         if (!isset($query['auto_enable']) || $query['auto_enable']) {
-            if ($probe->isVerified()) {
-                $probe->autoEnabled = $probe->enable();
+            if (self::$probe->isVerified()) {
+                self::$probe->autoEnabled = self::$probe->enable();
             }
         }
 
-        return self::$probe = $probe;
+        return self::$probe;
     }
 
     /**
