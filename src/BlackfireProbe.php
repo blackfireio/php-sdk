@@ -487,15 +487,23 @@ class BlackfireProbe
                     $this->writeHelloProlog($h);
                     if (false !== $response = fgets($h, 4096)) {
                         $response = rtrim($response);
-                        while ('' !== rtrim(fgets($h, 4096))) {
-                            // No-op
-                        }
 
                         if (0 !== strpos($response, 'Blackfire-Response: ')) {
                             fclose($h);
                             $h = false;
                             if (0 !== strpos($response, 'Blackfire-Error: ')) {
                                 $response = "Blackfire-Error: 102 Invalid agent response ($response)";
+                            }
+                        } else {
+                            $features = null;
+                            // Let's parse what is in "Blackfire-Response: " (20 chars)
+                            parse_str(substr($response, 20), $features);
+                            if (isset($features['.blackfire.yml'])) {
+                                $this->writeBlackfireYml($h);
+                            }
+
+                            while ('' !== rtrim(fgets($h, 4096))) {
+                                // No-op (Blackfire-Keys, Blackfire-Fn-Args)
                             }
                         }
                     } else {
@@ -559,8 +567,49 @@ class BlackfireProbe
         $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples."\n";
         isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
         $hello .= 'Blackfire-Query: '.$line."\n";
+        $hello .= sprintf("Blackfire-Probe: php-%s, .blackfire.yml\n", PHP_VERSION);
 
         self::fwrite($h, $hello);
+    }
+
+    /**
+     * @internal
+     */
+    private function writeBlackfireYml($h)
+    {
+        $written = false;
+
+        try {
+            if ($yamlDir = realpath($_SERVER['SCRIPT_FILENAME'])) {
+                do {
+                    $prevYamlDir = $yamlDir;
+                    $yamlDir = dirname($yamlDir);
+                    $yamlFile = $yamlDir.'/.blackfire.yml';
+                } while (!file_exists($yamlFile) && $prevYamlDir !== $yamlDir);
+
+                if ($prevYamlDir !== $yamlDir) {
+                    $this->debug("Found $yamlFile");
+                    $yamlHandle = fopen($yamlFile, 'rb');
+                    $yamlStat = fstat($yamlHandle);
+                    // if ((sb.st_mode & S_IFMT) == S_IFREG) { => it's a file
+                    if (!$yamlStat || ($yamlStat['mode'] & 0170000) !== 0100000) {
+                        throw new ErrorException("$yamlFile is not a regular file");
+                    }
+                    self::fwrite($h, 'Blackfire-Yaml-Size: '.$yamlStat['size']."\n");
+                    $written = true;
+                    stream_copy_to_stream($yamlHandle, $h);
+                    fclose($yamlHandle);
+                } else {
+                    $this->debug('No .blackfire.yml found');
+                }
+            }
+        } catch (ErrorException $e) {
+            $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
+        }
+
+        if (!$written) {
+            self::fwrite($h, "Blackfire-Yaml-Size: 0\n");
+        }
     }
 
     /**
