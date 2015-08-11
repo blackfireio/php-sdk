@@ -508,8 +508,10 @@ class BlackfireProbe
                             $features = null;
                             // Let's parse what is in "Blackfire-Response: " (20 chars)
                             parse_str(substr($response, 20), $features);
-                            if (isset($features['.blackfire.yml'])) {
+                            if (isset($features['blackfire_yml'])) {
                                 $this->writeBlackfireYml($h);
+                            } else {
+                                $this->debug('blackfire_yml feature is not supported by the agent');
                             }
 
                             while ('' !== rtrim(fgets($h, 4096))) {
@@ -574,10 +576,11 @@ class BlackfireProbe
                 $hello .= 'Blackfire-Auth: '.$line."\n";
             }
         }
-        $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples."\n";
+        $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples;
         isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
         $hello .= 'Blackfire-Query: '.$line."\n";
-        $hello .= sprintf("Blackfire-Probe: php-%s, .blackfire.yml\n", PHP_VERSION);
+        $hello .= sprintf("Blackfire-Probe: php-%s, blackfire_yml\n", PHP_VERSION);
+        $hello .= "\n"; // End of initialisation
 
         self::fwrite($h, $hello);
     }
@@ -612,6 +615,8 @@ class BlackfireProbe
                 } else {
                     $this->debug('No .blackfire.yml found');
                 }
+            } else {
+                $this->debug('Realpath failed on '.$_SERVER['SCRIPT_FILENAME']);
             }
         } catch (ErrorException $e) {
             $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
