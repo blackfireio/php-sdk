@@ -593,11 +593,17 @@ class BlackfireProbe
         $written = false;
 
         try {
-            if ($yamlDir = realpath($_SERVER['SCRIPT_FILENAME'])) {
+            if (PHP_SAPI === 'cli-server') {
+                $baseDir = $_SERVER['DOCUMENT_ROOT'];
+            } else {
+                $baseDir = dirname($_SERVER['SCRIPT_FILENAME']);
+            }
+
+            if ($yamlDir = realpath($baseDir)) {
                 do {
                     $prevYamlDir = $yamlDir;
-                    $yamlDir = dirname($yamlDir);
                     $yamlFile = $yamlDir.'/.blackfire.yml';
+                    $yamlDir = dirname($yamlDir);
                 } while (!file_exists($yamlFile) && $prevYamlDir !== $yamlDir);
 
                 if ($prevYamlDir !== $yamlDir) {
@@ -616,7 +622,7 @@ class BlackfireProbe
                     $this->debug('No .blackfire.yml found');
                 }
             } else {
-                $this->debug('Realpath failed on '.$_SERVER['SCRIPT_FILENAME']);
+                $this->debug('Realpath failed on '.$baseDir);
             }
         } catch (ErrorException $e) {
             $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
