@@ -604,17 +604,12 @@ class BlackfireProbe
                     $prevYamlDir = $yamlDir;
                     $yamlFile = $yamlDir.'/.blackfire.yml';
                     $yamlDir = dirname($yamlDir);
-                } while (!file_exists($yamlFile) && $prevYamlDir !== $yamlDir);
+                } while (!(file_exists($yamlFile) && is_file($yamlFile)) && $prevYamlDir !== $yamlDir);
 
                 if ($prevYamlDir !== $yamlDir) {
                     $this->debug("Found $yamlFile");
                     $yamlHandle = fopen($yamlFile, 'rb');
-                    $yamlStat = fstat($yamlHandle);
-                    // if ((sb.st_mode & S_IFMT) == S_IFREG) { => it's a file
-                    if (!$yamlStat || ($yamlStat['mode'] & 0170000) !== 0100000) {
-                        throw new ErrorException("$yamlFile is not a regular file");
-                    }
-                    self::fwrite($h, 'Blackfire-Yaml-Size: '.$yamlStat['size']."\n");
+                    self::fwrite($h, 'Blackfire-Yaml-Size: '.filesize($yamlFile)."\n");
                     $written = true;
                     stream_copy_to_stream($yamlHandle, $h);
                     fclose($yamlHandle);
