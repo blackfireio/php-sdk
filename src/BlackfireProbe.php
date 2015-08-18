@@ -49,6 +49,7 @@ class BlackfireProbe
     private $signature;
     private $flags;
     private $options = array(
+        'blackfire_yml' => false,
         'server_keys' => array(
             'HTTP_HOST',
             'HTTP_USER_AGENT',
@@ -196,6 +197,7 @@ class BlackfireProbe
         empty($args['flag_cpu']) or $this->flags |= UPROFILER_FLAGS_CPU;
         empty($args['flag_memory']) or $this->flags |= UPROFILER_FLAGS_MEMORY;
         empty($args['flag_no_builtins']) or $this->flags |= UPROFILER_FLAGS_NO_BUILTINS;
+        empty($args['flag_yml']) or $this->options['blackfire_yml'] = ($args['flag_yml'] === '1');
 
         if (function_exists('uprofiler_enable')) {
             $this->profiler = 'uprofiler';
@@ -579,7 +581,7 @@ class BlackfireProbe
         $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples;
         isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
         $hello .= 'Blackfire-Query: '.$line."\n";
-        $hello .= sprintf("Blackfire-Probe: php-%s, blackfire_yml\n", PHP_VERSION);
+        $hello .= sprintf("Blackfire-Probe: php-%s%s\n", PHP_VERSION, $this->options['blackfire_yml'] ? ', blackfire_yml' : '');
         $hello .= "\n"; // End of initialisation
 
         self::fwrite($h, $hello);
