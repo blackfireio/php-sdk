@@ -512,8 +512,6 @@ class BlackfireProbe
                             parse_str(substr($response, 20), $features);
                             if (isset($features['blackfire_yml'])) {
                                 $this->writeBlackfireYml($h);
-                            } else {
-                                $this->debug('blackfire_yml feature is not supported by the agent');
                             }
 
                             while ('' !== rtrim(fgets($h, 4096))) {
