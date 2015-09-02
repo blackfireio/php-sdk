@@ -162,12 +162,12 @@ class BlackfireProbe
         parse_str($args, $args);
         parse_str($this->challenge, $this->signedArgs);
         $query = array(
-            'BLACKFIRE_SERVER_ID' => null,
-            'BLACKFIRE_SERVER_TOKEN' => null,
-            'BLACKFIRE_AGENT_SOCKET' => null,
-            'BLACKFIRE_AGENT_TIMEOUT' => null,
-            'BLACKFIRE_LOG_LEVEL' => null,
-            'BLACKFIRE_LOG_FILE' => null,
+            'BLACKFIRE_SERVER_ID' => get_cfg_var('blackire.server_id') ?: null,
+            'BLACKFIRE_SERVER_TOKEN' => get_cfg_var('blackire.server_token') ?: null,
+            'BLACKFIRE_AGENT_SOCKET' => get_cfg_var('blackire.agent_socket') ?: null,
+            'BLACKFIRE_AGENT_TIMEOUT' => get_cfg_var('blackire.agent_timeout') ?: null,
+            'BLACKFIRE_LOG_LEVEL' => get_cfg_var('blackire.log_file') ?: null,
+            'BLACKFIRE_LOG_FILE' => get_cfg_var('blackire.log_level') ?: null,
         );
         foreach ($query as $k => $v) {
             if (isset($_SERVER[$k])) {
