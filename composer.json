@@ -13,7 +13,7 @@
          "php": ">=5.2.0"
     },
     "suggest": {
-        "ext-blackfire": "Is a feature enhanced C version of this package",
+        "ext-blackfire": "The C version of the Blackfire probe",
         "ext-xhprof": "XHProf is required as a fallback"
     },
     "autoload": {
@@ -21,7 +21,7 @@
             "src/autostart.php"
         ],
         "psr-4": {
-            "Blackfire\\": "src/"
+            "Blackfire\\": "src/Blackfire"
         }
     },
     "extra": {
