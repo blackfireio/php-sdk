@@ -20,8 +20,8 @@
         "files": [
             "src/autostart.php"
         ],
-        "psr-0": {
-            "Blackfire": "src/"
+        "psr-4": {
+            "Blackfire\\": "src/"
         }
     },
     "extra": {
