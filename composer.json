@@ -9,7 +9,7 @@
             "email": "support@blackfire.io"
         }
     ],
-    "requires": {
+    "require": {
          "php": ">=5.2.0"
     },
     "suggest": {
