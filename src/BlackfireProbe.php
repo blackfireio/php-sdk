@@ -48,6 +48,7 @@ class BlackfireProbe
     private $signedArgs;
     private $signature;
     private $flags;
+    private $configuration = null;
     private $options = array(
         'blackfire_yml' => false,
         'server_keys' => array(
@@ -227,6 +228,15 @@ class BlackfireProbe
     public function isVerified()
     {
         return $this->box('doVerify', false);
+    }
+
+    public function setConfiguration($configuration)
+    {
+        if ($configuration === null) {
+            $this->configuration = null;
+        } else {
+            $this->configuration = (string) $configuration;
+        }
     }
 
     /**
@@ -593,6 +603,13 @@ class BlackfireProbe
         $written = false;
 
         try {
+            if ($this->configuration !== null) {
+                self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($this->configuration)."\n");
+                self::fwrite($h, $this->configuration);
+
+                return;
+            }
+
             if (PHP_SAPI === 'cli-server') {
                 $baseDir = $_SERVER['DOCUMENT_ROOT'];
             } else {
