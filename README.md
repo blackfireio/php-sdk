@@ -1,4 +1,4 @@
-Blackfire PHP SDK 
+Blackfire PHP SDK
 =================
 
 Proxy
