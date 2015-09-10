@@ -123,6 +123,18 @@ class BlackfireProbe
 
         if (!isset($query['auto_enable']) || $query['auto_enable']) {
             if (self::$probe->isVerified()) {
+                if (self::$probe->blackfireYmlAsked()) {
+                    self::$probe->info('blackfire.yml asked.');
+
+                    if (!headers_sent()) {
+                        header('X-Blackfire-Yml: ok');
+                    }
+
+                    self::$probe->writeBlackfireYml(fopen('php://output', 'w'), false);
+
+                    exit(0);
+                }
+
                 self::$probe->autoEnabled = self::$probe->enable();
             }
         }
@@ -589,8 +601,15 @@ class BlackfireProbe
         $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples;
         isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
         $hello .= 'Blackfire-Query: '.$line."\n";
-        $hello .= sprintf("Blackfire-Probe: php-%s%s\n", PHP_VERSION, $this->options['blackfire_yml'] ? ', blackfire_yml' : '');
-        $hello .= "\n"; // End of initialisation
+        $hello .= sprintf('Blackfire-Probe: php-%s', PHP_VERSION);
+        if ($this->options['blackfire_yml']) {
+            $hello .= ', blackfire_yml';
+        }
+        if ($this->blackfireYmlAsked()) {
+            $hello .= ', noop';
+        }
+        $hello .= "\n"; // End of Blackfire Probe
+        $hello .= "\n"; // End of initialization
 
         self::fwrite($h, $hello);
     }
@@ -598,13 +617,13 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function writeBlackfireYml($h)
+    private function writeBlackfireYml($h, $printHeader = true)
     {
         $written = false;
 
         try {
             if ($this->configuration !== null) {
-                self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($this->configuration)."\n");
+                $printHeader and self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($this->configuration)."\n");
                 self::fwrite($h, $this->configuration);
 
                 return;
@@ -626,7 +645,7 @@ class BlackfireProbe
                 if ($prevYamlDir !== $yamlDir) {
                     $this->debug("Found $yamlFile");
                     $yamlHandle = fopen($yamlFile, 'rb');
-                    self::fwrite($h, 'Blackfire-Yaml-Size: '.filesize($yamlFile)."\n");
+                    $printHeader and self::fwrite($h, 'Blackfire-Yaml-Size: '.filesize($yamlFile)."\n");
                     $written = true;
                     stream_copy_to_stream($yamlHandle, $h);
                     fclose($yamlHandle);
@@ -641,7 +660,7 @@ class BlackfireProbe
         }
 
         if (!$written) {
-            self::fwrite($h, "Blackfire-Yaml-Size: 0\n");
+            $printHeader and self::fwrite($h, "Blackfire-Yaml-Size: 0\n");
         }
     }
 
@@ -942,6 +961,11 @@ class BlackfireProbe
             $this->getErrorHandler('error')
             .$this->getErrorHandler('exception')
         );
+    }
+
+    private function blackfireYmlAsked()
+    {
+        return isset($_SERVER['REQUEST_METHOD']) && 'POST' === strtoupper($_SERVER['REQUEST_METHOD']) && false !== strpos($this->signedArgs['agentIds'], 'request-id-blackfire-yml');
     }
 
     /**
