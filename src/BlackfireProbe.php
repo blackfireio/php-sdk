@@ -210,7 +210,7 @@ class BlackfireProbe
         empty($args['flag_cpu']) or $this->flags |= UPROFILER_FLAGS_CPU;
         empty($args['flag_memory']) or $this->flags |= UPROFILER_FLAGS_MEMORY;
         empty($args['flag_no_builtins']) or $this->flags |= UPROFILER_FLAGS_NO_BUILTINS;
-        empty($args['flag_yml']) or $this->options['blackfire_yml'] = ($args['flag_yml'] === '1');
+        $this->options['blackfire_yml'] = !empty($args['flag_yml']);
 
         if (function_exists('uprofiler_enable')) {
             $this->profiler = 'uprofiler';
