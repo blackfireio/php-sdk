@@ -510,6 +510,7 @@ class BlackfireProbe
 
         $this->outputStream = false;
         $url = $this->agentSocket;
+        $noop = $this->blackfireYmlAsked();
 
         if (($i = strpos($url, '://')) && in_array(substr($url, 0, $i), stream_get_transports(), true)) {
             $this->debug('Lets open '.$url);
@@ -518,7 +519,7 @@ class BlackfireProbe
                 stream_set_write_buffer($h, 0);
                 $i = array(null, array($h), null);
                 if (stream_select($i[0], $i[1], $i[2], 0, $this->agentTimeout)) {
-                    $this->writeHelloProlog($h);
+                    $this->writeHelloProlog($h, $noop);
                     if (false !== $response = fgets($h, 4096)) {
                         $response = rtrim($response);
 
@@ -556,7 +557,7 @@ class BlackfireProbe
         } elseif ($i && 'blackfire' === substr($url, 0, $i)) {
             $this->debug('Lets open '.$url);
             $h = fopen($url, 'wb');
-            $this->writeHelloProlog($h);
+            $this->writeHelloProlog($h, $noop);
 
             $response = 'Blackfire-Response: continue=false';
         } else {
@@ -577,7 +578,7 @@ class BlackfireProbe
 
         $this->debug($response);
 
-        if ($h) {
+        if ($h && !$noop) {
             $this->writeMainProlog();
         }
 
@@ -587,7 +588,7 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function writeHelloProlog($h)
+    private function writeHelloProlog($h, $noop = false)
     {
         $hello = '';
         if ($this->serverId && $this->serverToken) {
@@ -605,7 +606,7 @@ class BlackfireProbe
         if ($this->options['blackfire_yml']) {
             $hello .= ', blackfire_yml';
         }
-        if ($this->blackfireYmlAsked()) {
+        if ($noop) {
             $hello .= ', noop';
         }
         $hello .= "\n"; // End of Blackfire Probe
@@ -617,13 +618,13 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function writeBlackfireYml($h, $printHeader = true)
+    private function writeBlackfireYml($h, $writeSize = true)
     {
         $written = false;
 
         try {
             if ($this->configuration !== null) {
-                $printHeader and self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($this->configuration)."\n");
+                $writeSize and self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($this->configuration)."\n");
                 self::fwrite($h, $this->configuration);
 
                 return;
@@ -645,7 +646,7 @@ class BlackfireProbe
                 if ($prevYamlDir !== $yamlDir) {
                     $this->debug("Found $yamlFile");
                     $yamlHandle = fopen($yamlFile, 'rb');
-                    $printHeader and self::fwrite($h, 'Blackfire-Yaml-Size: '.filesize($yamlFile)."\n");
+                    $writeSize and self::fwrite($h, 'Blackfire-Yaml-Size: '.filesize($yamlFile)."\n");
                     $written = true;
                     stream_copy_to_stream($yamlHandle, $h);
                     fclose($yamlHandle);
@@ -660,7 +661,7 @@ class BlackfireProbe
         }
 
         if (!$written) {
-            $printHeader and self::fwrite($h, "Blackfire-Yaml-Size: 0\n");
+            $writeSize and self::fwrite($h, "Blackfire-Yaml-Size: 0\n");
         }
     }
 
