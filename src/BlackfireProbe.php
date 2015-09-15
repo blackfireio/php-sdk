@@ -127,10 +127,10 @@ class BlackfireProbe
                     self::$probe->info('blackfire.yml asked.');
 
                     if (!headers_sent()) {
-                        header('X-Blackfire-Yml: ok');
+                        header('X-'.self::$probe->getResponseLine());
                     }
 
-                    self::$probe->writeBlackfireYml(fopen('php://output', 'w'), false);
+                    echo self::$probe->getConfiguration();
 
                     exit(0);
                 }
@@ -534,7 +534,11 @@ class BlackfireProbe
                             // Let's parse what is in "Blackfire-Response: " (20 chars)
                             parse_str(substr($response, 20), $features);
                             if (isset($features['blackfire_yml'])) {
-                                $this->writeBlackfireYml($h);
+                                $i = $this->getConfiguration($h);
+                                self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($i)."\n".$i);
+                            }
+                            if ($noop) {
+                                $response .= '&noop=true';
                             }
 
                             while ('' !== rtrim(fgets($h, 4096))) {
@@ -618,16 +622,11 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function writeBlackfireYml($h, $writeSize = true)
+    private function getConfiguration()
     {
-        $written = false;
-
         try {
             if ($this->configuration !== null) {
-                $writeSize and self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($this->configuration)."\n");
-                self::fwrite($h, $this->configuration);
-
-                return;
+                return $this->configuration;
             }
 
             if (PHP_SAPI === 'cli-server') {
@@ -645,14 +644,11 @@ class BlackfireProbe
 
                 if ($prevYamlDir !== $yamlDir) {
                     $this->debug("Found $yamlFile");
-                    $yamlHandle = fopen($yamlFile, 'rb');
-                    $writeSize and self::fwrite($h, 'Blackfire-Yaml-Size: '.filesize($yamlFile)."\n");
-                    $written = true;
-                    stream_copy_to_stream($yamlHandle, $h);
-                    fclose($yamlHandle);
-                } else {
-                    $this->debug('No .blackfire.yml found');
+
+                    return file_get_contents($yamlFile);
                 }
+
+                $this->debug('No .blackfire.yml found');
             } else {
                 $this->debug('Realpath failed on '.$baseDir);
             }
@@ -660,9 +656,7 @@ class BlackfireProbe
             $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
         }
 
-        if (!$written) {
-            $writeSize and self::fwrite($h, "Blackfire-Yaml-Size: 0\n");
-        }
+        return '';
     }
 
     /**
