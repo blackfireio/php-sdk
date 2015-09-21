@@ -126,11 +126,14 @@ class BlackfireProbe
                 if (self::$probe->blackfireYmlAsked()) {
                     self::$probe->info('blackfire.yml asked.');
 
+                    $config = self::$probe->getConfiguration();
+                    self::$probe->responseLine .= '&blackfire-yml-size='.strlen($config);
+
                     if (!headers_sent()) {
                         header('X-'.self::$probe->getResponseLine());
                     }
 
-                    echo self::$probe->getConfiguration();
+                    echo $config;
 
                     exit(0);
                 }
@@ -536,9 +539,6 @@ class BlackfireProbe
                             if (isset($features['blackfire_yml'])) {
                                 $i = $this->getConfiguration($h);
                                 self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($i)."\n".$i);
-                            }
-                            if ($noop) {
-                                $response .= '&noop=true';
                             }
 
                             while ('' !== rtrim(fgets($h, 4096))) {
