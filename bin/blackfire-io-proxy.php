@@ -7,24 +7,41 @@
 // Set the `endpoint` setting of the CLI tool to `http://127.0.0.1:8383`
 // Then start this script in a dedicated console and look at its standard output.
 
+$backendEndpoint = 'https://blackfire.io';
 $upstreamHost = '127.0.0.1:8383';
-$backendHost = 'blackfire.io';
 
 error_reporting(-1);
 $IN = "\033[42m<-\033[0m ";
 $OUT = "\033[41m->\033[0m ";
-$rewrite = array(
-    'HTTP/1.1' => 'HTTP/1.0',
-    $upstreamHost => $backendHost,
-);
 
 $log = fopen('php://stdout', 'wb');
 $proxy = stream_socket_server('tcp://'.$upstreamHost, $errno, $errstr);
-fwrite($log, "Listening on http://{$upstreamHost}\n");
-fwrite($log, "Forwarding to https://{$backendHost}\n");
+
+$backendInfo = parse_url($backendEndpoint);
+if (false === $backendInfo) {
+    fwrite($log, "The backendEndpoint is not valid ($backendEndpoint)\n");
+    exit(1);
+}
+if ('https' === $backendInfo['scheme']) {
+    $backendSocketUrl = sprintf('ssl://%s:%s', $backendInfo['host'], isset($backendInfo['port']) ? $backendInfo['port'] : 443);
+} else {
+    $backendSocketUrl = sprintf('%s:%s', $backendInfo['host'], isset($backendInfo['port']) ? $backendInfo['port'] : 80);
+}
+
+$rewrite = array(
+    'HTTP/1.1' => 'HTTP/1.0',
+    $upstreamHost => $backendInfo['host'],
+);
+
+fwrite($log, "Listening on $upstreamHost\n");
+fwrite($log, "Forwarding to $backendSocketUrl\n");
 
 while ($upstream = stream_socket_accept($proxy, -1)) {
-    $backend = stream_socket_client("ssl://{$backendHost}:443", $errno, $errstr);
+    $backend = @stream_socket_client($backendSocketUrl, $errno, $errstr);
+    if (false === $backend) {
+        fwrite($log, "Could not connect to the backend ($errstr)\n");
+        exit(1);
+    }
 
     stream_set_timeout($upstream, 1);
     stream_set_timeout($backend, 1);
