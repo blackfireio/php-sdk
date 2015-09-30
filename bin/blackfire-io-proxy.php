@@ -7,8 +7,8 @@
 // Set the `endpoint` setting of the CLI tool to `http://127.0.0.1:8383`
 // Then start this script in a dedicated console and look at its standard output.
 
-$backendEndpoint = 'https://blackfire.io';
-$upstreamHost = '127.0.0.1:8383';
+$backendEndpoint = isset($argv[1]) ? $argv[1] : 'https://blackfire.io';
+$upstreamHost = isset($argv[2]) ? $argv[2] : '127.0.0.1:8383';
 
 error_reporting(-1);
 $IN = "\033[42m<-\033[0m ";
