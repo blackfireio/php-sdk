@@ -77,7 +77,7 @@ class Client
     public function assertPhpUnit(\PHPUnit_Framework_TestCase $testCase, Profile\Configuration $config, $callback)
     {
         if (!$config->hasMetadata('skip_timeline')) {
-            $config->setMetadata('skip_timeline', true);
+            $config->setMetadata('skip_timeline', 'true');
         }
 
         try {

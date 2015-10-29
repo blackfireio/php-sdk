@@ -84,13 +84,18 @@ class Configuration
         return $this->metadata[$key];
     }
 
+    public function getAllMetadata()
+    {
+        return $this->metadata;
+    }
+
     /**
      * @return $this
      */
     public function setMetadata($key, $value)
     {
         if (!is_string($value)) {
-            throw new \LogicException('Metadata values must be strings.');
+            throw new \LogicException(sprintf('Metadata values must be strings ("%s" given).', is_object($value) ? get_class($value) : gettype($value)));
         }
 
         $this->metadata[$key] = $value;
