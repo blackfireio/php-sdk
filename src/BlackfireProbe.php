@@ -288,10 +288,7 @@ class BlackfireProbe
             $this->discard();
         }
 
-        $enabled = $this->box('doEnable', false,
-            $this->getErrorHandler('error', array(__CLASS__, 'onError'))
-            .$this->getErrorHandler('exception', array($this, 'onException'))
-        );
+        $enabled = $this->box('doEnable', false);
 
         if ($enabled && self::$probe === $this && null !== $this->outputStream) {
             self::boxPostEnable();
@@ -439,7 +436,7 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function doEnable($extra)
+    private function doEnable()
     {
         if ($this->isEnabled) {
             return true;
@@ -456,7 +453,7 @@ class BlackfireProbe
         }
 
         if ($this->doVerify()) {
-            $this->writeChunkProlog($extra);
+            $this->writeChunkProlog();
             $this->profilerEnable();
             $this->isEnabled = true;
         }
@@ -723,65 +720,17 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function writeChunkProlog($extra)
+    private function writeChunkProlog()
     {
         $data = 'request-mu: '.memory_get_usage(true)."\n"
             .'request-pmu: '.memory_get_peak_usage(true)."\n"
-            .'request-start: '.microtime(true)."\n"
-            .$extra;
+            .'request-start: '.microtime(true)."\n";
 
         if (function_exists('sys_getloadavg')) {
             $data .= 'sys-load-avg: '.implode(' ', sys_getloadavg())."\n";
         }
 
         self::fwrite($this->outputStream, $data);
-    }
-
-    /**
-     * @internal
-     */
-    private function getErrorHandler($type, $default = 'var_dump')
-    {
-        $s = "set_{$type}_handler";
-
-        if ($h = $s($default)) {
-            $s = "restore_{$type}_handler";
-            $s();
-        } elseif ('var_dump' !== $default) {
-            $h = $default;
-        }
-
-        $type .= '-handler: ';
-
-        if ($h instanceof Closure) {
-            $h = new ReflectionFunction($h);
-
-            if (PHP_VERSION_ID >= 50400 && $s = $h->getClosureScopeClass()) {
-                $h = $s->name.'::{closure}/'.$h->getStartLine().'-'.$h->getEndLine();
-            } else {
-                $h = $h->name.'::'.implode('/', array_slice(explode('/', $h->getFileName()), -2)).'/'.$h->getStartLine().'-'.$h->getEndLine();
-            }
-        } else {
-            if (!is_array($h)) {
-                if (is_object($h)) {
-                    $h = array($h, '__invoke');
-                } else {
-                    $h = explode('::', $h, 2);
-                }
-            }
-
-            if (isset($h[1])) {
-                $h = new ReflectionMethod($h[0], $h[1]);
-                $h = $h->getDeclaringClass()->name.'::'.$h->name;
-            } else {
-                $h = $h[0];
-            }
-        }
-
-        $type .= $h;
-        $this->debug('Extracted '.$type);
-
-        return $type."\n";
     }
 
     /**
@@ -952,10 +901,7 @@ class BlackfireProbe
      */
     public function onShutdown()
     {
-        $this->box('doShutdown', null,
-            $this->getErrorHandler('error')
-            .$this->getErrorHandler('exception')
-        );
+        $this->box('doShutdown', null);
     }
 
     private function blackfireYmlAsked()
@@ -966,7 +912,7 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function doShutdown($extra)
+    private function doShutdown()
     {
         // Get and write data now so that any later fatal error
         // does not prevent collecting what we already have.
@@ -976,10 +922,6 @@ class BlackfireProbe
         }
 
         $e = error_get_last();
-
-        if (function_exists('http_response_code')) {
-            $extra .= 'response-code: '.http_response_code()."\n";
-        }
 
         if (isset($e['type'])) {
             switch ($e['type']) {
@@ -1001,7 +943,7 @@ class BlackfireProbe
             }
         }
 
-        $this->profilerWrite(false, $extra);
+        $this->profilerWrite(false, function_exists('http_response_code') ? 'response-code: '.http_response_code()."\n" : '');
     }
 
     /**
