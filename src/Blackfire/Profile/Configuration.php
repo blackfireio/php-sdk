@@ -33,7 +33,7 @@ class Configuration
     /**
      * @return $this
      */
-    public function setTitle()
+    public function setTitle($title)
     {
         $this->title = $title;
 
