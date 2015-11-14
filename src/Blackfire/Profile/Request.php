@@ -19,6 +19,9 @@ class Request
     public function __construct(Configuration $configuration, $data)
     {
         $data['options']['aggreg_samples'] = $configuration->getSamples();
+        if ($configuration->getTitle()) {
+            $data['options']['profile_title'] = $configuration->getTitle();
+        }
         $data['user_metadata'] = $configuration->getAllMetadata();
 
         $this->probe = new \BlackfireProbe($data['query_string'].'&'.http_build_query($data['options']));
