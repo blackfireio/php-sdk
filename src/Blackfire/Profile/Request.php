@@ -18,18 +18,31 @@ class Request
 
     public function __construct(Configuration $configuration, $data)
     {
+        if (!isset($data['query_string'])) {
+            throw new \RuntimeException('The data returned by the signing API are not valid.');
+        }
+
+        if (!isset($data['options'])) {
+            $data['options'] = array();
+        }
+
         $data['options']['aggreg_samples'] = $configuration->getSamples();
         if ($configuration->getTitle()) {
             $data['options']['profile_title'] = $configuration->getTitle();
         }
         $data['user_metadata'] = $configuration->getAllMetadata();
-
-        $this->probe = new \BlackfireProbe($data['query_string'].'&'.http_build_query($data['options']));
         $this->data = $data;
+
+        $this->probe = new \BlackfireProbe($this->getToken());
 
         if ($yaml = $configuration->toYaml()) {
             $this->probe->setConfiguration($yaml);
         }
+    }
+
+    public function getToken()
+    {
+        return $this->data['query_string'].'&'.http_build_query($this->data['options']);
     }
 
     public function discard()

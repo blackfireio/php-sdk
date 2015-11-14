@@ -95,6 +95,27 @@ class Client
         return $profile;
     }
 
+    /**
+     * Returns a profile token to use as a value of X-Blackfire-Query.
+     *
+     * @param Profile\Configuration|string $config The profile title or a Configuration instance
+     *
+     * @return string The value of the X-Blackfire-Query header to enable profiling
+     */
+    public function generateToken($config = null)
+    {
+        if (is_string($config)) {
+            $cfg = new Profile\Configuration();
+            $config = $cfg->setTitle($config);
+        } elseif (null === $config) {
+            $config = new Profile\Configuration();
+        } elseif (!$config instanceof Profile\Configuration) {
+            throw new \InvalidArgumentException(sprintf('The "%s" method takes a string or a Profile\Configuration instance.', __METHOD__));
+        }
+
+        return $this->createRequest($config)->getToken();
+    }
+
     private function createRequest(Profile\Configuration $config)
     {
         $content = json_encode($this->getRequestDetails($config));
