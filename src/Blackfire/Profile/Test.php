@@ -11,12 +11,20 @@
 
 namespace Blackfire\Profile;
 
+/**
+ * Represents a Blackfire Profile Test.
+ *
+ * Instances of this class should never be created directly.
+ */
 class Test
 {
     private $name;
     private $state;
     private $failures;
 
+    /**
+     * @internal
+     */
     public function __construct($name, $state, array $failures)
     {
         $this->name = $name;

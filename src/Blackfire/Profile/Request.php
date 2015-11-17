@@ -11,11 +11,20 @@
 
 namespace Blackfire\Profile;
 
+/**
+ * Represents a Blackfire Request.
+ *
+ * Instances of this class should never be created directly.
+ * Use Blackfire\Client instead.
+ */
 class Request
 {
     private $data;
     private $probe;
 
+    /**
+     * @internal
+     */
     public function __construct(Configuration $configuration, $data)
     {
         if (!isset($data['query_string'])) {

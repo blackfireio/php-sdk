@@ -8,57 +8,12 @@ Install the Blackfire PHP SDK via Composer:
 Blackfire Client
 ----------------
 
-Your code is instrumented automatically when using the Blackfire CLI or the
-companion. Using the PHP SDK allows you to finely instrument your code:
-
-```php
-$bf = new \Blackfire\Client();
-```
-
-It's then up to you to instrument some code:
-
-```php
-$request = $bf->enable();
-
-// call some interesting PHP code
-
-$profile = $bf->close($request);
-```
-
-Have a look at the `Profile` class to learn more about which features it gives
-you access to.
-
-The `enable()` and `profile()` methods also takes an optional Configuration
-object that allows you to configure Blackfire:
-
-```php
-$config = new \Blackfire\Configuration();
-$config->defineMetric('sami.storage.save_calls', array('=JsonStore::writeClass'));
-$config->assert('metrics.sami.storage.save_calls.count == 0', 'No storage writes...');
-$config->assert('metrics.output.network_out > 40k', 'Output is big...');
-$config->assert('metrics.sql.queries.count > 50', 'I want many SQL requests...');
-```
-
-By default, profiles are sent to your personal profiles, but you can change the
-application via a call to `setApp()`:
-
-```php
-$config->setApp('symfony');
-```
+See https://blackfire.io/docs/reference-guide/php-sdk
 
 PhpUnit Integration
 -------------------
 
-The Client eases using Blackfire in unit tests:
-
-```php
-$bf = new \Blackfire\Client();
-$profile = $bf->assertPhpUnit($this, $config, function () use ($sami) {
-    // code that needs to be profiled
-});
-```
-
-where `$this` is an instance of `PHPUnit_Framework_TestCase`.
+See https://blackfire.io/docs/integrations/phpunit
 
 Proxy
 -----
