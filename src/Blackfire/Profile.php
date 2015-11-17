@@ -12,24 +12,40 @@
 namespace Blackfire;
 
 /**
- * Blackfire Profile.
+ * Represents a Blackfire Profile.
+ *
+ * Instances of this class should never be created directly.
+ * Use Blackfire\Client instead.
  */
 class Profile
 {
     private $data;
     private $tests;
 
+    /**
+     * @internal
+     */
     public function __construct($data)
     {
         $this->data = $data;
     }
 
+    /**
+     * Returns the Profile URL on Blackfire.io.
+     *
+     * @return string
+     */
     public function getUrl()
     {
         return $this->data['_links']['graph_url']['href'];
     }
 
     /**
+     * Returns true if the tests executed without any errors.
+     *
+     * Errors are different from failures. An error occurs when there is
+     * a syntax error in an assertion for instance.
+     *
      * @return bool
      */
     public function isErrored()
@@ -38,6 +54,10 @@ class Profile
     }
 
     /**
+     * Returns true if the tests pass, false otherwise.
+     *
+     * You should also check isErrored() in case your tests generated an error.
+     *
      * @return bool
      */
     public function isSuccessful()
@@ -46,6 +66,8 @@ class Profile
     }
 
     /**
+     * Returns tests associated with this profile.
+     *
      * @return Profile\Test[]
      */
     public function getTests()
@@ -66,6 +88,11 @@ class Profile
         return $this->tests;
     }
 
+    /**
+     * Returns the main costs associated with the profile.
+     *
+     * @return Profile\Cost
+     */
     public function getMainCost()
     {
         return new Profile\Cost($this->data['envelope']);

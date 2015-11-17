@@ -11,10 +11,18 @@
 
 namespace Blackfire\Profile;
 
+/**
+ * Represents a Blackfire Profile Cost.
+ *
+ * Instances of this class should never be created directly.
+ */
 class Cost
 {
     private $envelope;
 
+    /**
+     * @internal
+     */
     public function __construct($envelope)
     {
         $this->envelope = $envelope;
