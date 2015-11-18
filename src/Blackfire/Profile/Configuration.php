@@ -11,6 +11,8 @@
 
 namespace Blackfire\Profile;
 
+use Blackfire\Build;
+
 /**
  * Configures a Blackfire profile.
  */
@@ -24,6 +26,7 @@ class Configuration
     private $isReference = false;
     private $metadata = array();
     private $layers = array();
+    private $build;
 
     public function getTitle()
     {
@@ -36,6 +39,24 @@ class Configuration
     public function setTitle($title)
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * @return Build
+     */
+    public function getBuild()
+    {
+        return $this->build;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setBuild(Build $build)
+    {
+        $this->build = $build;
 
         return $this;
     }

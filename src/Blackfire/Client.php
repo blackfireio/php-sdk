@@ -74,6 +74,49 @@ class Client
         return $profile;
     }
 
+    public function startBuild($app, $title = null, array $metadata = array())
+    {
+        $app = $this->getAppUuid($app);
+        $content = json_encode(array('title' => $title, 'metadata' => $metadata));
+        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$app, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+
+        return new Build($app, $data['uuid']);
+    }
+
+    /**
+     * Closes a build.
+     *
+     * @return Report|null Returns a Report only when $wait is true
+     */
+    public function closeBuild(Build $build, $wait = true)
+    {
+        $uuid = $build->getUuid();
+
+        $content = json_encode(array('nb_jobs' => $build->getJobCount()));
+        $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
+
+        if (!$wait) {
+            return;
+        }
+
+        $retry = 0;
+        while (true) {
+            try {
+                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid), true);
+
+                if ('finished' == $data['state']) {
+                    return new Report($data);
+                }
+            } catch (Exception\ApiException $e) {
+                if (404 != $e->getCode() || $retry > 7) {
+                    throw $e;
+                }
+            }
+
+            usleep(++$retry * 50000);
+        }
+    }
+
     /**
      * Profiles the callback and test the result against the given configuration.
      */
@@ -132,26 +175,45 @@ class Client
         return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/collab-tokens'), true);
     }
 
-    private function getRequestDetails($config)
+    private function getAppUuid($app)
     {
         if (null === $this->collabTokens) {
             $this->collabTokens = $this->getCollabTokens();
         }
 
         $ind = 0;
-        if ($this->config->getApp()) {
+        if ($app) {
             foreach ($this->collabTokens['collabTokens'] as $i => $collabToken) {
-                if (isset($collabToken['name']) && false !== strpos(strtolower($collabToken['name']), strtolower($this->config->getApp()))) {
+                if (isset($collabToken['name']) && false !== strpos(strtolower($collabToken['name']), strtolower($app))) {
                     $ind = $i;
                 }
             }
 
             if (!$ind) {
-                throw new Exception\AppNotFoundException(sprintf('App "%s" does not exist.', $this->config->getApp()));
+                throw new Exception\AppNotFoundException(sprintf('App "%s" does not exist.', $app));
             }
         }
 
-        $collabToken = $this->collabTokens['collabTokens'][$ind];
+        return $this->collabTokens['collabTokens'][$ind]['collabToken'];
+    }
+
+    private function getRequestDetails($config)
+    {
+        $details = array();
+
+        if ($build = $config->getBuild()) {
+            $details['collabToken'] = $build->getApp();
+
+            // create a job in the current build
+            $content = json_encode(array('name' => $config->getTitle()));
+            $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$build->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+
+            $build->incJob();
+
+            $details['requestId'] = $data['uuid'];
+        } else {
+            $details['collabToken'] = $this->getAppUuid($this->config->getApp());
+        }
 
         $id = self::NO_REFERENCE_ID;
         if ($config->getReference() || $config->isNewReference()) {
@@ -174,7 +236,9 @@ class Client
             }
         }
 
-        return array('collabToken' => $collabToken['collabToken'], 'profileSlot' => $id);
+        $details['profileSlot'] = $id;
+
+        return $details;
     }
 
     private function getProfile(Profile\Request $request)
