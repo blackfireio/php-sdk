@@ -104,7 +104,7 @@ class Client
             try {
                 $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid), true);
 
-                if ('finished' == $data['state']) {
+                if ('finished' === $data['status']['name']) {
                     return new Report($data);
                 }
             } catch (Exception\ApiException $e) {
