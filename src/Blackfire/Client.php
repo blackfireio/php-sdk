@@ -74,10 +74,10 @@ class Client
         return $profile;
     }
 
-    public function startBuild($app, $title = null, array $metadata = array())
+    public function startBuild($app, $title = null, $triggerName = null, array $metadata = array())
     {
         $app = $this->getAppUuid($app);
-        $content = json_encode(array('title' => $title, 'metadata' => $metadata));
+        $content = json_encode(array('title' => $title, 'metadata' => $metadata, 'trigger_name' => $triggerName));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$app, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
         return new Build($app, $data['uuid']);
