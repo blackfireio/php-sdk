@@ -58,13 +58,16 @@ class Client
     /**
      * Closes the Blackfire probe.
      *
-     * @return Profile
+     * @return Profile|null Returns a Profile only when $wait is true
      */
-    public function close(Profile\Request $request)
+    public function close(Profile\Request $request, $wait = true)
     {
         $request->close();
 
-        $profile = $this->getProfile($request);
+        $profile = null;
+        if ($wait) {
+            $profile = $this->getProfile($request);
+        }
 
         $this->storeMetadata($request);
 
