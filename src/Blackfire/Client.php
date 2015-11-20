@@ -37,44 +37,50 @@ class Client
     }
 
     /**
-     * Enables the Blackfire probe.
+     * Creates a Blackfire probe.
      *
-     * @return Request
+     * @return Probe
      */
-    public function enable(Profile\Configuration $config = null, $enable = true)
+    public function createProbe(Profile\Configuration $config = null, $enable = true)
     {
         if (null === $config) {
             $config = new Profile\Configuration();
         }
 
-        $request = $this->createRequest($config);
+        $probe = $this->doCreateProbe($config);
+
         if ($enable) {
-            $request->enable();
+            $probe->enable();
         }
 
-        return $request;
+        return $probe;
     }
 
     /**
-     * Closes the Blackfire probe.
+     * Ends a Blackfire probe.
      *
      * @return Profile|null Returns a Profile only when $wait is true
      */
-    public function close(Profile\Request $request, $wait = true)
+    public function endProbe(Probe $probe, $wait = true)
     {
-        $request->close();
+        $probe->close();
 
         $profile = null;
         if ($wait) {
-            $profile = $this->getProfile($request);
+            $profile = $this->getProfile($probe);
         }
 
-        $this->storeMetadata($request);
+        $this->storeMetadata($probe);
 
         return $profile;
     }
 
-    public function startBuild($app, $title = null, $triggerName = null, array $metadata = array())
+    /**
+     * Creates a Blackfire Build.
+     *
+     * @return Build
+     */
+    public function createBuild($app, $title = null, $triggerName = null, array $metadata = array())
     {
         $app = $this->getAppUuid($app);
         $content = json_encode(array('title' => $title, 'metadata' => $metadata, 'trigger_name' => $triggerName));
@@ -88,7 +94,7 @@ class Client
      *
      * @return Report|null Returns a Report only when $wait is true
      */
-    public function closeBuild(Build $build, $wait = true)
+    public function endBuild(Build $build, $wait = true)
     {
         $uuid = $build->getUuid();
 
@@ -107,6 +113,10 @@ class Client
                 if ('finished' === $data['status']['name']) {
                     return new Report($data);
                 }
+
+                if ('errored' == $data['status']['name']) {
+                    throw new Exception\ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
+                }
             } catch (Exception\ApiException $e) {
                 if (404 != $e->getCode() || $retry > 7) {
                     throw $e;
@@ -114,6 +124,10 @@ class Client
             }
 
             usleep(++$retry * 50000);
+
+            if ($retry > 7) {
+                throw new Exception\ApiException('Unknown error from the API.');
+            }
         }
     }
 
@@ -127,11 +141,11 @@ class Client
         }
 
         try {
-            $request = $this->enable($config);
+            $probe = $this->createProbe($config);
 
             $callback();
 
-            $profile = $this->close($request);
+            $profile = $this->endProbe($probe);
 
             $testCase->assertThat($profile, new BlackfireConstraint());
         } catch (Exception\ExceptionInterface $e) {
@@ -159,15 +173,15 @@ class Client
             throw new \InvalidArgumentException(sprintf('The "%s" method takes a string or a Profile\Configuration instance.', __METHOD__));
         }
 
-        return $this->createRequest($config)->getToken();
+        return $this->doCreateProbe($config)->getToken();
     }
 
-    private function createRequest(Profile\Configuration $config)
+    private function doCreateProbe(Profile\Configuration $config)
     {
         $content = json_encode($this->getRequestDetails($config));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
-        return new Profile\Request($config, $data);
+        return new Probe($config, $data);
     }
 
     private function getCollabTokens()
@@ -241,12 +255,12 @@ class Client
         return $details;
     }
 
-    private function getProfile(Profile\Request $request)
+    private function getProfile(Probe $probe)
     {
         $retry = 0;
         while (true) {
             try {
-                $data = json_decode($this->sendHttpRequest($request->getProfileUrl()), true);
+                $data = json_decode($this->sendHttpRequest($probe->getProfileUrl()), true);
 
                 if ('finished' == $data['status']['name']) {
                     return new Profile($data);
@@ -262,16 +276,20 @@ class Client
             }
 
             usleep(++$retry * 50000);
+
+            if ($retry > 7) {
+                throw new Exception\ApiException('Unknown error from the API.');
+            }
         }
     }
 
-    private function storeMetadata(Profile\Request $request)
+    private function storeMetadata(Probe $probe)
     {
-        if (!$request->getUserMetadata()) {
+        if (!$probe->getUserMetadata()) {
             return;
         }
 
-        return json_decode($this->sendHttpRequest($request->getStoreUrl(), 'POST', array('content' => json_encode($request->getUserMetadata())), array('Content-Type: application/json')), true);
+        return json_decode($this->sendHttpRequest($probe->getStoreUrl(), 'POST', array('content' => json_encode($probe->getUserMetadata())), array('Content-Type: application/json')), true);
     }
 
     private function sendHttpRequest($url, $method = 'GET', $context = array(), $headers = array())

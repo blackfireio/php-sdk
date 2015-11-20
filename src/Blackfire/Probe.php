@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Blackfire\Profile;
+namespace Blackfire;
 
 /**
- * Represents a Blackfire Request.
+ * Represents a Blackfire Probe.
  *
  * Instances of this class should never be created directly.
  * Use Blackfire\Client instead.
  */
-class Request
+class Probe
 {
     private $data;
     private $probe;
@@ -25,7 +25,7 @@ class Request
     /**
      * @internal
      */
-    public function __construct(Configuration $configuration, $data)
+    public function __construct(Profile\Configuration $configuration, $data)
     {
         if (!isset($data['query_string'])) {
             throw new \RuntimeException('The data returned by the signing API are not valid.');
