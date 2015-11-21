@@ -22,7 +22,7 @@ class Configuration
     private $metrics;
     private $samples = 1;
     private $reference;
-    private $title;
+    private $title = '';
     private $isReference = false;
     private $metadata = array();
     private $layers = array();
