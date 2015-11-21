@@ -19,39 +19,25 @@ namespace Blackfire;
  */
 class Probe
 {
-    private $data;
     private $probe;
+    private $request;
 
     /**
      * @internal
      */
-    public function __construct(Profile\Configuration $configuration, $data)
+    public function __construct(Profile\Request $request)
     {
-        if (!isset($data['query_string'])) {
-            throw new \RuntimeException('The data returned by the signing API are not valid.');
-        }
+        $this->request = $request;
+        $this->probe = new \BlackfireProbe($request->getToken());
 
-        if (!isset($data['options'])) {
-            $data['options'] = array();
-        }
-
-        $data['options']['aggreg_samples'] = $configuration->getSamples();
-        if ($configuration->getTitle()) {
-            $data['options']['profile_title'] = $configuration->getTitle();
-        }
-        $data['user_metadata'] = $configuration->getAllMetadata();
-        $this->data = $data;
-
-        $this->probe = new \BlackfireProbe($this->getToken());
-
-        if ($yaml = $configuration->toYaml()) {
+        if ($yaml = $request->getYaml()) {
             $this->probe->setConfiguration($yaml);
         }
     }
 
-    public function getToken()
+    public function getRequest()
     {
-        return $this->data['query_string'].'&'.http_build_query($this->data['options']);
+        return $this->request;
     }
 
     public function discard()
@@ -72,20 +58,5 @@ class Probe
     public function close()
     {
         return $this->probe->close();
-    }
-
-    public function getProfileUrl()
-    {
-        return $this->data['_links']['profile']['href'];
-    }
-
-    public function getStoreUrl()
-    {
-        return $this->data['_links']['store']['href'];
-    }
-
-    public function getUserMetadata()
-    {
-        return $this->data['user_metadata'];
     }
 }

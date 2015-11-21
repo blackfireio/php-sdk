@@ -47,7 +47,7 @@ class Client
             $config = new Profile\Configuration();
         }
 
-        $probe = $this->doCreateProbe($config);
+        $probe = new Probe($this->doCreateRequest($config));
 
         if ($enable) {
             $probe->enable();
@@ -70,7 +70,7 @@ class Client
             $profile = $this->getProfile($probe);
         }
 
-        $this->storeMetadata($probe);
+        $this->storeMetadata($probe->getRequest());
 
         return $profile;
     }
@@ -156,13 +156,15 @@ class Client
     }
 
     /**
-     * Returns a profile token to use as a value of X-Blackfire-Query.
+     * Returns a profile request.
+     *
+     * Retrieve the X-Blackfire-Query value with Request::getToken().
      *
      * @param Profile\Configuration|string $config The profile title or a Configuration instance
      *
-     * @return string The value of the X-Blackfire-Query header to enable profiling
+     * @return Request
      */
-    public function generateToken($config = null)
+    public function createProfile($config = null)
     {
         if (is_string($config)) {
             $cfg = new Profile\Configuration();
@@ -173,15 +175,15 @@ class Client
             throw new \InvalidArgumentException(sprintf('The "%s" method takes a string or a Profile\Configuration instance.', __METHOD__));
         }
 
-        return $this->doCreateProbe($config)->getToken();
+        return $this->doCreateRequest($config);
     }
 
-    private function doCreateProbe(Profile\Configuration $config)
+    private function doCreateRequest(Profile\Configuration $config)
     {
         $content = json_encode($this->getRequestDetails($config));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
-        return new Probe($config, $data);
+        return new Profile\Request($config, $data);
     }
 
     private function getCollabTokens()
@@ -260,7 +262,7 @@ class Client
         $retry = 0;
         while (true) {
             try {
-                $data = json_decode($this->sendHttpRequest($probe->getProfileUrl()), true);
+                $data = json_decode($this->sendHttpRequest($probe->getRequest()->getProfileUrl()), true);
 
                 if ('finished' == $data['status']['name']) {
                     return new Profile($data);
@@ -283,13 +285,13 @@ class Client
         }
     }
 
-    private function storeMetadata(Probe $probe)
+    private function storeMetadata(Profile\Request $request)
     {
-        if (!$probe->getUserMetadata()) {
+        if (!$request->getUserMetadata()) {
             return;
         }
 
-        return json_decode($this->sendHttpRequest($probe->getStoreUrl(), 'POST', array('content' => json_encode($probe->getUserMetadata())), array('Content-Type: application/json')), true);
+        return json_decode($this->sendHttpRequest($request->getStoreUrl(), 'POST', array('content' => json_encode($request->getUserMetadata())), array('Content-Type: application/json')), true);
     }
 
     private function sendHttpRequest($url, $method = 'GET', $context = array(), $headers = array())
