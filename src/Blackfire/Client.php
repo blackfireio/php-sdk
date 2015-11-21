@@ -105,30 +105,7 @@ class Client
             return;
         }
 
-        $retry = 0;
-        while (true) {
-            try {
-                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid), true);
-
-                if ('finished' === $data['status']['name']) {
-                    return new Report($data);
-                }
-
-                if ('errored' == $data['status']['name']) {
-                    throw new Exception\ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
-                }
-            } catch (Exception\ApiException $e) {
-                if (404 != $e->getCode() || $retry > 7) {
-                    throw $e;
-                }
-            }
-
-            usleep(++$retry * 50000);
-
-            if ($retry > 7) {
-                throw new Exception\ApiException('Unknown error from the API.');
-            }
-        }
+        return $this->getReport($uuid);
     }
 
     /**
@@ -196,6 +173,39 @@ class Client
 
                 if ('failure' == $data['status']['name']) {
                     throw new Exception\ApiException($data['status']['failure_reason']);
+                }
+            } catch (Exception\ApiException $e) {
+                if (404 != $e->getCode() || $retry > 7) {
+                    throw $e;
+                }
+            }
+
+            usleep(++$retry * 50000);
+
+            if ($retry > 7) {
+                throw new Exception\ApiException('Unknown error from the API.');
+            }
+        }
+    }
+
+    /**
+     * @param string $uuid A Report UUID
+     *
+     * @return Report
+     */
+    public function getReport($uuid)
+    {
+        $retry = 0;
+        while (true) {
+            try {
+                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid), true);
+
+                if ('finished' === $data['status']['name']) {
+                    return new Report($data);
+                }
+
+                if ('errored' == $data['status']['name']) {
+                    throw new Exception\ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
                 }
             } catch (Exception\ApiException $e) {
                 if (404 != $e->getCode() || $retry > 7) {
