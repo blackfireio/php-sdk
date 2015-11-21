@@ -67,7 +67,7 @@ class Client
 
         $profile = null;
         if ($wait) {
-            $profile = $this->getProfile($probe->getRequest());
+            $profile = $this->getProfile($probe->getRequest()->getUuid());
         }
 
         $this->storeMetadata($probe->getRequest());
@@ -179,14 +179,16 @@ class Client
     }
 
     /**
+     * @param string $uuid A Profile UUID
+     *
      * @return Profile
      */
-    public function getProfile(Profile\Request $request)
+    public function getProfile($uuid)
     {
         $retry = 0;
         while (true) {
             try {
-                $data = json_decode($this->sendHttpRequest($request->getProfileUrl()), true);
+                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid), true);
 
                 if ('finished' == $data['status']['name']) {
                     return new Profile($data);

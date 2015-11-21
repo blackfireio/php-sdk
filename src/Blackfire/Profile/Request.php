@@ -64,6 +64,11 @@ class Request
         return $this->data['user_metadata'];
     }
 
+    public function getUuid()
+    {
+        return $this->data['uuid'];
+    }
+
     public function getYaml()
     {
         return $this->data['yaml'];
