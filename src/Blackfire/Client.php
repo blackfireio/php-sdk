@@ -67,7 +67,7 @@ class Client
 
         $profile = null;
         if ($wait) {
-            $profile = $this->getProfile($probe);
+            $profile = $this->getProfile($probe->getRequest());
         }
 
         $this->storeMetadata($probe->getRequest());
@@ -178,6 +178,37 @@ class Client
         return $this->doCreateRequest($config);
     }
 
+    /**
+     * @return Profile
+     */
+    public function getProfile(Profile\Request $request)
+    {
+        $retry = 0;
+        while (true) {
+            try {
+                $data = json_decode($this->sendHttpRequest($request->getProfileUrl()), true);
+
+                if ('finished' == $data['status']['name']) {
+                    return new Profile($data);
+                }
+
+                if ('failure' == $data['status']['name']) {
+                    throw new Exception\ApiException($data['status']['failure_reason']);
+                }
+            } catch (Exception\ApiException $e) {
+                if (404 != $e->getCode() || $retry > 7) {
+                    throw $e;
+                }
+            }
+
+            usleep(++$retry * 50000);
+
+            if ($retry > 7) {
+                throw new Exception\ApiException('Unknown error from the API.');
+            }
+        }
+    }
+
     private function doCreateRequest(Profile\Configuration $config)
     {
         $content = json_encode($this->getRequestDetails($config));
@@ -255,34 +286,6 @@ class Client
         $details['profileSlot'] = $id;
 
         return $details;
-    }
-
-    private function getProfile(Probe $probe)
-    {
-        $retry = 0;
-        while (true) {
-            try {
-                $data = json_decode($this->sendHttpRequest($probe->getRequest()->getProfileUrl()), true);
-
-                if ('finished' == $data['status']['name']) {
-                    return new Profile($data);
-                }
-
-                if ('failure' == $data['status']['name']) {
-                    throw new Exception\ApiException($data['status']['failure_reason']);
-                }
-            } catch (Exception\ApiException $e) {
-                if (404 != $e->getCode() || $retry > 7) {
-                    throw $e;
-                }
-            }
-
-            usleep(++$retry * 50000);
-
-            if ($retry > 7) {
-                throw new Exception\ApiException('Unknown error from the API.');
-            }
-        }
     }
 
     private function storeMetadata(Profile\Request $request)
