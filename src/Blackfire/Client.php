@@ -141,7 +141,7 @@ class Client
      *
      * @return Request
      */
-    public function createProfile($config = null)
+    public function createRequest($config = null)
     {
         if (is_string($config)) {
             $cfg = new Profile\Configuration();
