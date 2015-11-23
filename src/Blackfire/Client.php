@@ -156,6 +156,24 @@ class Client
     }
 
     /**
+     * @return bool True if the profile was successfully updated
+     */
+    public function updataProfile($uuid, $title)
+    {
+        // be sure that the profile exist first
+        try {
+            $this->getProfile($uuid);
+
+            $content = json_encode(array('label' => $title));
+            $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
+
+            return true;
+        } catch (Exception\ApiException $e) {
+            return false;
+        }
+    }
+
+    /**
      * @param string $uuid A Profile UUID
      *
      * @return Profile
@@ -358,7 +376,7 @@ class Client
         }
 
         if ($statusCode >= 300) {
-            throw new Exception\ApiException(sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, $data['message']), $statusCode);
+            throw new Exception\ApiException(sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, isset($data['message']) ? $data['message'] : 'No message'), $statusCode);
         }
 
         return $body;
