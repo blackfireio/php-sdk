@@ -299,8 +299,14 @@ class Client
         $ind = 0;
         if ($env) {
             foreach ($this->collabTokens['collabTokens'] as $i => $collabToken) {
-                if (isset($collabToken['name']) && false !== strpos(strtolower($collabToken['name']), strtolower($env))) {
+                if (isset($collabToken['name']) && false !== stripos($collabToken['name'], $env)) {
                     $ind = $i;
+                    break;
+                }
+
+                if (isset($collabToken['collabToken']) && false !== stripos($collabToken['collabToken'], $env)) {
+                    $ind = $i;
+                    break;
                 }
             }
 
