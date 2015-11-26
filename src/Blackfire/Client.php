@@ -85,13 +85,13 @@ class Client
      *
      * @return Build
      */
-    public function createBuild($app, $title = null, $triggerName = null, array $metadata = array())
+    public function createBuild($env, $title = null, $triggerName = null, array $metadata = array())
     {
-        $app = $this->getAppUuid($app);
+        $env = $this->getEnvUuid($env);
         $content = json_encode(array('title' => $title, 'metadata' => $metadata, 'trigger_name' => $triggerName));
-        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$app, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
-        return new Build($app, $data['uuid']);
+        return new Build($env, $data['uuid']);
     }
 
     /**
@@ -257,22 +257,22 @@ class Client
         return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/collab-tokens'), true);
     }
 
-    private function getAppUuid($app)
+    private function getEnvUuid($env)
     {
         if (null === $this->collabTokens) {
             $this->collabTokens = $this->getCollabTokens();
         }
 
         $ind = 0;
-        if ($app) {
+        if ($env) {
             foreach ($this->collabTokens['collabTokens'] as $i => $collabToken) {
-                if (isset($collabToken['name']) && false !== strpos(strtolower($collabToken['name']), strtolower($app))) {
+                if (isset($collabToken['name']) && false !== strpos(strtolower($collabToken['name']), strtolower($env))) {
                     $ind = $i;
                 }
             }
 
             if (!$ind) {
-                throw new Exception\AppNotFoundException(sprintf('App "%s" does not exist.', $app));
+                throw new Exception\EnvNotFoundException(sprintf('Environment "%s" does not exist.', $env));
             }
         }
 
@@ -284,7 +284,7 @@ class Client
         $details = array();
 
         if ($build = $config->getBuild()) {
-            $details['collabToken'] = $build->getApp();
+            $details['collabToken'] = $build->getEnv();
 
             // create a job in the current build
             $content = json_encode(array('name' => $config->getTitle()));
@@ -294,7 +294,7 @@ class Client
 
             $details['requestId'] = $data['uuid'];
         } else {
-            $details['collabToken'] = $this->getAppUuid($this->config->getApp());
+            $details['collabToken'] = $this->getEnvUuid($this->config->getEnv());
         }
 
         $id = self::NO_REFERENCE_ID;

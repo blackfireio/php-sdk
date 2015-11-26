@@ -17,14 +17,14 @@ class ClientConfiguration
     private $config;
     private $clientId;
     private $clientToken;
-    private $app;
+    private $env;
     private $endpoint;
 
-    public function __construct($clientId = null, $clientToken = null, $app = null)
+    public function __construct($clientId = null, $clientToken = null, $env = null)
     {
         $this->clientId = $clientId;
         $this->clientToken = $clientToken;
-        $this->app = $app;
+        $this->env = $env;
     }
 
     public static function createFromFile($file)
@@ -42,14 +42,14 @@ class ClientConfiguration
     /**
      * @return $this
      */
-    public function setApp($app)
+    public function setEnv($env)
     {
-        $this->app = $app;
+        $this->env = $env;
     }
 
-    public function getApp()
+    public function getEnv()
     {
-        return $this->app;
+        return $this->env;
     }
 
     /**

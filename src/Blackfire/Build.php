@@ -13,20 +13,20 @@ namespace Blackfire;
 
 class Build
 {
-    private $app;
+    private $env;
     private $uuid;
     private $jobCount;
 
-    public function __construct($app, $uuid)
+    public function __construct($env, $uuid)
     {
-        $this->app = $app;
+        $this->env = $env;
         $this->uuid = $uuid;
         $this->jobCount = 0;
     }
 
-    public function getApp()
+    public function getEnv()
     {
-        return $this->app;
+        return $this->env;
     }
 
     public function getUuid()
