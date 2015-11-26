@@ -36,6 +36,11 @@ class Client
         $this->config = $config;
     }
 
+    public function getConfiguration()
+    {
+        return $this->config;
+    }
+
     /**
      * Creates a Blackfire probe.
      *
@@ -372,7 +377,7 @@ class Client
         $statusCode = $match[1];
 
         if ($statusCode >= 401) {
-            throw new Exception\ApiException($data['message'], $statusCode);
+            throw new Exception\ApiException(isset($data['message']) ? $data['message'] : '', $statusCode);
         }
 
         if ($statusCode >= 300) {
