@@ -11,6 +11,6 @@
 
 namespace Blackfire\Exception;
 
-class AppNotFoundException extends \RuntimeException implements ExceptionInterface
+class EnvNotFoundException extends \RuntimeException implements ExceptionInterface
 {
 }
