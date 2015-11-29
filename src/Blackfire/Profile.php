@@ -19,15 +19,16 @@ namespace Blackfire;
  */
 class Profile
 {
+    private $callable;
     private $data;
     private $tests;
 
     /**
      * @internal
      */
-    public function __construct($data)
+    public function __construct($callable)
     {
-        $this->data = $data;
+        $this->callable = $callable;
     }
 
     /**
@@ -37,6 +38,10 @@ class Profile
      */
     public function getUrl()
     {
+        if (null === $this->data) {
+            $this->initializeProfile();
+        }
+
         return $this->data['_links']['graph_url']['href'];
     }
 
@@ -50,6 +55,10 @@ class Profile
      */
     public function isErrored()
     {
+        if (null === $this->data) {
+            $this->initializeProfile();
+        }
+
         return isset($this->data['report']['state']) && 'errored' === $this->data['report']['state'];
     }
 
@@ -62,6 +71,10 @@ class Profile
      */
     public function isSuccessful()
     {
+        if (null === $this->data) {
+            $this->initializeProfile();
+        }
+
         return isset($this->data['report']['state']) && 'successful' === $this->data['report']['state'];
     }
 
@@ -74,6 +87,10 @@ class Profile
     {
         if (null !== $this->tests) {
             return $this->tests;
+        }
+
+        if (null === $this->data) {
+            $this->initializeProfile();
         }
 
         if (!isset($this->data['report']['tests'])) {
@@ -95,6 +112,10 @@ class Profile
      */
     public function getMainCost()
     {
+        if (null === $this->data) {
+            $this->initializeProfile();
+        }
+
         return new Profile\Cost($this->data['envelope']);
     }
 
@@ -125,6 +146,10 @@ class Profile
      */
     public function getLayer($name)
     {
+        if (null === $this->data) {
+            $this->initializeProfile();
+        }
+
         if (!is_array($this->data['layers'])) {
             return array();
         }
@@ -150,6 +175,10 @@ class Profile
      */
     public function getArguments($name)
     {
+        if (null === $this->data) {
+            $this->initializeProfile();
+        }
+
         if (!isset($this->data['arguments'][$name])) {
             return array();
         }
@@ -160,5 +189,10 @@ class Profile
         }
 
         return $arguments;
+    }
+
+    private function initializeProfile()
+    {
+        $this->data = call_user_func($this->callable);
     }
 }
