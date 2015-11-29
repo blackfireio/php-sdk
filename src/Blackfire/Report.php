@@ -13,11 +13,15 @@ namespace Blackfire;
 
 class Report
 {
+    private $callable;
     private $data;
 
-    public function __construct($data)
+    /**
+     * @internal
+     */
+    public function __construct($callable)
     {
-        $this->data = $data;
+        $this->callable = $callable;
     }
 
     /**
@@ -27,6 +31,10 @@ class Report
      */
     public function getUrl()
     {
+        if (null === $this->data) {
+            $this->initializeReport();
+        }
+
         return $this->data['_links']['self']['href'];
     }
 
@@ -40,6 +48,10 @@ class Report
      */
     public function isErrored()
     {
+        if (null === $this->data) {
+            $this->initializeReport();
+        }
+
         return isset($this->data['report']['state']) && 'errored' === $this->data['report']['state'];
     }
 
@@ -52,6 +64,15 @@ class Report
      */
     public function isSuccessful()
     {
+        if (null === $this->data) {
+            $this->initializeReport();
+        }
+
         return isset($this->data['report']['state']) && 'successful' === $this->data['report']['state'];
+    }
+
+    private function initializeReport()
+    {
+        $this->data = call_user_func($this->callable);
     }
 }

@@ -64,16 +64,13 @@ class Client
     /**
      * Ends a Blackfire probe.
      *
-     * @return Profile|null Returns a Profile only when $wait is true
+     * @return Profile
      */
-    public function endProbe(Probe $probe, $wait = true)
+    public function endProbe(Probe $probe)
     {
         $probe->close();
 
-        $profile = null;
-        if ($wait) {
-            $profile = $this->getProfile($probe->getRequest()->getUuid());
-        }
+        $profile = $this->getProfile($probe->getRequest()->getUuid());
 
         $this->storeMetadata($probe->getRequest());
 
@@ -97,18 +94,14 @@ class Client
     /**
      * Closes a build.
      *
-     * @return Report|null Returns a Report only when $wait is true
+     * @return Report
      */
-    public function endBuild(Build $build, $wait = true)
+    public function endBuild(Build $build)
     {
         $uuid = $build->getUuid();
 
         $content = json_encode(array('nb_jobs' => $build->getJobCount()));
         $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
-
-        if (!$wait) {
-            return;
-        }
 
         return $this->getReport($uuid);
     }
@@ -185,13 +178,25 @@ class Client
      */
     public function getProfile($uuid)
     {
+        $self = $this;
+
+        return new Profile(function () use ($self, $uuid) {
+            return $self->doGetProfile($uuid);
+        });
+    }
+
+    /**
+     * @internal
+     */
+    public function doGetProfile($uuid)
+    {
         $retry = 0;
         while (true) {
             try {
                 $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid), true);
 
                 if ('finished' == $data['status']['name']) {
-                    return new Profile($data);
+                    return $data;
                 }
 
                 if ('failure' == $data['status']['name']) {
@@ -218,13 +223,25 @@ class Client
      */
     public function getReport($uuid)
     {
+        $self = $this;
+
+        return new Report(function () use ($self, $uuid) {
+            return $self->doGetReport($uuid);
+        });
+    }
+
+    /**
+     * @internal
+     */
+    public function doGetReport($uuid)
+    {
         $retry = 0;
         while (true) {
             try {
                 $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid), true);
 
                 if ('finished' === $data['status']['name']) {
-                    return new Report($data);
+                    return $data;
                 }
 
                 if ('errored' == $data['status']['name']) {
