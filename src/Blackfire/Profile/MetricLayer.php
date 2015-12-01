@@ -13,8 +13,6 @@ namespace Blackfire\Profile;
 
 class MetricLayer extends Metric
 {
-    private $name;
-
     public function __construct($name, $label = null)
     {
         parent::__construct($name);

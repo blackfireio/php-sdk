@@ -296,7 +296,7 @@ class Client
         return $this->collabTokens['collabTokens'][$ind]['collabToken'];
     }
 
-    private function getRequestDetails($config)
+    private function getRequestDetails(Configuration $config)
     {
         $details = array();
 
