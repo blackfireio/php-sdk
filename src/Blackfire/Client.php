@@ -137,7 +137,7 @@ class Client
      *
      * @param Profile\Configuration|string $config The profile title or a Configuration instance
      *
-     * @return Request
+     * @return Profile\Request
      */
     public function createRequest($config = null)
     {
@@ -296,7 +296,7 @@ class Client
         return $this->collabTokens['collabTokens'][$ind]['collabToken'];
     }
 
-    private function getRequestDetails(Configuration $config)
+    private function getRequestDetails(Profile\Configuration $config)
     {
         $details = array();
 
@@ -316,7 +316,7 @@ class Client
 
         $id = self::NO_REFERENCE_ID;
         if ($config->getReference() || $config->isNewReference()) {
-            foreach ($collabToken['profileSlots'] as $profileSlot) {
+            foreach ($details['collabToken']['profileSlots'] as $profileSlot) {
                 if ($config->isNewReference() && $profileSlot['empty'] && self::NO_REFERENCE_ID !== $profileSlot['id']) {
                     $id = $profileSlot['id'];
 

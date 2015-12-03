@@ -20,6 +20,11 @@ class ClientConfiguration
     private $env;
     private $endpoint;
 
+    /**
+     * @param string|null $clientId
+     * @param string|null $clientToken
+     * @param string|null $env
+     */
     public function __construct($clientId = null, $clientToken = null, $env = null)
     {
         $this->clientId = $clientId;
@@ -40,27 +45,41 @@ class ClientConfiguration
     }
 
     /**
+     * @param string|null $env
+     *
      * @return $this
      */
     public function setEnv($env)
     {
         $this->env = $env;
+
+        return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getEnv()
     {
         return $this->env;
     }
 
     /**
+     * @param string|null $clientId
+     *
      * @return $this
      */
     public function setClientId($clientId)
     {
         $this->clientId = $clientId;
         $this->configResolved = false;
+
+        return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getClientId()
     {
         if (!$this->configResolved) {
@@ -79,6 +98,9 @@ class ClientConfiguration
         $this->configResolved = false;
     }
 
+    /**
+     * @return string|null
+     */
     public function getClientToken()
     {
         if (!$this->configResolved) {
@@ -89,6 +111,8 @@ class ClientConfiguration
     }
 
     /**
+     * @param string $endPoint
+     *
      * @return $this
      */
     public function setEndPoint($endPoint)
@@ -97,6 +121,9 @@ class ClientConfiguration
         $this->configResolved = false;
     }
 
+    /**
+     * @return string
+     */
     public function getEndPoint()
     {
         if (!$this->configResolved) {
@@ -108,7 +135,7 @@ class ClientConfiguration
 
     private function resolveConfig()
     {
-        $this->resolveConfig = true;
+        $this->configResolved = true;
 
         $config = null;
         if ($this->config) {

@@ -142,6 +142,8 @@ class Profile
     /**
      * Returns the arguments for the given layer.
      *
+     * @param string $name
+     *
      * @return array An array where keys are the argument values and values are Cost instances
      */
     public function getLayer($name)
@@ -170,6 +172,8 @@ class Profile
 
     /**
      * Returns the arguments for the given metric name.
+     *
+     * @param string $name
      *
      * @return array An array where keys are the argument values and values are Cost instances
      */
