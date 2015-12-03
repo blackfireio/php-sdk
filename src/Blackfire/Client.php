@@ -156,7 +156,7 @@ class Client
     /**
      * @return bool True if the profile was successfully updated
      */
-    public function updataProfile($uuid, $title)
+    public function updateProfile($uuid, $title)
     {
         // be sure that the profile exist first
         try {
