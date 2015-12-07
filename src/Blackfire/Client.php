@@ -158,12 +158,11 @@ class Client
      */
     public function updateProfile($uuid, $title)
     {
-        // be sure that the profile exist first
         try {
-            $this->getProfile($uuid);
+            // be sure that the profile exist first
+            $this->getProfile($uuid)->getUrl();
 
-            $content = json_encode(array('label' => $title));
-            $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
+            $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', array('content' => http_build_query(array('label' => $title), '', '&')), array('Content-Type: application/x-www-form-urlencoded'));
 
             return true;
         } catch (Exception\ApiException $e) {
