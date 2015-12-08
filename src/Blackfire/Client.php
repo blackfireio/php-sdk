@@ -80,12 +80,27 @@ class Client
     /**
      * Creates a Blackfire Build.
      *
+     * @param string $env     The environment name
+     * @param array  $options An array of Build options
+     *                        (title, metadata, trigger_name, external_id, external_parent_id)
+     *
      * @return Build
      */
-    public function createBuild($env, $title = null, $triggerName = null, array $metadata = array())
+    public function createBuild($env, $options = array())
     {
+        // BC layer
+        if (!is_array($options)) {
+            $options = array('title' => $options);
+            if (func_get_args() >= 3) {
+                $options['trigger_name'] = func_get_arg(2);
+            }
+            if (func_get_args() >= 4) {
+                $options['metadata'] = (array) func_get_arg(3);
+            }
+        }
+
         $env = $this->getEnvUuid($env);
-        $content = json_encode(array('title' => $title, 'metadata' => $metadata, 'trigger_name' => $triggerName));
+        $content = json_encode($options);
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
         return new Build($env, $data['uuid']);
