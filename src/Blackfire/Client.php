@@ -108,6 +108,8 @@ class Client
 
     /**
      * Profiles the callback and test the result against the given configuration.
+     *
+     * @deprecated since 1.4, to be removed in 2.0
      */
     public function assertPhpUnit(\PHPUnit_Framework_TestCase $testCase, Profile\Configuration $config, $callback)
     {
