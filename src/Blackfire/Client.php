@@ -402,19 +402,21 @@ class Client
             $data = array('message' => '');
         }
 
+        $error = isset($data['error']) ? $data['error'] : (isset($data['message']) ? $data['message'] : 'Unknown error');
+
         // status code
         if (!preg_match('{HTTP/\d\.\d (\d+) }i', $http_response_header[0], $match)) {
-            throw new Exception\ApiException(sprintf('An unknown API error occurred (%s).', $data['message']));
+            throw new Exception\ApiException(sprintf('An unknown API error occurred (%s).', $error));
         }
 
         $statusCode = $match[1];
 
         if ($statusCode >= 401) {
-            throw new Exception\ApiException(isset($data['message']) ? $data['message'] : '', $statusCode);
+            throw new Exception\ApiException($error, $statusCode);
         }
 
         if ($statusCode >= 300) {
-            throw new Exception\ApiException(sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, isset($data['message']) ? $data['message'] : 'No message'), $statusCode);
+            throw new Exception\ApiException(sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, $error), $statusCode);
         }
 
         return $body;
