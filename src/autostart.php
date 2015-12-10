@@ -10,7 +10,7 @@
  */
 
 if (!class_exists('BlackfireProbe', false) && !extension_loaded('blackfire')) {
-    require __DIR__.'/BlackfireProbe.php';
+    require dirname(__FILE__).'/BlackfireProbe.php';
 
     BlackfireProbe::getMainInstance();
 }
