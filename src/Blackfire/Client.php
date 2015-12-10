@@ -227,7 +227,7 @@ class Client
             usleep(++$retry * 50000);
 
             if ($retry > 7) {
-                throw new Exception\ApiException('Unknown error from the API.');
+                throw new Exception\ApiException('Unknown error from the API.', $e->getCode(), $e);
             }
         }
     }
@@ -272,7 +272,7 @@ class Client
             usleep(++$retry * 50000);
 
             if ($retry > 7) {
-                throw new Exception\ApiException('Unknown error from the API.');
+                throw new Exception\ApiException('Unknown error from the API.', $e->getCode(), $e);
             }
         }
     }
