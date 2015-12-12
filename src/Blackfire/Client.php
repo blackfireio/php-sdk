@@ -279,10 +279,18 @@ class Client
 
     private function doCreateRequest(Profile\Configuration $config)
     {
-        $content = json_encode($this->getRequestDetails($config));
+        $content = json_encode($details = $this->getRequestDetails($config));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
-        return new Profile\Request($config, $data);
+        $request = new Profile\Request($config, $data);
+
+        if ($config->getReference() && $config->isNewReference()) {
+            // promote the profile as being the new reference
+            $content = json_encode(array('request_id' => $request->getUuid(), 'slot_id' => $details['profileSlot']));
+            $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$request->getUuid().'/promote-reference', 'POST', array('content' => $content), array('Content-Type: application/json'));
+        }
+
+        return $request;
     }
 
     private function getCollabTokens()
@@ -291,6 +299,13 @@ class Client
     }
 
     private function getEnvUuid($env)
+    {
+        $env = $this->getEnvDetails($env);
+
+        return $env['collabToken'];
+    }
+
+    private function getEnvDetails($env)
     {
         if (null === $this->collabTokens) {
             $this->collabTokens = $this->getCollabTokens();
@@ -315,12 +330,14 @@ class Client
             }
         }
 
-        return $this->collabTokens['collabTokens'][$ind]['collabToken'];
+        return $this->collabTokens['collabTokens'][$ind];
     }
 
     private function getRequestDetails(Profile\Configuration $config)
     {
         $details = array();
+
+        $envDetails = $this->getEnvDetails($config->getBuild() ? $build->getEnv() : $this->config->getEnv());
 
         if ($build = $config->getBuild()) {
             $details['collabToken'] = $build->getEnv();
@@ -333,12 +350,12 @@ class Client
 
             $details['requestId'] = $data['uuid'];
         } else {
-            $details['collabToken'] = $this->getEnvUuid($this->config->getEnv());
+            $details['collabToken'] = $envDetails['collabToken'];
         }
 
         $id = self::NO_REFERENCE_ID;
         if ($config->getReference() || $config->isNewReference()) {
-            foreach ($details['collabToken']['profileSlots'] as $profileSlot) {
+            foreach ($envDetails['profileSlots'] as $profileSlot) {
                 if ($config->isNewReference() && $profileSlot['empty'] && self::NO_REFERENCE_ID !== $profileSlot['id']) {
                     $id = $profileSlot['id'];
 
@@ -353,7 +370,11 @@ class Client
             }
 
             if (self::NO_REFERENCE_ID === $id) {
-                throw new Exception\ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReference()));
+                if ($config->isNewReference()) {
+                    throw new Exception\ReferenceNotFoundException('Unable to create a new reference.');
+                } else {
+                    throw new Exception\ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReference()));
+                }
             }
         }
 
