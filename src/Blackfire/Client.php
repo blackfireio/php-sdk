@@ -207,6 +207,7 @@ class Client
     public function doGetProfile($uuid)
     {
         $retry = 0;
+        $e = null;
         while (true) {
             try {
                 $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid), true);
@@ -227,6 +228,10 @@ class Client
             usleep(++$retry * 50000);
 
             if ($retry > 7) {
+                if (null === $e) {
+                    throw new Exception\ApiException('Profile is still in the queue.');
+                }
+
                 throw new Exception\ApiException('Unknown error from the API.', $e->getCode(), $e);
             }
         }
@@ -252,6 +257,7 @@ class Client
     public function doGetReport($uuid)
     {
         $retry = 0;
+        $e = null;
         while (true) {
             try {
                 $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid), true);
@@ -260,7 +266,7 @@ class Client
                     return $data;
                 }
 
-                if ('errored' == $data['status']['name']) {
+                if ('errored' === $data['status']['name']) {
                     throw new Exception\ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
                 }
             } catch (Exception\ApiException $e) {
@@ -272,6 +278,10 @@ class Client
             usleep(++$retry * 50000);
 
             if ($retry > 7) {
+                if (null === $e) {
+                    throw new Exception\ApiException('Report is still in the queue.');
+                }
+
                 throw new Exception\ApiException('Unknown error from the API.', $e->getCode(), $e);
             }
         }
