@@ -336,10 +336,10 @@ class Client
     private function getRequestDetails(Profile\Configuration $config)
     {
         $details = array();
+        $build = $config->getBuild();
+        $envDetails = $this->getEnvDetails($build ? $build->getEnv() : $this->config->getEnv());
 
-        $envDetails = $this->getEnvDetails($config->getBuild() ? $build->getEnv() : $this->config->getEnv());
-
-        if ($build = $config->getBuild()) {
+        if ($build) {
             $details['collabToken'] = $build->getEnv();
 
             // create a job in the current build
