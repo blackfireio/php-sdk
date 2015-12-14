@@ -25,10 +25,6 @@ class Client
 
     public function __construct(ClientConfiguration $config = null)
     {
-        if (!extension_loaded('blackfire')) {
-            throw new Exception\NotAvailableException('Blackfire is not available.');
-        }
-
         if (null === $config) {
             $config = new ClientConfiguration();
         }
