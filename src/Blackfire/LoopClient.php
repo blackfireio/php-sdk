@@ -45,9 +45,9 @@ class LoopClient
             throw new RuntimeException('pcntl must be available to use signals.');
         }
 
-        $self = $this;
-        pcntl_signal($signal, function ($signo) use ($self) {
-            $self->enabled = true;
+        $enabled = &$this->enabled;
+        pcntl_signal($signal, function ($signo) use (&$enabled) {
+            $enabled = true;
         });
 
         $this->signal = true;
@@ -71,10 +71,11 @@ class LoopClient
                 throw new LogicException('Cannot set a reference signal without a signal.');
             }
 
-            $self = $this;
-            pcntl_signal($signal, function ($signo) use ($self, $referenceId) {
-                $self->reference = true;
-                $self->enabled = true;
+            $reference = &$this->reference;
+            $enabled = &$this->enabled;
+            pcntl_signal($signal, function ($signo) use (&$enabled, &$reference) {
+                $reference = true;
+                $enabled = true;
             });
         }
     }
