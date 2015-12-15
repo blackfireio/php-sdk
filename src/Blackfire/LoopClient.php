@@ -11,7 +11,6 @@
 
 namespace Blackfire;
 
-use Blackfire\Profile;
 use Blackfire\Profile\Configuration;
 use Blackfire\Exception\LogicException;
 use Blackfire\Exception\RuntimeException;
