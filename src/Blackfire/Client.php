@@ -76,13 +76,13 @@ class Client
     /**
      * Creates a Blackfire Build.
      *
-     * @param string $env     The environment name
-     * @param array  $options An array of Build options
-     *                        (title, metadata, trigger_name, external_id, external_parent_id)
+     * @param string|null $env     The environment name (or null to use the one configured on the client)
+     * @param array       $options An array of Build options
+     *                             (title, metadata, trigger_name, external_id, external_parent_id)
      *
      * @return Build
      */
-    public function createBuild($env, $options = array())
+    public function createBuild($env = null, $options = array())
     {
         // BC layer
         if (!is_array($options)) {
@@ -95,7 +95,7 @@ class Client
             }
         }
 
-        $env = $this->getEnvUuid($env);
+        $env = $this->getEnvUuid(null === $env ? $this->config->getEnv() : $env);
         $content = json_encode($options);
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
