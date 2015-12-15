@@ -26,6 +26,10 @@ class LoopClient
     private $enabled = true;
     private $reference = false;
     private $referenceId;
+    private $running = false;
+    private $build;
+    private $buildFactory;
+    private $env = false;
 
     /**
      * @param int $maxIterations The number of iterations
@@ -80,6 +84,16 @@ class LoopClient
         }
     }
 
+    /**
+     * @param string|null   $env          The environment name (or null to use the one configured on the client)
+     * @param callable|null $buildFactory An optional factory callable that creates build instances
+     */
+    public function generateBuilds($env = null, $buildFactory = null)
+    {
+        $this->env = $env;
+        $this->buildFactory = $buildFactory;
+    }
+
     public function startLoop(Configuration $config = null)
     {
         if ($this->signal) {
@@ -89,6 +103,12 @@ class LoopClient
         if (!$this->enabled) {
             return;
         }
+
+        if ($this->running) {
+            throw new LogicException('Unable to start a loop as one is already running.');
+        }
+
+        $this->running = true;
 
         if (0 === $this->currentIteration) {
             $this->probe = $this->createProbe($config);
@@ -110,12 +130,30 @@ class LoopClient
             return;
         }
 
+        if (!$this->running) {
+            throw new LogicException('Unable to stop a loop as none is running.');
+        }
+
+        $this->running = false;
+
         $this->probe->close();
 
         ++$this->currentIteration;
         if ($this->currentIteration === $this->maxIterations) {
             return $this->endProbe();
         }
+    }
+
+    /**
+     * @return Build
+     */
+    protected function createBuild($env = null)
+    {
+        if ($this->buildFactory) {
+            return call_user_func($this->buildFactory, $this->client, $env);
+        }
+
+        return $this->client->createBuild($env);
     }
 
     private function createProbe($config)
@@ -136,6 +174,10 @@ class LoopClient
             $config->setAsReference();
         }
 
+        if (false !== $this->env) {
+            $config->setBuild($this->build = $this->createBuild($this->env));
+        }
+
         return $this->client->createProbe($config, false);
     }
 
@@ -148,6 +190,14 @@ class LoopClient
             $this->reference = false;
         }
 
-        return $this->client->endProbe($this->probe);
+        $profile = $this->client->endProbe($this->probe);
+
+        if (null !== $this->build) {
+            $this->client->endBuild($this->build);
+
+            $this->build = null;
+        }
+
+        return $profile;
     }
 }
