@@ -59,29 +59,36 @@ class LoopClient
     }
 
     /**
-     * @param int $referenceId The reference ID to use (rolling reference)
-     * @param int $signal      A signal that triggers profiling for a reference (like SIGUSR2)
+     * @param int $signal A signal that triggers profiling for a reference (like SIGUSR2)
      */
-    public function setReference($referenceId, $signal = null)
+    public function promoteReferenceSignal($signal)
+    {
+        if (!$this->referenceId) {
+            throw new LogicException('Cannot set signal to promote the reference without an attached reference (call attachReference() first).');
+        }
+
+        if (!extension_loaded('pcntl')) {
+            throw new RuntimeException('pcntl must be available to use signals.');
+        }
+
+        if (null === $this->signal) {
+            throw new LogicException('Cannot set a reference signal without a signal.');
+        }
+
+        $reference = &$this->reference;
+        $enabled = &$this->enabled;
+        pcntl_signal($signal, function ($signo) use (&$enabled, &$reference) {
+            $reference = true;
+            $enabled = true;
+        });
+    }
+
+    /**
+     * @param int $referenceId The reference ID to use (rolling reference)
+     */
+    public function attachReference($referenceId)
     {
         $this->referenceId = $referenceId;
-
-        if (null !== $signal) {
-            if (!extension_loaded('pcntl')) {
-                throw new RuntimeException('pcntl must be available to use signals.');
-            }
-
-            if (null === $this->signal) {
-                throw new LogicException('Cannot set a reference signal without a signal.');
-            }
-
-            $reference = &$this->reference;
-            $enabled = &$this->enabled;
-            pcntl_signal($signal, function ($signo) use (&$enabled, &$reference) {
-                $reference = true;
-                $enabled = true;
-            });
-        }
     }
 
     /**
