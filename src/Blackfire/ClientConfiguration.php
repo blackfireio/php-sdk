@@ -159,7 +159,17 @@ class ClientConfiguration
             }
         }
 
-        if (null === $this->endpoint) {
+        if (isset($_SERVER['BLACKFIRE_CLIENT_ID'])) {
+            $this->clientId = $_SERVER['BLACKFIRE_CLIENT_ID'];
+        }
+        if (isset($_SERVER['BLACKFIRE_CLIENT_TOKEN'])) {
+            $this->clientToken = $_SERVER['BLACKFIRE_CLIENT_TOKEN'];
+        }
+        if (isset($_SERVER['BLACKFIRE_ENDPOINT'])) {
+            $this->endpoint = rtrim($_SERVER['BLACKFIRE_ENDPOINT'], '/');
+        }
+
+        if (!$this->endpoint) {
             $this->endpoint = 'https://blackfire.io';
         }
     }
