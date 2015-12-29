@@ -11,6 +11,9 @@
 
 namespace Blackfire;
 
+use Blackfire\Profile\Cost;
+use Blackfire\Profile\Test;
+
 /**
  * Represents a Blackfire Profile.
  *
@@ -81,7 +84,7 @@ class Profile
     /**
      * Returns tests associated with this profile.
      *
-     * @return Profile\Test[]
+     * @return Test[]
      */
     public function getTests()
     {
@@ -99,7 +102,7 @@ class Profile
 
         $this->tests = array();
         foreach ($this->data['report']['tests'] as $test) {
-            $this->tests[] = new Profile\Test($test['name'], $test['state'], isset($test['failures']) ? $test['failures'] : array());
+            $this->tests[] = new Test($test['name'], $test['state'], isset($test['failures']) ? $test['failures'] : array());
         }
 
         return $this->tests;
@@ -108,7 +111,7 @@ class Profile
     /**
      * Returns the main costs associated with the profile.
      *
-     * @return Profile\Cost
+     * @return Cost
      */
     public function getMainCost()
     {
@@ -116,7 +119,7 @@ class Profile
             $this->initializeProfile();
         }
 
-        return new Profile\Cost($this->data['envelope']);
+        return new Cost($this->data['envelope']);
     }
 
     /**
@@ -163,7 +166,7 @@ class Profile
             }
 
             foreach ($this->data['arguments'][$key] as $value => $cost) {
-                $arguments[$value] = new Profile\Cost($cost);
+                $arguments[$value] = new Cost($cost);
             }
         }
 
@@ -189,7 +192,7 @@ class Profile
 
         $arguments = array();
         foreach ($this->data['arguments'][$name] as $argument => $cost) {
-            $arguments[$argument] = new Profile\Cost($cost);
+            $arguments[$argument] = new Cost($cost);
         }
 
         return $arguments;

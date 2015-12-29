@@ -11,7 +11,7 @@
 
 namespace Blackfire;
 
-use Blackfire\Profile\Configuration;
+use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\Exception\LogicException;
 use Blackfire\Exception\RuntimeException;
 
@@ -100,7 +100,7 @@ class LoopClient
         $this->buildFactory = $buildFactory;
     }
 
-    public function startLoop(Configuration $config = null)
+    public function startLoop(ProfileConfiguration $config = null)
     {
         if ($this->signal) {
             pcntl_signal_dispatch();
@@ -165,7 +165,7 @@ class LoopClient
     private function createProbe($config)
     {
         if (null === $config) {
-            $config = new Configuration();
+            $config = new ProfileConfiguration();
         } else {
             $config = clone $config;
         }

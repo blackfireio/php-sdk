@@ -14,6 +14,7 @@ namespace Blackfire\Bridge\PhpUnit;
 use Blackfire\Client;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\ClientConfiguration;
+use Blackfire\Exception\ExceptionInterface;
 
 trait TestCaseTrait
 {
@@ -46,7 +47,7 @@ trait TestCaseTrait
             $profile = self::$blackfire->endProbe($probe);
 
             $this->assertThat($profile, new TestConstraint());
-        } catch (Exception\ExceptionInterface $e) {
+        } catch (ExceptionInterface $e) {
             $this->markTestSkipped($e->getMessage());
         }
 

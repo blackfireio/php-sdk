@@ -12,6 +12,11 @@
 namespace Blackfire;
 
 use Blackfire\Bridge\PhpUnit\TestConstraint as BlackfireConstraint;
+use Blackfire\Exception\ApiException;
+use Blackfire\Exception\EnvNotFoundException;
+use Blackfire\Exception\ReferenceNotFoundException;
+use Blackfire\Exception\OfflineException;
+use Blackfire\Profile\Configuration as ProfileConfiguration;
 
 /**
  * The Blackfire Client.
@@ -42,10 +47,10 @@ class Client
      *
      * @return Probe
      */
-    public function createProbe(Profile\Configuration $config = null, $enable = true)
+    public function createProbe(ProfileConfiguration $config = null, $enable = true)
     {
         if (null === $config) {
-            $config = new Profile\Configuration();
+            $config = new ProfileConfiguration();
         }
 
         $probe = new Probe($this->doCreateRequest($config));
@@ -122,7 +127,7 @@ class Client
      *
      * @deprecated since 1.4, to be removed in 2.0
      */
-    public function assertPhpUnit(\PHPUnit_Framework_TestCase $testCase, Profile\Configuration $config, $callback)
+    public function assertPhpUnit(\PHPUnit_Framework_TestCase $testCase, ProfileConfiguration $config, $callback)
     {
         if (!$config->hasMetadata('skip_timeline')) {
             $config->setMetadata('skip_timeline', 'true');
@@ -148,19 +153,19 @@ class Client
      *
      * Retrieve the X-Blackfire-Query value with Request::getToken().
      *
-     * @param Profile\Configuration|string $config The profile title or a Configuration instance
+     * @param ProfileConfiguration|string $config The profile title or a ProfileConfiguration instance
      *
      * @return Profile\Request
      */
     public function createRequest($config = null)
     {
         if (is_string($config)) {
-            $cfg = new Profile\Configuration();
+            $cfg = new ProfileConfiguration();
             $config = $cfg->setTitle($config);
         } elseif (null === $config) {
-            $config = new Profile\Configuration();
-        } elseif (!$config instanceof Profile\Configuration) {
-            throw new \InvalidArgumentException(sprintf('The "%s" method takes a string or a Profile\Configuration instance.', __METHOD__));
+            $config = new ProfileConfiguration();
+        } elseif (!$config instanceof ProfileConfiguration) {
+            throw new \InvalidArgumentException(sprintf('The "%s" method takes a string or a Blackfire\Profile\Configuration instance.', __METHOD__));
         }
 
         return $this->doCreateRequest($config);
@@ -213,7 +218,7 @@ class Client
                 }
 
                 if ('failure' == $data['status']['name']) {
-                    throw new Exception\ApiException($data['status']['failure_reason']);
+                    throw new ApiException($data['status']['failure_reason']);
                 }
             } catch (Exception\ApiException $e) {
                 if (404 != $e->getCode() || $retry > 7) {
@@ -225,10 +230,10 @@ class Client
 
             if ($retry > 7) {
                 if (null === $e) {
-                    throw new Exception\ApiException('Profile is still in the queue.');
+                    throw new ApiException('Profile is still in the queue.');
                 }
 
-                throw new Exception\ApiException('Unknown error from the API.', $e->getCode(), $e);
+                throw new ApiException('Unknown error from the API.', $e->getCode(), $e);
             }
         }
     }
@@ -263,7 +268,7 @@ class Client
                 }
 
                 if ('errored' === $data['status']['name']) {
-                    throw new Exception\ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
+                    throw new ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
                 }
             } catch (Exception\ApiException $e) {
                 if (404 != $e->getCode() || $retry > 7) {
@@ -275,15 +280,15 @@ class Client
 
             if ($retry > 7) {
                 if (null === $e) {
-                    throw new Exception\ApiException('Report is still in the queue.');
+                    throw new ApiException('Report is still in the queue.');
                 }
 
-                throw new Exception\ApiException('Unknown error from the API.', $e->getCode(), $e);
+                throw new ApiException('Unknown error from the API.', $e->getCode(), $e);
             }
         }
     }
 
-    private function doCreateRequest(Profile\Configuration $config)
+    private function doCreateRequest(ProfileConfiguration $config)
     {
         $content = json_encode($details = $this->getRequestDetails($config));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
@@ -332,14 +337,14 @@ class Client
             }
 
             if (!$ind) {
-                throw new Exception\EnvNotFoundException(sprintf('Environment "%s" does not exist.', $env));
+                throw new EnvNotFoundException(sprintf('Environment "%s" does not exist.', $env));
             }
         }
 
         return $this->collabTokens['collabTokens'][$ind];
     }
 
-    private function getRequestDetails(Profile\Configuration $config)
+    private function getRequestDetails(ProfileConfiguration $config)
     {
         $details = array();
         $build = $config->getBuild();
@@ -377,9 +382,9 @@ class Client
 
             if (self::NO_REFERENCE_ID === $id) {
                 if ($config->isNewReference()) {
-                    throw new Exception\ReferenceNotFoundException('Unable to create a new reference.');
+                    throw new ReferenceNotFoundException('Unable to create a new reference.');
                 } else {
-                    throw new Exception\ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReference()));
+                    throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReference()));
                 }
             }
         }
@@ -420,7 +425,7 @@ class Client
         ));
 
         set_error_handler(function ($type, $message) {
-            throw new Exception\OfflineException(sprintf('An error occurred: %s.', $message));
+            throw new OfflineException(sprintf('An error occurred: %s.', $message));
         });
         try {
             $body = file_get_contents($url, 0, $context);
@@ -439,17 +444,17 @@ class Client
 
         // status code
         if (!preg_match('{HTTP/\d\.\d (\d+) }i', $http_response_header[0], $match)) {
-            throw new Exception\ApiException(sprintf('An unknown API error occurred (%s).', $error));
+            throw new ApiException(sprintf('An unknown API error occurred (%s).', $error));
         }
 
         $statusCode = $match[1];
 
         if ($statusCode >= 401) {
-            throw new Exception\ApiException($error, $statusCode);
+            throw new ApiException($error, $statusCode);
         }
 
         if ($statusCode >= 300) {
-            throw new Exception\ApiException(sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, $error), $statusCode);
+            throw new ApiException(sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, $error), $statusCode);
         }
 
         return $body;

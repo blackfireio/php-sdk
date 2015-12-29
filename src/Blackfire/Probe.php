@@ -11,6 +11,8 @@
 
 namespace Blackfire;
 
+use Blackfire\Profile\Request;
+
 /**
  * Represents a Blackfire Probe.
  *
@@ -25,7 +27,7 @@ class Probe
     /**
      * @internal
      */
-    public function __construct(Profile\Request $request)
+    public function __construct(Request $request)
     {
         $this->request = $request;
         $this->probe = new \BlackfireProbe($request->getToken());
