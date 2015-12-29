@@ -11,6 +11,8 @@
 
 namespace Blackfire;
 
+use Blackfire\Exception\ConfigNotFoundException;
+
 class ClientConfiguration
 {
     private $configResolved = false;
@@ -35,7 +37,7 @@ class ClientConfiguration
     public static function createFromFile($file)
     {
         if (!file_exists($file)) {
-            throw new Exception\ConfigNotFoundException(sprintf('Configuration file "%s" does not exist.', $file));
+            throw new ConfigNotFoundException(sprintf('Configuration file "%s" does not exist.', $file));
         }
 
         $config = new self();
