@@ -149,13 +149,13 @@ class BlackfireProbe
      * Instantiate a probe object.
      *
      * @param string $query       An URL-encoded string that configures the probe. Part of the string is signed.
-     * @param string $serverId    An id that is given to the agent for signature impersonation.
-     * @param string $serverToken The token associated to $serverId.
+     * @param string $envId       An id that is given to the agent for signature impersonation.
+     * @param string $envToken    The token associated to $envId.
      * @param string $agentSocket The URL where profiles will be written (directory, socket or TCP destination).
      *
      * @api
      */
-    public function __construct($query, $serverId = null, $serverToken = null, $agentSocket = null)
+    public function __construct($query, $envId = null, $envToken = null, $agentSocket = null)
     {
         if (false === self::$defaultAgentSocket) {
             if ('Darwin' === PHP_OS) {
@@ -180,6 +180,8 @@ class BlackfireProbe
         $query = array(
             'BLACKFIRE_SERVER_ID' => get_cfg_var('blackfire.server_id') ?: null,
             'BLACKFIRE_SERVER_TOKEN' => get_cfg_var('blackfire.server_token') ?: null,
+            'BLACKFIRE_ENV_ID' => get_cfg_var('blackfire.env_id') ?: null,
+            'BLACKFIRE_ENV_TOKEN' => get_cfg_var('blackfire.env_token') ?: null,
             'BLACKFIRE_AGENT_SOCKET' => get_cfg_var('blackfire.agent_socket') ?: null,
             'BLACKFIRE_AGENT_TIMEOUT' => get_cfg_var('blackfire.agent_timeout') ?: null,
             'BLACKFIRE_LOG_LEVEL' => get_cfg_var('blackfire.log_level') ?: null,
@@ -191,8 +193,8 @@ class BlackfireProbe
             }
         }
 
-        $this->serverId = $serverId ? $serverId : $query['BLACKFIRE_SERVER_ID'];
-        $this->serverToken = $serverToken ? $serverToken : $query['BLACKFIRE_SERVER_TOKEN'];
+        $this->envId = $envId ?: $query['BLACKFIRE_ENV_ID'] ?: $query['BLACKFIRE_SERVER_ID'];
+        $this->envToken = $envToken ?: $query['BLACKFIRE_ENV_TOKEN'] ?: $query['BLACKFIRE_SERVER_TOKEN'];
         $this->agentSocket = $agentSocket;
         $this->agentSocket or $this->agentSocket = $query['BLACKFIRE_AGENT_SOCKET'];
         $this->agentSocket or $this->agentSocket = self::$defaultAgentSocket;
@@ -592,10 +594,10 @@ class BlackfireProbe
     private function writeHelloProlog($h, $noop = false)
     {
         $hello = '';
-        if ($this->serverId && $this->serverToken) {
-            $line = $this->serverId.':'.$this->serverToken;
+        if ($this->envId && $this->envToken) {
+            $line = $this->envId.':'.$this->envToken;
             if (strlen($line) !== strcspn($line, "\r\n") || 1 < substr_count($line, ':')) {
-                $this->warn('Invalid server id/token');
+                $this->warn('Invalid env id/token');
             } else {
                 $hello .= 'Blackfire-Auth: '.$line."\n";
             }
