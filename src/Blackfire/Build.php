@@ -14,13 +14,13 @@ namespace Blackfire;
 class Build
 {
     private $env;
-    private $uuid;
+    private $data;
     private $jobCount;
 
-    public function __construct($env, $uuid)
+    public function __construct($env, $data)
     {
         $this->env = $env;
-        $this->uuid = $uuid;
+        $this->data = $data;
         $this->jobCount = 0;
     }
 
@@ -31,7 +31,12 @@ class Build
 
     public function getUuid()
     {
-        return $this->uuid;
+        return $this->data['uuid'];
+    }
+
+    public function getUrl()
+    {
+        return isset($this->data['_links']['report']['href']) ? $this->data['_links']['report']['href'] : null;
     }
 
     public function incJob()
