@@ -104,7 +104,7 @@ class Client
         $content = json_encode($options);
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
-        return new Build($env, $data['uuid']);
+        return new Build($env, $data);
     }
 
     /**
