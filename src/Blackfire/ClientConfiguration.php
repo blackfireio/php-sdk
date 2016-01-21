@@ -11,6 +11,7 @@
 
 namespace Blackfire;
 
+use Blackfire\Exception\ConfigErrorException;
 use Blackfire\Exception\ConfigNotFoundException;
 
 class ClientConfiguration
@@ -141,22 +142,22 @@ class ClientConfiguration
 
         $config = null;
         if ($this->config) {
-            $config = parse_ini_file($this->config);
+            $config = $this->parseConfigFile($this->config);
         } else {
             $home = $this->getHomeDir();
             if ($home && file_exists($home.'/.blackfire.ini')) {
-                $config = parse_ini_file($home.'/.blackfire.ini');
+                $config = $this->parseConfigFile($home.'/.blackfire.ini');
             }
         }
 
         if (null !== $config) {
-            if (null === $this->clientId) {
+            if (null === $this->clientId && isset($config['client-id'])) {
                 $this->clientId = $config['client-id'];
             }
-            if (null === $this->clientToken) {
+            if (null === $this->clientToken && isset($config['client-token'])) {
                 $this->clientToken = $config['client-token'];
             }
-            if (null === $this->endpoint) {
+            if (null === $this->endpoint && isset($config['endpoint'])) {
                 $this->endpoint = rtrim($config['endpoint'], '/');
             }
         }
@@ -186,5 +187,14 @@ class ClientConfiguration
             // home on windows
             return $_SERVER['HOMEDRIVE'].$_SERVER['HOMEPATH'];
         }
+    }
+
+    private function parseConfigFile($file)
+    {
+        if (false === $config = @parse_ini_file($file)) {
+            throw new ConfigErrorException(sprintf('Unable to parse configuration file "%s".', $file));
+        }
+
+        return $config;
     }
 }
