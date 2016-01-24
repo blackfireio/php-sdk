@@ -322,26 +322,26 @@ class Client
             $this->collabTokens = $this->getCollabTokens();
         }
 
-        $ind = 0;
-        if ($env) {
-            foreach ($this->collabTokens['collabTokens'] as $i => $collabToken) {
-                if (isset($collabToken['name']) && false !== stripos($collabToken['name'], $env)) {
-                    $ind = $i;
-                    break;
-                }
+        if (!$env) {
+            return $this->collabTokens['collabTokens'][0];
+        }
 
-                if (isset($collabToken['collabToken']) && false !== stripos($collabToken['collabToken'], $env)) {
-                    $ind = $i;
-                    break;
-                }
+        $ind = null;
+        foreach ($this->collabTokens['collabTokens'] as $i => $collabToken) {
+            if (isset($collabToken['search_identifiers']) && in_array($env, $collabToken['search_identifiers'])) {
+                return $this->collabTokens['collabTokens'][$ind];
             }
 
-            if (!$ind) {
-                throw new EnvNotFoundException(sprintf('Environment "%s" does not exist.', $env));
+            if (isset($collabToken['collabToken']) && $collabToken['collabToken'] == $env) {
+                return $this->collabTokens['collabTokens'][$ind];
+            }
+
+            if (isset($collabToken['name']) && false !== stripos($collabToken['name'], $env)) {
+                return $this->collabTokens['collabTokens'][$ind];
             }
         }
 
-        return $this->collabTokens['collabTokens'][$ind];
+        throw new EnvNotFoundException(sprintf('Environment "%s" does not exist.', $env));
     }
 
     private function getRequestDetails(ProfileConfiguration $config)
