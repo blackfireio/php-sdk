@@ -12,6 +12,7 @@
 namespace Blackfire;
 
 use Blackfire\Profile\Request;
+use Blackfire\Exception\ApiException;
 
 /**
  * Represents a Blackfire Probe.
@@ -47,9 +48,16 @@ class Probe
         return $this->probe->discard();
     }
 
+    /**
+     * @throw ApiException if the probe cannot be enabled
+     */
     public function enable()
     {
-        return $this->probe->enable();
+        $ret = $this->probe->enable();
+
+        $this->checkError();
+
+        return $ret;
     }
 
     public function disable()
@@ -60,5 +68,20 @@ class Probe
     public function close()
     {
         return $this->probe->close();
+    }
+
+    private function checkError()
+    {
+        $response = $this->probe->getResponseLine();
+        $errorPrefix = 'Blackfire-Error: ';
+        if (0 !== strpos($response, $errorPrefix)) {
+            return;
+        }
+
+        // 4 is the length of the error code + one space
+        $error = substr($response, strlen($errorPrefix) + 4);
+        $code = substr($response, strlen($errorPrefix), 3);
+
+        throw new ApiException($error, $code);
     }
 }
