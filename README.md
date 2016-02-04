@@ -34,8 +34,8 @@ implementation that should only be used under the following circumstancies:
  * You want a fallback in case the Blackfire PHP extension is not installed on
    some machines (manual instrumentation will be converted to noops).
 
-Read more about using this PHP Probe in this [Blackfire blog
-post](http://blog.blackfire.io/blackfire-for-xhprof-users.html).
+[Read more](http://blog.blackfire.io/blackfire-for-xhprof-users.html) about
+how to use this feature on Blackfire's blog.
 
 **WARNING**: This code should only be used when installing the Blackfire PHP
 extension is not possible.
