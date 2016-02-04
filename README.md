@@ -25,6 +25,9 @@ read the instructions in `./bin/blackfire-io-proxy.php` to do so.
 PHP Probe
 ---------
 
+**WARNING**: This code should only be used when installing the Blackfire PHP
+extension is not possible.
+
 This repository provides a [Blackfire](https://blackfire.io/) PHP Probe
 implementation that should only be used under the following circumstancies:
 
@@ -36,6 +39,3 @@ implementation that should only be used under the following circumstancies:
 
 [Read more](http://blog.blackfire.io/blackfire-for-xhprof-users.html) about
 how to use this feature on Blackfire's blog.
-
-**WARNING**: This code should only be used when installing the Blackfire PHP
-extension is not possible.
