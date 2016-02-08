@@ -23,6 +23,7 @@ use Blackfire\Profile\Configuration as ProfileConfiguration;
  */
 class Client
 {
+    const MAX_RETRY = 60;
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
 
     private $config;
@@ -221,14 +222,14 @@ class Client
                     throw new ApiException($data['status']['failure_reason']);
                 }
             } catch (Exception\ApiException $e) {
-                if (404 != $e->getCode() || $retry > 7) {
+                if (404 != $e->getCode() || $retry > self::MAX_RETRY) {
                     throw $e;
                 }
             }
 
             usleep(++$retry * 50000);
 
-            if ($retry > 7) {
+            if ($retry > self::MAX_RETRY) {
                 if (null === $e) {
                     throw new ApiException('Profile is still in the queue.');
                 }
@@ -271,14 +272,14 @@ class Client
                     throw new ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
                 }
             } catch (Exception\ApiException $e) {
-                if (404 != $e->getCode() || $retry > 7) {
+                if (404 != $e->getCode() || $retry > self::MAX_RETRY) {
                     throw $e;
                 }
             }
 
             usleep(++$retry * 50000);
 
-            if ($retry > 7) {
+            if ($retry > self::MAX_RETRY) {
                 if (null === $e) {
                     throw new ApiException('Report is still in the queue.');
                 }
