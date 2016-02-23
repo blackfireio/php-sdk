@@ -184,7 +184,7 @@ class Client
             $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', array('content' => http_build_query(array('label' => $title), '', '&')), array('Content-Type: application/x-www-form-urlencoded'));
 
             return true;
-        } catch (Exception\ApiException $e) {
+        } catch (ApiException $e) {
             return false;
         }
     }
@@ -221,7 +221,7 @@ class Client
                 if ('failure' == $data['status']['name']) {
                     throw new ApiException($data['status']['failure_reason']);
                 }
-            } catch (Exception\ApiException $e) {
+            } catch (ApiException $e) {
                 if (404 != $e->getCode() || $retry > self::MAX_RETRY) {
                     throw $e;
                 }
@@ -234,7 +234,7 @@ class Client
                     throw new ApiException('Profile is still in the queue.');
                 }
 
-                throw new ApiException('Unknown error from the API.', $e->getCode(), $e);
+                throw ApiException::fromStatusCode('Unknown error from the API.', $e->getCode(), $e);
             }
         }
     }
@@ -271,7 +271,7 @@ class Client
                 if ('errored' === $data['status']['name']) {
                     throw new ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
                 }
-            } catch (Exception\ApiException $e) {
+            } catch (ApiException $e) {
                 if (404 != $e->getCode() || $retry > self::MAX_RETRY) {
                     throw $e;
                 }
@@ -284,7 +284,7 @@ class Client
                     throw new ApiException('Report is still in the queue.');
                 }
 
-                throw new ApiException('Unknown error from the API.', $e->getCode(), $e);
+                throw ApiException::fromStatusCode('Unknown error from the API.', $e->getCode(), $e);
             }
         }
     }
@@ -445,17 +445,17 @@ class Client
 
         // status code
         if (!preg_match('{HTTP/\d\.\d (\d+) }i', $http_response_header[0], $match)) {
-            throw new ApiException(sprintf('An unknown API error occurred (%s).', $error));
+            throw ApiException::fromURL($method, $url, sprintf('An unknown API error occurred (%s).', $error), null, $context, $headers);
         }
 
         $statusCode = $match[1];
 
         if ($statusCode >= 401) {
-            throw new ApiException($error, $statusCode);
+            throw ApiException::fromURL($method, $url, $error, $statusCode, $context, $headers);
         }
 
         if ($statusCode >= 300) {
-            throw new ApiException(sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, $error), $statusCode);
+            throw ApiException::fromURL($method, $url, sprintf('The API call failed for an unknown reason (HTTP %d: %s).', $statusCode, $error), $statusCode, $context, $headers);
         }
 
         return $body;

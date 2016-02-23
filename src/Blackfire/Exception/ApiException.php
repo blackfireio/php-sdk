@@ -13,8 +13,13 @@ namespace Blackfire\Exception;
 
 class ApiException extends \RuntimeException implements ExceptionInterface
 {
-    public function __construct($message = '', $code = 0, \Exception $previous = null)
+    public static function fromStatusCode($message, $code, \Exception $previous = null)
     {
-        parent::__construct(sprintf('%s: %s', $code, $message), $code, $previous);
+        return new static(sprintf('%s: %s', $code, $message), $code, $previous);
+    }
+
+    public static function fromURL($method, $url, $message, $code, $context, $headers, \Exception $previous = null)
+    {
+        return new static(sprintf('%s: %s while calling %s %s [context: %s] [headers: %s]', $code, $message, $method, $url, var_export($context, true), var_export($headers, true)), $code, $previous);
     }
 }

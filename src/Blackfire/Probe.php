@@ -82,6 +82,6 @@ class Probe
         $error = substr($response, strlen($errorPrefix) + 4);
         $code = substr($response, strlen($errorPrefix), 3);
 
-        throw new ApiException($error, $code);
+        throw ApiException::fromStatusCode($error, $code);
     }
 }
