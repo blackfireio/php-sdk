@@ -27,7 +27,7 @@ class TestConstraint extends \PHPUnit_Framework_Constraint
 
     protected function fail($profile, $description, ComparisonFailure $comparisonFailure = null)
     {
-        $failureDescription = sprintf('An error occurred when profiling the test. More information at %s', $profile->getUrl());
+        $failureDescription = sprintf('An error occurred when profiling the test. More information at %s', $profile->getUrl().'?settings%5BtabPane%5D=assertions');
 
         if (!$profile->isErrored()) {
             $tests = $profile->getTests();
