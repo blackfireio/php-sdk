@@ -45,7 +45,7 @@ class TestConstraint extends \PHPUnit_Framework_Constraint
                     $details .= sprintf("      - %s\n", $assertion);
                 }
             }
-            $details .= sprintf("\nMore information at %s.", $profile->getUrl());
+            $details .= sprintf("\nMore information at %s.", $profile->getUrl().'?settings%5BtabPane%5D=assertions');
 
             $failureDescription = "Failed asserting that Blackfire tests pass.\n";
             $failureDescription .= sprintf("%d tests failures out of %d.\n\n", $failures, count($tests));
