@@ -441,7 +441,7 @@ class Client
             $data = array('message' => '');
         }
 
-        $error = isset($data['error']) ? $data['error'] : (isset($data['message']) ? $data['message'] : 'Unknown error');
+        $error = isset($data['message']) ? $data['message'] : 'Unknown error';
 
         // status code
         if (!preg_match('{HTTP/\d\.\d (\d+) }i', $http_response_header[0], $match)) {

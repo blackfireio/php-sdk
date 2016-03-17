@@ -35,7 +35,7 @@ class Report
             $this->initializeReport();
         }
 
-        return $this->data['_links']['self']['href'];
+        return $this->data['_links']['report']['href'];
     }
 
     /**
