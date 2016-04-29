@@ -32,24 +32,7 @@ if (!defined('UPROFILER_FLAGS_MEMORY')) {
  */
 class BlackfireProbe
 {
-    private $seqId;
-    private $fileFormat = 'BlackfireProbe';
-    private $autoEnabled = false;
-    private $stale = false;
-    private $profiler;
-    private $agentSocket;
-    private $agentTimeout;
-    private $outputStream;
-    private $logLevel = 1;
-    private $logFile = '';
-    private $isEnabled = false;
-    private $responseLine = '';
-    private $challenge;
-    private $signedArgs;
-    private $signature;
-    private $flags;
-    private $configuration = null;
-    private $options = array(
+    protected $options = array(
         'blackfire_yml' => false,
         'server_keys' => array(
             'HTTP_HOST',
@@ -78,6 +61,24 @@ class BlackfireProbe
             'iterator_apply',
         ),
     );
+
+    private $seqId;
+    private $fileFormat = 'BlackfireProbe';
+    private $autoEnabled = false;
+    private $stale = false;
+    private $profiler;
+    private $agentSocket;
+    private $agentTimeout;
+    private $outputStream;
+    private $logLevel = 1;
+    private $logFile = '';
+    private $isEnabled = false;
+    private $responseLine = '';
+    private $challenge;
+    private $signedArgs;
+    private $signature;
+    private $flags;
+    private $configuration = null;
     private static $nextSeqId = 1;
     private static $probe;
     private static $profilerIsEnabled = false;
@@ -117,7 +118,7 @@ class BlackfireProbe
             $query = '';
         }
 
-        self::$probe = new self($query);
+        self::$probe = new static($query);
 
         parse_str($query, $query);
 
@@ -216,6 +217,7 @@ class BlackfireProbe
         empty($args['flag_memory']) or $this->flags |= UPROFILER_FLAGS_MEMORY;
         empty($args['flag_no_builtins']) or $this->flags |= UPROFILER_FLAGS_NO_BUILTINS;
         $this->options['blackfire_yml'] = !empty($args['flag_yml']);
+        $this->options['timespan'] = !empty($args['flag_timespan']);
 
         if (function_exists('uprofiler_enable')) {
             $this->profiler = 'uprofiler';
@@ -609,6 +611,9 @@ class BlackfireProbe
         if ($this->options['blackfire_yml']) {
             $hello .= ', blackfire_yml';
         }
+        if ($this->options['timespan']) {
+            $hello .= ', timespan';
+        }
         if ($noop) {
             $hello .= ', noop';
         }
@@ -901,9 +906,9 @@ class BlackfireProbe
     /**
      * @internal
      */
-    public function onShutdown()
+    public function onShutdown($extraHeaders = '')
     {
-        $this->box('doShutdown', null);
+        $this->box('doShutdown', null, $extraHeaders);
     }
 
     private function blackfireYmlAsked()
@@ -914,7 +919,7 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function doShutdown()
+    private function doShutdown($extraHeaders = '')
     {
         // Get and write data now so that any later fatal error
         // does not prevent collecting what we already have.
@@ -945,7 +950,10 @@ class BlackfireProbe
             }
         }
 
-        $this->profilerWrite(false, function_exists('http_response_code') ? 'response-code: '.http_response_code()."\n" : '');
+        if (function_exists('http_response_code')) {
+            $extraHeaders .= 'response-code: '.http_response_code()."\n";
+        }
+        $this->profilerWrite(false, $extraHeaders);
     }
 
     /**
