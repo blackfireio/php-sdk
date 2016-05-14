@@ -327,18 +327,17 @@ class Client
             return $this->collabTokens['collabTokens'][0];
         }
 
-        $ind = null;
         foreach ($this->collabTokens['collabTokens'] as $i => $collabToken) {
             if (isset($collabToken['search_identifiers']) && in_array($env, $collabToken['search_identifiers'])) {
-                return $this->collabTokens['collabTokens'][$ind];
+                return $collabToken;
             }
 
             if (isset($collabToken['collabToken']) && $collabToken['collabToken'] == $env) {
-                return $this->collabTokens['collabTokens'][$ind];
+                return $collabToken;
             }
 
             if (isset($collabToken['name']) && false !== stripos($collabToken['name'], $env)) {
-                return $this->collabTokens['collabTokens'][$ind];
+                return $collabToken;
             }
         }
 
