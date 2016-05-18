@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-         "php": ">=5.2.0"
+        "php": ">=5.2.0",
+        "composer/ca-bundle": "^1.0"
     },
     "suggest": {
         "ext-blackfire": "The C version of the Blackfire probe",

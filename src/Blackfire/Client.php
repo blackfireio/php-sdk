@@ -17,6 +17,7 @@ use Blackfire\Exception\EnvNotFoundException;
 use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Exception\OfflineException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
+use Composer\CaBundle\CaBundle;
 
 /**
  * The Blackfire Client.
@@ -408,6 +409,18 @@ class Client
         $headers[] = 'Authorization: Basic '.base64_encode($this->config->getClientId().':'.$this->config->getClientToken());
         $headers[] = 'X-Blackfire-User-Agent: Blackfire PHP SDK/1.0';
 
+        $caPath = CaBundle::getSystemCaRootBundlePath();
+        $sslOpts = array(
+            'verify_peer' => 1,
+            'verify_host' => 2,
+        );
+
+        if (is_dir($caPath)) {
+            $sslOpts['ssl']['capath'] = $caPath;
+        } else {
+            $sslOpts['ssl']['cafile'] = $caPath;
+        }
+
         $context = stream_context_create(array(
             'http' => array_replace(array(
                 'method' => $method,
@@ -417,11 +430,7 @@ class Client
                 'max_redirects' => 3,
                 'timeout' => 60,
             ), $context),
-            'ssl' => array(
-                'verify_peer' => 1,
-                'verify_host' => 2,
-                'cafile' => __DIR__.'/Resources/ca-certificates.crt',
-            ),
+            'ssl' => $sslOpts,
         ));
 
         set_error_handler(function ($type, $message) {
