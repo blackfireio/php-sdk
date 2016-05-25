@@ -18,6 +18,7 @@ use Blackfire\Build;
  */
 class Configuration
 {
+    private $uuid;
     private $assertions;
     private $metrics;
     private $samples = 1;
@@ -27,6 +28,21 @@ class Configuration
     private $metadata = array();
     private $layers = array();
     private $build;
+
+    public function getUuid()
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * Sets the UUID of the profile to an existing one.
+     *
+     * @param string $uuid
+     */
+    public function setUuid($uuid)
+    {
+        $this->uuid = $uuid;
+    }
 
     public function getTitle()
     {

@@ -205,6 +205,23 @@ class Client
     }
 
     /**
+     * @param ProfileConfiguration $config
+     * @param Build                $build
+     */
+    public function addJobInBuild(ProfileConfiguration $config, Build $build)
+    {
+        $body = array('name' => $config->getTitle());
+
+        if ($config->getUuid()) {
+            $body['profile_uuid'] = $config->getUuid();
+        }
+
+        $content = json_encode($body);
+
+        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$build->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+    }
+
+    /**
      * @internal
      */
     public function doGetProfile($uuid)
@@ -354,9 +371,7 @@ class Client
         if ($build) {
             $details['collabToken'] = $build->getEnv();
 
-            // create a job in the current build
-            $content = json_encode(array('name' => $config->getTitle()));
-            $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$build->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+            $data = $this->addJobInBuild($config, $build);
 
             $build->incJob();
 
