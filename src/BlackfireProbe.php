@@ -129,6 +129,9 @@ class BlackfireProbe
 
                     $config = self::$probe->getConfiguration();
                     self::$probe->responseLine .= '&blackfire-yml-size='.strlen($config);
+                    if (!$config) {
+                        self::$probe->responseLine = 'Blackfire-Response: no-blackfire-yaml';
+                    }
 
                     if (!headers_sent()) {
                         header('X-'.self::$probe->getResponseLine());
