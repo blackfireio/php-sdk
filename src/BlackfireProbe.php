@@ -129,7 +129,7 @@ class BlackfireProbe
 
                     $config = self::$probe->getConfiguration();
                     self::$probe->responseLine .= '&blackfire-yml-size='.strlen($config);
-                    if (!$config) {
+                    if (null === $config) {
                         self::$probe->responseLine = 'Blackfire-Response: no-blackfire-yaml';
                     }
 
@@ -662,8 +662,6 @@ class BlackfireProbe
         } catch (ErrorException $e) {
             $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
         }
-
-        return '';
     }
 
     /**
