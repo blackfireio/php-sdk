@@ -223,7 +223,6 @@ class Configuration
             $yaml .= "tests:\n";
             foreach ($this->assertions as $name => $assertion) {
                 $yaml .= "  \"$name\":\n";
-                $yaml .= "    command: .*\n";
                 $yaml .= "    assertions: [\"$assertion\"]\n\n";
             }
         }
