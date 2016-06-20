@@ -383,13 +383,13 @@ class Client
         $id = self::NO_REFERENCE_ID;
         if ($config->getReference() || $config->isNewReference()) {
             foreach ($envDetails['profileSlots'] as $profileSlot) {
-                if ($config->isNewReference() && $profileSlot['empty'] && self::NO_REFERENCE_ID !== $profileSlot['id']) {
-                    $id = $profileSlot['id'];
+                if ($config->isNewReference()) {
+                    if ($profileSlot['empty'] && self::NO_REFERENCE_ID !== $profileSlot['id']) {
+                        $id = $profileSlot['id'];
 
-                    break;
-                }
-
-                if ($config->getReference() == $profileSlot['number'] || $config->getReference() == $profileSlot['id']) {
+                        break;
+                    }
+                } elseif ($config->getReference() == $profileSlot['number'] || $config->getReference() == $profileSlot['id']) {
                     $id = $profileSlot['id'];
 
                     break;
@@ -398,7 +398,7 @@ class Client
 
             if (self::NO_REFERENCE_ID === $id) {
                 if ($config->isNewReference()) {
-                    throw new ReferenceNotFoundException('Unable to create a new reference.');
+                    throw new ReferenceNotFoundException('Unable to create a new reference, your reference quota is reached');
                 } else {
                     throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReference()));
                 }
