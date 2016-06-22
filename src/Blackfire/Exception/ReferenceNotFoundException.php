@@ -11,6 +11,6 @@
 
 namespace Blackfire\Exception;
 
-class ReferenceNotFoundException extends \RuntimeException implements ExceptionInterface
+class ReferenceNotFoundException extends RuntimeException
 {
 }

@@ -11,6 +11,6 @@
 
 namespace Blackfire\Exception;
 
-class ConfigNotFoundException extends \RuntimeException implements ExceptionInterface
+class ConfigNotFoundException extends RuntimeException
 {
 }

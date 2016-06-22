@@ -11,7 +11,7 @@
 
 namespace Blackfire\Exception;
 
-class ApiException extends \RuntimeException implements ExceptionInterface
+class ApiException extends RuntimeException
 {
     public static function fromStatusCode($message, $code, \Exception $previous = null)
     {

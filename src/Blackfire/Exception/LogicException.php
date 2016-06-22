@@ -11,6 +11,6 @@
 
 namespace Blackfire\Exception;
 
-class NotAvailableException extends RuntimeException
+class LogicException extends \LogicException implements ExceptionInterface
 {
 }

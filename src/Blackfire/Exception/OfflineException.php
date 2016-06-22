@@ -11,6 +11,6 @@
 
 namespace Blackfire\Exception;
 
-class OfflineException extends \RuntimeException implements ExceptionInterface
+class OfflineException extends RuntimeException
 {
 }
