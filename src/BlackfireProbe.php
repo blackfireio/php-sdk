@@ -151,6 +151,18 @@ class BlackfireProbe
     }
 
     /**
+     * Tells whether any probes are currently profiling or not.
+     *
+     * @return bool
+     *
+     * @api
+     */
+    public static function isEnabled()
+    {
+        return self::$profilerIsEnabled;
+    }
+
+    /**
      * Instantiate a probe object.
      *
      * @param string $query       An URL-encoded string that configures the probe. Part of the string is signed.
