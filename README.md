@@ -37,5 +37,5 @@ implementation that should only be used under the following circumstancies:
  * You want a fallback in case the Blackfire PHP extension is not installed on
    some machines (manual instrumentation will be converted to noops).
 
-[Read more](http://blog.blackfire.io/blackfire-for-xhprof-users.html) about
+[Read more](https://blog.blackfire.io/blackfire-for-xhprof-users.html) about
 how to use this feature on Blackfire's blog.
