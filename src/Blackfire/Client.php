@@ -431,9 +431,9 @@ class Client
         );
 
         if (is_dir($caPath)) {
-            $sslOpts['ssl']['capath'] = $caPath;
+            $sslOpts['capath'] = $caPath;
         } else {
-            $sslOpts['ssl']['cafile'] = $caPath;
+            $sslOpts['cafile'] = $caPath;
         }
 
         $context = stream_context_create(array(
