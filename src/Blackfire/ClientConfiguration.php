@@ -187,6 +187,11 @@ class ClientConfiguration
             // home on windows
             return $_SERVER['HOMEDRIVE'].$_SERVER['HOMEPATH'];
         }
+
+        if ($home = getenv('USERPROFILE')) {
+            // home on windows
+            return $home;
+        }
     }
 
     private function parseConfigFile($file)
