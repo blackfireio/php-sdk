@@ -28,6 +28,11 @@ class Cost
         $this->envelope = $envelope;
     }
 
+    public function getCount()
+    {
+        return $this->envelope['ct'];
+    }
+
     public function getWallTime()
     {
         return $this->envelope['wt'];
