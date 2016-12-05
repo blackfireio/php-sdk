@@ -22,16 +22,16 @@ use Blackfire\Profile\Test;
  */
 class Profile
 {
-    private $callable;
+    private $initializeProfileCallback;
     private $data;
     private $tests;
 
     /**
      * @internal
      */
-    public function __construct($callable)
+    public function __construct($initializeProfileCallback)
     {
-        $this->callable = $callable;
+        $this->initializeProfileCallback = $initializeProfileCallback;
     }
 
     /**
@@ -200,6 +200,6 @@ class Profile
 
     private function initializeProfile()
     {
-        $this->data = call_user_func($this->callable);
+        $this->data = call_user_func($this->initializeProfileCallback);
     }
 }

@@ -210,7 +210,9 @@ class Client
      */
     public function addJobInBuild(ProfileConfiguration $config, Build $build)
     {
-        $body = array('name' => $config->getTitle());
+        $body = $config->getRequestInfo();
+
+        $body['name'] = $config->getTitle();
 
         if ($config->getUuid()) {
             $body['profile_uuid'] = $config->getUuid();

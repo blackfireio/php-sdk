@@ -28,6 +28,7 @@ class Configuration
     private $metadata = array();
     private $layers = array();
     private $build;
+    private $requestInfo = array();
 
     public function getUuid()
     {
@@ -73,6 +74,21 @@ class Configuration
     public function setBuild(Build $build)
     {
         $this->build = $build;
+
+        return $this;
+    }
+
+    public function getRequestInfo()
+    {
+        return $this->requestInfo;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setRequestInfo(array $info)
+    {
+        $this->requestInfo = $info;
 
         return $this;
     }
