@@ -29,18 +29,20 @@ class Middleware
     private $handler;
     private $blackfire;
     private $logger;
+    private $autoEnable;
 
-    public function __construct(BlackfireClient $blackfire, callable $handler, LoggerInterface $logger = null)
+    public function __construct(BlackfireClient $blackfire, callable $handler, LoggerInterface $logger = null, $autoEnable = true)
     {
         $this->blackfire = $blackfire;
         $this->handler = $handler;
         $this->logger = $logger;
+        $this->autoEnable = (bool) $autoEnable;
     }
 
-    public static function create(BlackfireClient $blackfire, LoggerInterface $logger = null)
+    public static function create(BlackfireClient $blackfire, LoggerInterface $logger = null, $autoEnable = true)
     {
-        return function (callable $handler) use ($blackfire, $logger) {
-            return new self($blackfire, $handler, $logger);
+        return function (callable $handler) use ($blackfire, $logger, $autoEnable) {
+            return new self($blackfire, $handler, $logger, $autoEnable);
         };
     }
 
@@ -50,6 +52,10 @@ class Middleware
     public function __invoke(RequestInterface $request, array $options)
     {
         $fn = $this->handler;
+
+        if ($this->shouldAutoEnable() && !array_key_exists('blackfire', $options)) {
+            $options['blackfire'] = new ProfileConfiguration();
+        }
 
         if (!isset($options['blackfire']) || false === $options['blackfire']) {
             return $fn($request, $options);
@@ -128,5 +134,21 @@ class Middleware
 
         /* @var PromiseInterface|ResponseInterface $promise */
         return $this($request, $options);
+    }
+
+    private function shouldAutoEnable()
+    {
+        if (\BlackfireProbe::isEnabled() && $this->autoEnable) {
+            if (isset($_SERVER['HTTP_X_BLACKFIRE_QUERY'])) {
+                // Let's disable subrequest profiling if aggregation is enabled
+                if (preg_match('/aggreg_samples=(\d+)/', $_SERVER['HTTP_X_BLACKFIRE_QUERY'], $matches)) {
+                    if ($matches[1] === '1') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
