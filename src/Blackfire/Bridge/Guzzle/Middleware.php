@@ -62,7 +62,16 @@ class Middleware
         }
 
         if (!$request->hasHeader('X-Blackfire-Query')) {
+            if (\BlackfireProbe::isEnabled()) {
+                $probe = \BlackfireProbe::getMainInstance();
+                $probe->disable();
+            }
+
             $profileRequest = $this->blackfire->createRequest($options['blackfire']);
+
+            if (isset($probe)) {
+                $probe->enable();
+            }
 
             $request = $request
                 ->withHeader('X-Blackfire-Query', $profileRequest->getToken())
