@@ -108,7 +108,7 @@ class Middleware
 
         if (!$response->hasHeader('X-Blackfire-Response')) {
             if (null !== $this->logger) {
-                $this->logger->warning('Profile request seems to have failed', array(
+                $this->logger->warning('Profile request failed.', array(
                     'profile-uuid' => $request->getHeader('X-Blackfire-Profile-Uuid'),
                     'profile-url' => $request->getHeader('X-Blackfire-Profile-Url'),
                 ));
@@ -121,7 +121,7 @@ class Middleware
 
         if (!isset($values['continue']) || 'true' !== $values['continue']) {
             if (null !== $this->logger) {
-                $this->logger->debug('Profile request succeeded', array(
+                $this->logger->debug('Profile request succeeded.', array(
                     'profile-uuid' => $request->getHeader('X-Blackfire-Profile-Uuid'),
                     'profile-url' => $request->getHeader('X-Blackfire-Profile'),
                 ));
@@ -142,9 +142,7 @@ class Middleware
             if (isset($_SERVER['HTTP_X_BLACKFIRE_QUERY'])) {
                 // Let's disable subrequest profiling if aggregation is enabled
                 if (preg_match('/aggreg_samples=(\d+)/', $_SERVER['HTTP_X_BLACKFIRE_QUERY'], $matches)) {
-                    if ($matches[1] === '1') {
-                        return true;
-                    }
+                    return $matches[1] === '1';
                 }
             }
         }
