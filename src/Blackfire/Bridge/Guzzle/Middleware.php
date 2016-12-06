@@ -17,6 +17,7 @@ use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Blackfire middleware for Guzzle.
@@ -27,17 +28,19 @@ class Middleware
 {
     private $handler;
     private $blackfire;
+    private $logger;
 
-    public function __construct(BlackfireClient $blackfire, callable $handler)
+    public function __construct(BlackfireClient $blackfire, callable $handler, LoggerInterface $logger = null)
     {
         $this->blackfire = $blackfire;
         $this->handler = $handler;
+        $this->logger = $logger;
     }
 
-    public static function create(BlackfireClient $blackfire)
+    public static function create(BlackfireClient $blackfire, LoggerInterface $logger = null)
     {
-        return function (callable $handler) use ($blackfire) {
-            return new self($blackfire, $handler);
+        return function (callable $handler) use ($blackfire, $logger) {
+            return new self($blackfire, $handler, $logger);
         };
     }
 
@@ -85,11 +88,26 @@ class Middleware
         $response = $response->withHeader('X-Blackfire-Profile-Uuid', $request->getHeader('X-Blackfire-Profile-Uuid'));
 
         if (!$response->hasHeader('X-Blackfire-Response')) {
+            if (null !== $this->logger) {
+                $this->logger->warning('Profile request seems to have failed', array(
+                    'profile-uuid' => $request->getHeader('X-Blackfire-Profile-Uuid'),
+                    'profile-url' => $request->getHeader('X-Blackfire-Profile-Url'),
+                ));
+            }
+
             return $response;
         }
 
         parse_str($response->getHeader('X-Blackfire-Response')[0], $values);
+
         if (!isset($values['continue']) || 'true' !== $values['continue']) {
+            if (null !== $this->logger) {
+                $this->logger->debug('Profile request succeeded', array(
+                    'profile-uuid' => $request->getHeader('X-Blackfire-Profile-Uuid'),
+                    'profile-url' => $request->getHeader('X-Blackfire-Profile'),
+                ));
+            }
+
             return $response;
         }
 
