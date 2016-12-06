@@ -75,6 +75,7 @@ class Middleware
 
             $request = $request
                 ->withHeader('X-Blackfire-Query', $profileRequest->getToken())
+                ->withHeader('X-Blackfire-Profile-Url', $profileRequest->getProfileUrl())
                 ->withHeader('X-Blackfire-Profile-Uuid', $profileRequest->getUuid())
             ;
         }
@@ -94,7 +95,10 @@ class Middleware
      */
     public function processResponse(RequestInterface $request, array $options, ResponseInterface $response)
     {
-        $response = $response->withHeader('X-Blackfire-Profile-Uuid', $request->getHeader('X-Blackfire-Profile-Uuid'));
+        $response = $response
+            ->withHeader('X-Blackfire-Profile-Uuid', $request->getHeader('X-Blackfire-Profile-Uuid'))
+            ->withHeader('X-Blackfire-Profile-Url', $request->getHeader('X-Blackfire-Profile'))
+        ;
 
         if (!$response->hasHeader('X-Blackfire-Response')) {
             if (null !== $this->logger) {
