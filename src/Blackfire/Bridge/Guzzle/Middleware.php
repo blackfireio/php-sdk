@@ -42,7 +42,7 @@ class Middleware
     public static function create(BlackfireClient $blackfire, LoggerInterface $logger = null, $autoEnable = true)
     {
         return function (callable $handler) use ($blackfire, $logger, $autoEnable) {
-            return new self($blackfire, $handler, $logger, $autoEnable);
+            return new Middleware($blackfire, $handler, $logger, $autoEnable);
         };
     }
 
@@ -86,9 +86,11 @@ class Middleware
             ;
         }
 
+        $self = $this;
+
         return $fn($request, $options)
-            ->then(function (ResponseInterface $response) use ($request, $options) {
-                return $this->processResponse($request, $options, $response);
+            ->then(function (ResponseInterface $response) use ($request, $options, $self) {
+                return $self->processResponse($request, $options, $response);
             });
     }
 
