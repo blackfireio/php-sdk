@@ -31,7 +31,7 @@ class Middleware
     private $logger;
     private $autoEnable;
 
-    public function __construct(BlackfireClient $blackfire, callable $handler, LoggerInterface $logger = null, $autoEnable = true)
+    public function __construct(BlackfireClient $blackfire, $handler, LoggerInterface $logger = null, $autoEnable = true)
     {
         $this->blackfire = $blackfire;
         $this->handler = $handler;
@@ -41,7 +41,7 @@ class Middleware
 
     public static function create(BlackfireClient $blackfire, LoggerInterface $logger = null, $autoEnable = true)
     {
-        return function (callable $handler) use ($blackfire, $logger, $autoEnable) {
+        return function ($handler) use ($blackfire, $logger, $autoEnable) {
             return new self($blackfire, $handler, $logger, $autoEnable);
         };
     }
@@ -117,7 +117,11 @@ class Middleware
             return $response;
         }
 
-        parse_str($response->getHeader('X-Blackfire-Response')[0], $values);
+        $values = array();
+        $blackfireResponse = $response->getHeader('X-Blackfire-Response');
+        if (is_array($blackfireResponse) && isset($blackfireResponse[0])) {
+            parse_str($blackfireResponse[0], $values);
+        }
 
         if (!isset($values['continue']) || 'true' !== $values['continue']) {
             if (null !== $this->logger) {
