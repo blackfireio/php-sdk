@@ -361,7 +361,7 @@ class BlackfireProbe
         return $this->box('doDisable', true, true);
     }
 
-    public function addMarker()
+    public static function addMarker($label = '')
     {
     }
 
