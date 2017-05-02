@@ -363,6 +363,7 @@ class BlackfireProbe
 
     public static function addMarker($label = '')
     {
+        $label = ''; // prevent OPcache optimization
     }
 
     // XXX
