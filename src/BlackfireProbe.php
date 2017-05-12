@@ -82,7 +82,6 @@ class BlackfireProbe
     private $signature;
     private $flags;
     private $configuration;
-    private $composerLock;
     private static $nextSeqId = 1;
     private static $probe;
     private static $profilerIsEnabled = false;
@@ -700,10 +699,6 @@ class BlackfireProbe
     private function getComposerLock()
     {
         try {
-            if ($this->composerLock !== null) {
-                return $this->composerLock;
-            }
-
             if (PHP_SAPI === 'cli-server') {
                 $baseDir = $_SERVER['DOCUMENT_ROOT'];
             } else {
