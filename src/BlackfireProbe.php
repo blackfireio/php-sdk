@@ -34,6 +34,7 @@ class BlackfireProbe
 {
     protected $options = array(
         'blackfire_yml' => false,
+        'composer_lock' => false,
         'config' => true,
         'timespan' => false,
         'server_keys' => array(
@@ -80,7 +81,8 @@ class BlackfireProbe
     private $signedArgs;
     private $signature;
     private $flags;
-    private $configuration = null;
+    private $configuration;
+    private $composerLock;
     private static $nextSeqId = 1;
     private static $probe;
     private static $profilerIsEnabled = false;
@@ -235,6 +237,7 @@ class BlackfireProbe
         empty($args['flag_memory']) or $this->flags |= UPROFILER_FLAGS_MEMORY;
         empty($args['flag_no_builtins']) or $this->flags |= UPROFILER_FLAGS_NO_BUILTINS;
         $this->options['blackfire_yml'] = !empty($args['flag_yml']);
+        $this->options['composer_lock'] = !empty($args['flag_composer']);
         $this->options['timespan'] = !empty($args['flag_timespan']);
 
         if (function_exists('uprofiler_enable')) {
@@ -561,8 +564,12 @@ class BlackfireProbe
                             // Let's parse what is in "Blackfire-Response: " (20 chars)
                             parse_str(substr($response, 20), $features);
                             if (isset($features['blackfire_yml'])) {
-                                $i = $this->getConfiguration($h);
+                                $i = $this->getConfiguration();
                                 self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($i)."\n".$i);
+                            }
+                            if (isset($features['composer_lock'])) {
+                                $i = $this->getComposerLock();
+                                self::fwrite($h, 'Composer-Lock-Size: '.strlen($i)."\n".$i);
                             }
 
                             while ('' !== rtrim(fgets($h, 4096))) {
@@ -634,6 +641,9 @@ class BlackfireProbe
         if ($this->options['blackfire_yml']) {
             $hello .= ', blackfire_yml';
         }
+        if ($this->options['composer_lock']) {
+            $hello .= ', composer_lock';
+        }
         if ($this->options['timespan']) {
             $hello .= ', timespan';
         }
@@ -679,6 +689,41 @@ class BlackfireProbe
                 }
 
                 $this->debug('No .blackfire.yml found');
+            } else {
+                $this->debug('Realpath failed on '.$baseDir);
+            }
+        } catch (ErrorException $e) {
+            $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
+        }
+    }
+
+    private function getComposerLock()
+    {
+        try {
+            if ($this->composerLock !== null) {
+                return $this->composerLock;
+            }
+
+            if (PHP_SAPI === 'cli-server') {
+                $baseDir = $_SERVER['DOCUMENT_ROOT'];
+            } else {
+                $baseDir = dirname($_SERVER['SCRIPT_FILENAME']);
+            }
+
+            if ($composerDir = realpath($baseDir)) {
+                do {
+                    $prevComposerDir = $composerDir;
+                    $composerFile = $composerDir.'/composer.lock';
+                    $composerDir = dirname($composerDir);
+                } while (!(file_exists($composerFile) && is_file($composerFile)) && $prevComposerDir !== $composerDir);
+
+                if ($prevComposerDir !== $composerDir) {
+                    $this->debug("Found $composerFile");
+
+                    return file_get_contents($composerFile);
+                }
+
+                $this->debug('No composer.lock found');
             } else {
                 $this->debug('Realpath failed on '.$baseDir);
             }
