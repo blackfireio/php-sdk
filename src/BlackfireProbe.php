@@ -34,6 +34,8 @@ class BlackfireProbe
 {
     protected $options = array(
         'blackfire_yml' => false,
+        'config' => true,
+        'timespan' => false,
         'server_keys' => array(
             'HTTP_HOST',
             'HTTP_USER_AGENT',
@@ -634,6 +636,9 @@ class BlackfireProbe
         }
         if ($this->options['timespan']) {
             $hello .= ', timespan';
+        }
+        if ($this->options['config']) {
+            $hello .= ', config';
         }
         if ($noop) {
             $hello .= ', noop';
