@@ -663,40 +663,25 @@ class BlackfireProbe
      */
     private function getConfiguration()
     {
-        try {
-            if ($this->configuration !== null) {
-                return $this->configuration;
-            }
-
-            if (PHP_SAPI === 'cli-server') {
-                $baseDir = $_SERVER['DOCUMENT_ROOT'];
-            } else {
-                $baseDir = dirname($_SERVER['SCRIPT_FILENAME']);
-            }
-
-            if ($yamlDir = realpath($baseDir)) {
-                do {
-                    $prevYamlDir = $yamlDir;
-                    $yamlFile = $yamlDir.'/.blackfire.yml';
-                    $yamlDir = dirname($yamlDir);
-                } while (!(file_exists($yamlFile) && is_file($yamlFile)) && $prevYamlDir !== $yamlDir);
-
-                if ($prevYamlDir !== $yamlDir) {
-                    $this->debug("Found $yamlFile");
-
-                    return file_get_contents($yamlFile);
-                }
-
-                $this->debug('No .blackfire.yml found');
-            } else {
-                $this->debug('Realpath failed on '.$baseDir);
-            }
-        } catch (ErrorException $e) {
-            $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
+        if ($this->configuration !== null) {
+            return $this->configuration;
         }
+
+        return $this->getRootFile('.blackfire.yml');
     }
 
+    /**
+     * @internal
+     */
     private function getComposerLock()
+    {
+        return $this->getRootFile('composer.lock');
+    }
+
+    /**
+     * @internal
+     */
+    private function getRootFile($file)
     {
         try {
             if (PHP_SAPI === 'cli-server') {
@@ -705,20 +690,20 @@ class BlackfireProbe
                 $baseDir = dirname($_SERVER['SCRIPT_FILENAME']);
             }
 
-            if ($composerDir = realpath($baseDir)) {
+            if ($dir = realpath($baseDir)) {
                 do {
-                    $prevComposerDir = $composerDir;
-                    $composerFile = $composerDir.'/composer.lock';
-                    $composerDir = dirname($composerDir);
-                } while (!(file_exists($composerFile) && is_file($composerFile)) && $prevComposerDir !== $composerDir);
+                    $prevDir = $dir;
+                    $rootFile = $dir.DIRECTORY_SEPARATOR.$file;
+                    $dir = dirname($dir);
+                } while (!(file_exists($rootFile) && is_file($rootFile)) && $prevDir !== $dir);
 
-                if ($prevComposerDir !== $composerDir) {
-                    $this->debug("Found $composerFile");
+                if ($prevDir !== $dir) {
+                    $this->debug("Found $rootFile");
 
-                    return file_get_contents($composerFile);
+                    return file_get_contents($rootFile);
                 }
 
-                $this->debug('No composer.lock found');
+                $this->debug(sprintf('No %s found', $file));
             } else {
                 $this->debug('Realpath failed on '.$baseDir);
             }
