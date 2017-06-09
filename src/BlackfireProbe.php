@@ -78,6 +78,8 @@ class BlackfireProbe
     private $isEnabled = false;
     private $responseLine = '';
     private $challenge;
+    private $profileTitle;
+    private $configYml;
     private $signedArgs;
     private $signature;
     private $flags;
@@ -225,6 +227,8 @@ class BlackfireProbe
         $query['BLACKFIRE_LOG_LEVEL'] and $this->logLevel = $query['BLACKFIRE_LOG_LEVEL'];
         $query['BLACKFIRE_LOG_FILE'] and $this->logFile = $query['BLACKFIRE_LOG_FILE'];
         $this->aggregSamples = isset($args['aggreg_samples']) && is_string($args['aggreg_samples']) ? max((int) $args['aggreg_samples'], 1) : 1;
+        isset($args['profile_title']) and $this->profileTitle = $args['profile_title'];
+        isset($args['config_yml']) and $this->configYml = $args['config_yml'];
 
         if ($this->logFile && strpos($this->logFile, '://') === false) {
             $this->logFile = 'file://'.$this->logFile;
@@ -635,6 +639,8 @@ class BlackfireProbe
         }
         $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples;
         isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
+        isset($this->profileTitle) and $line .= '&profile_title='.$this->profileTitle;
+        isset($this->configYml) and $line .= '&config_yml='.$this->configYml;
         $hello .= 'Blackfire-Query: '.$line."\n";
         $hello .= sprintf('Blackfire-Probe: php-%s', PHP_VERSION);
         if ($this->options['blackfire_yml']) {
