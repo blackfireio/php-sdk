@@ -18,6 +18,7 @@ use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Exception\OfflineException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Composer\CaBundle\CaBundle;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The Blackfire Client.
@@ -129,7 +130,7 @@ class Client
      *
      * @deprecated since 1.4, to be removed in 2.0
      */
-    public function assertPhpUnit(\PHPUnit_Framework_TestCase $testCase, ProfileConfiguration $config, $callback)
+    public function assertPhpUnit(TestCase $testCase, ProfileConfiguration $config, $callback)
     {
         if (!$config->hasMetadata('skip_timeline')) {
             $config->setMetadata('skip_timeline', 'true');
