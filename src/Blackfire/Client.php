@@ -11,6 +11,13 @@
 
 namespace Blackfire;
 
+// BC
+if (!class_exists('\PHPUnit_Framework_TestCase') &&
+class_exists('\PHPUnit\Framework\TestCase')
+) {
+class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 use Blackfire\Bridge\PhpUnit\TestConstraint as BlackfireConstraint;
 use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
@@ -18,7 +25,6 @@ use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Exception\OfflineException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Composer\CaBundle\CaBundle;
-use PHPUnit\Framework\TestCase;
 
 /**
  * The Blackfire Client.
@@ -130,7 +136,7 @@ class Client
      *
      * @deprecated since 1.4, to be removed in 2.0
      */
-    public function assertPhpUnit(TestCase $testCase, ProfileConfiguration $config, $callback)
+    public function assertPhpUnit(\PHPUnit_Framework_TestCase $testCase, ProfileConfiguration $config, $callback)
     {
         if (!$config->hasMetadata('skip_timeline')) {
             $config->setMetadata('skip_timeline', 'true');
