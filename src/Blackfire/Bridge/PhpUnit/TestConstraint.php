@@ -12,15 +12,10 @@
 namespace Blackfire\Bridge\PhpUnit;
 
 // BC
-if (class_exists('\PHPUnit_Framework_Constraint') &&
-    !class_exists('\PHPUnit\Framework\Constraint\Constraint'))
-{
+if (class_exists('\PHPUnit_Framework_Constraint') && !class_exists('\PHPUnit\Framework\Constraint\Constraint')) {
     class_alias('\PHPUnit_Framework_Constraint', '\PHPUnit\Framework\Constraint\Constraint');
 }
-if (class_exists('\PHPUnit_Framework_ExpectationFailedException') &&
-    !class_exists('\PHPUnit\Framework\ExpectationFailedException')
-
-) {
+if (class_exists('\PHPUnit_Framework_ExpectationFailedException') && !class_exists('\PHPUnit\Framework\ExpectationFailedException')) {
     class_alias('\PHPUnit_Framework_ExpectationFailedException', '\PHPUnit\Framework\ExpectationFailedException');
 }
 
