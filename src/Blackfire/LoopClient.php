@@ -40,7 +40,7 @@ class LoopClient
     }
 
     /**
-     * @param int $signal A signal that triggers profiling (like SIGUSR1)
+     * @param int      $signal   A signal that triggers profiling (like SIGUSR1)
      * @param callable $callback A function to execute as soon as the signal is received
      */
     public function setSignal($signal, $callback = null)
