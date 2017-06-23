@@ -40,17 +40,21 @@ class LoopClient
     }
 
     /**
-     * @param int $signal A signal that triggers profiling (like SIGUSR1)
+     * @param int      $signal   A signal that triggers profiling (like SIGUSR1)
+     * @param callable $callback A function to execute as soon as the signal is received
      */
-    public function setSignal($signal)
+    public function setSignal($signal, $callback = null)
     {
         if (!extension_loaded('pcntl')) {
             throw new RuntimeException('pcntl must be available to use signals.');
         }
 
         $enabled = &$this->enabled;
-        pcntl_signal($signal, function ($signo) use (&$enabled) {
+        pcntl_signal($signal, function ($signo) use (&$enabled, $callback) {
             $enabled = true;
+            if (is_callable($callback)) {
+                $callback();
+            }
         });
 
         $this->signal = true;
