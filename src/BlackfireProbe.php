@@ -179,14 +179,17 @@ class BlackfireProbe
      */
     public function __construct($query, $envId = null, $envToken = null, $agentSocket = null)
     {
-        if (false === self::$defaultAgentSocket) {
+        if (false !== self::$defaultAgentSocket) {
+        } elseif ('\\' === DIRECTORY_SEPARATOR) {
+            self::$defaultAgentSocket = 'tcp://127.0.0.1:8307';
+        } else {
             if ('Darwin' === PHP_OS) {
                 $defaultAgentSocket = '/usr/local/var/run/blackfire-agent.sock';
             } else {
                 $defaultAgentSocket = '/var/run/blackfire/agent.sock';
             }
 
-            if (!file_exists($defaultAgentSocket)) {
+            if (!file_exists($defaultAgentSocket) && (ini_get('uprofiler.output_dir') || ini_get('xhprof.output_dir'))) {
                 self::$defaultAgentSocket = null;
             } else {
                 self::$defaultAgentSocket = 'unix://'.$defaultAgentSocket;
