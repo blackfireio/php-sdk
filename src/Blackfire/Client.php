@@ -370,6 +370,10 @@ class Client
         $build = $config->getBuild();
         $envDetails = $this->getEnvDetails($build ? $build->getEnv() : $this->config->getEnv());
 
+        if (null !== $config->getUuid()) {
+            $details['requestId'] = $config->getUuid();
+        }
+
         if ($build) {
             $details['collabToken'] = $build->getEnv();
 
