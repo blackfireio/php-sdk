@@ -25,6 +25,7 @@ class Profile
     private $initializeProfileCallback;
     private $data;
     private $tests;
+    private $recommendations;
 
     /**
      * @internal
@@ -106,6 +107,33 @@ class Profile
         }
 
         return $this->tests;
+    }
+
+    /**
+     * Returns recommendations associated with this profile.
+     *
+     * @return Test[]
+     */
+    public function getRecommendations()
+    {
+        if (null !== $this->recommendations) {
+            return $this->recommendations;
+        }
+
+        if (null === $this->data) {
+            $this->initializeProfile();
+        }
+
+        if (!isset($this->data['recommendations']['tests'])) {
+            return $this->recommendations = array();
+        }
+
+        $this->recommendations = array();
+        foreach ($this->data['recommendations']['tests'] as $test) {
+            $this->recommendations[] = new Test($test['name'], $test['state'], isset($test['failures']) ? $test['failures'] : array());
+        }
+
+        return $this->recommendations;
     }
 
     /**
