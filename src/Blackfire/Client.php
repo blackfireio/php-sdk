@@ -93,11 +93,11 @@ class Client
      *
      * @return Build
      */
-    public function createBuild($env = null, $options = [])
+    public function createBuild($env = null, $options = array())
     {
         // BC layer
         if (!is_array($options)) {
-            $options = ['title' => $options];
+            $options = array('title' => $options);
             if (func_get_args() >= 3) {
                 $options['trigger_name'] = func_get_arg(2);
             }
@@ -108,7 +108,7 @@ class Client
 
         $env = $this->getEnvUuid(null === $env ? $this->config->getEnv() : $env);
         $content = json_encode($options);
-        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$env, 'POST', ['content' => $content], ['Content-Type: application/json']), true);
+        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
         return new Build($env, $data);
     }
@@ -123,7 +123,7 @@ class Client
         $uuid = $build->getUuid();
 
         $content = json_encode(['nb_jobs' => $build->getJobCount()]);
-        $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid, 'PUT', ['content' => $content], ['Content-Type: application/json']);
+        $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
 
         return $this->getReport($uuid);
     }
@@ -187,7 +187,7 @@ class Client
             $this->getProfile($uuid)->getUrl();
 
             if (null !== $title) {
-                $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', ['content' => http_build_query(['label' => $title], '', '&')], ['Content-Type: application/x-www-form-urlencoded']);
+                $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', array('content' => http_build_query(['label' => $title], '', '&')), array('Content-Type: application/x-www-form-urlencoded'));
             }
 
             if (null !== $metadata) {
@@ -230,7 +230,7 @@ class Client
 
         $content = json_encode($body);
 
-        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$build->getUuid().'/jobs', 'POST', ['content' => $content], ['Content-Type: application/json']), true);
+        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$build->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
     }
 
     /**
@@ -322,14 +322,14 @@ class Client
     private function doCreateRequest(ProfileConfiguration $config)
     {
         $content = json_encode($details = $this->getRequestDetails($config));
-        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', ['content' => $content], ['Content-Type: application/json']), true);
+        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
         $request = new Profile\Request($config, $data);
 
         if ($config->getReference() && $config->isNewReference()) {
             // promote the profile as being the new reference
             $content = json_encode(['request_id' => $request->getUuid(), 'slot_id' => $details['profileSlot']]);
-            $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$request->getUuid().'/promote-reference', 'POST', ['content' => $content], ['Content-Type: application/json']);
+            $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$request->getUuid().'/promote-reference', 'POST', array('content' => $content), array('Content-Type: application/json'));
         }
 
         return $request;
@@ -376,7 +376,7 @@ class Client
 
     private function getRequestDetails(ProfileConfiguration $config)
     {
-        $details = [];
+        $details = array();
         $build = $config->getBuild();
         $envDetails = $this->getEnvDetails($build ? $build->getEnv() : $this->config->getEnv());
 
@@ -428,19 +428,19 @@ class Client
 
     private function storeMetadata($uuid, array $metadata)
     {
-        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid.'/store', 'PUT', ['content' => json_encode($metadata)], ['Content-Type: application/json']), true);
+        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid.'/store', 'PUT', array('content' => json_encode($metadata)), array('Content-Type: application/json')), true);
     }
 
-    private function sendHttpRequest($url, $method = 'GET', $context = [], $headers = [])
+    private function sendHttpRequest($url, $method = 'GET', $context = array(), $headers = array())
     {
         $headers[] = 'Authorization: Basic '.base64_encode($this->config->getClientId().':'.$this->config->getClientToken());
         $headers[] = 'X-Blackfire-User-Agent: Blackfire PHP SDK/1.0';
 
         $caPath = CaBundle::getSystemCaRootBundlePath();
-        $sslOpts = [
+        $sslOpts = array(
             'verify_peer' => 1,
             'verify_host' => 2,
-        ];
+        );
 
         if (is_dir($caPath)) {
             $sslOpts['capath'] = $caPath;
@@ -473,7 +473,7 @@ class Client
         restore_error_handler();
 
         if (!$data = @json_decode($body, true)) {
-            $data = ['message' => ''];
+            $data = array('message' => '');
         }
 
         $error = isset($data['message']) ? $data['message'] : 'Unknown error';
