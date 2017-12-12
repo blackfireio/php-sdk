@@ -148,11 +148,11 @@ class Client
             $profile = $this->endProbe($probe);
 
             $testCase->assertThat($profile, new BlackfireConstraint());
+
+            return $profile;
         } catch (Exception\ExceptionInterface $e) {
             $testCase->markTestSkipped($e->getMessage());
         }
-
-        return $profile;
     }
 
     /**

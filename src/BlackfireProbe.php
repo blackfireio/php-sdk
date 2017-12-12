@@ -84,6 +84,9 @@ class BlackfireProbe
     private $signature;
     private $flags;
     private $configuration;
+    private $envId;
+    private $envToken;
+    private $aggregSamples;
     private static $nextSeqId = 1;
     private static $probe;
     private static $profilerIsEnabled = false;
