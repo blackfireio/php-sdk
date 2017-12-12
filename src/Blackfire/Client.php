@@ -17,6 +17,7 @@ use Blackfire\Exception\EnvNotFoundException;
 use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Exception\OfflineException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
+use Blackfire\Util\NoProxyPattern;
 use Composer\CaBundle\CaBundle;
 
 /**
