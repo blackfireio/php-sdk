@@ -448,7 +448,7 @@ class Client
             $sslOpts['cafile'] = $caPath;
         }
 
-        $context = self::getContext([
+        $context = self::getContext($url, [
             'http' => array_replace([
                 'method' => $method,
                 'header' => implode("\r\n", $headers),
