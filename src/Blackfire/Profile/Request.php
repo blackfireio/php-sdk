@@ -40,18 +40,21 @@ class Request
         }
         $data['user_metadata'] = $configuration->getAllMetadata();
         $data['yaml'] = $configuration->toYaml();
-        if (function_exists('gzencode')) {
-            $data['options']['config_yml'] = base64_encode(gzencode($data['yaml']));
-        } else {
+
+        if (null !== $data['yaml']) {
+            if (function_exists('gzencode')) {
+                $data['options']['config_yml'] = base64_encode(gzencode($data['yaml']));
+            } else {
 /*
-            $data['options']['config_yml'] = base64_encode(gzencode(<<<EOYAML
+                $data['options']['config_yml'] = base64_encode(gzencode(<<<EOYAML
 tests:
   Pushing .blackfire.yml to profiled server:
     assertions: [ fail('The zlib extension is not installed') ]
 EOYAML
             ));
 */
-            $data['options']['config_yml'] = 'H4sIAAAAAAAAAxWMMQ7CQAwEe16xXUKTB+QVKdJFFBfwJVaMD90aBLyeoxzNaEIYHE/A9OSuvmFYLV2PrFWGz90QBY9asprcQKkvqf8YSGwUWpwjFuSk1nfzLviarpB3iLNJKOEloM5I1h7dGZcfq0rRYnMAAAA=';
+                $data['options']['config_yml'] = 'H4sIAAAAAAAAAxWMMQ7CQAwEe16xXUKTB+QVKdJFFBfwJVaMD90aBLyeoxzNaEIYHE/A9OSuvmFYLV2PrFWGz90QBY9asprcQKkvqf8YSGwUWpwjFuSk1nfzLviarpB3iLNJKOEloM5I1h7dGZcfq0rRYnMAAAA=';
+            }
         }
 
         $this->data = $data;

@@ -15,7 +15,6 @@
     },
     "suggest": {
         "ext-blackfire": "The C version of the Blackfire probe",
-        "ext-xhprof": "XHProf is required as a fallback",
         "ext-zlib": "To push config to remote profiling targets"
     },
     "autoload": {
