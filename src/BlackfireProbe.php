@@ -87,6 +87,7 @@ class BlackfireProbe
     private $envId;
     private $envToken;
     private $aggregSamples;
+    private $isFirstSample;
     private static $nextSeqId = 1;
     private static $probe;
     private static $profilerIsEnabled = false;
@@ -523,7 +524,7 @@ class BlackfireProbe
             return false;
         }
         $this->isEnabled = false;
-        $this->profilerWrite(true);
+        $this->profilerWrite(true, '', $close);
         if ($close && $this->outputStream) {
             $this->debug('Closing output stream');
             flock($this->outputStream, LOCK_UN);
@@ -579,6 +580,9 @@ class BlackfireProbe
                             if (isset($features['composer_lock'])) {
                                 $i = $this->getComposerLock();
                                 self::fwrite($h, 'Composer-Lock-Size: '.strlen($i)."\n".$i);
+                            }
+                            if (isset($features['first_sample'])) {
+                                $this->isFirstSample = 'true' === $features['first_sample'];
                             }
 
                             while ('' !== rtrim(fgets($h, 4096))) {
@@ -844,9 +848,15 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function profilerWrite($disable, $chunk = '')
+    private function profilerWrite($disable, $chunk = '', $close = false)
     {
         $data = $this->profilerDisable();
+
+        if ($this->isFirstSample && $close) {
+            foreach ($this->getClassHierarchy() as $className => $instanceOf) {
+                $chunk .= 'Type-'.$className.': '.implode(';', $instanceOf)."\n";
+            }
+        }
 
         $chunk .= 'request-end: '.microtime(true)
             ."\nrequest-mu: ".memory_get_usage(true)
@@ -914,6 +924,38 @@ class BlackfireProbe
         $chunk .= "\n";
 
         return self::fwrite($h, $chunk);
+    }
+
+    /**
+     * @internal
+     */
+    private function getClassHierarchy()
+    {
+        $types = array_merge(get_declared_interfaces(), get_declared_classes());
+
+        $hierarchy = array();
+        foreach ($types as $name) {
+            $parents = class_implements($name);
+
+            $grandParents = array();
+            foreach ($parents as $parent) {
+                $grandParents = array_merge($grandParents, class_implements($parent));
+            }
+
+            $hierarchy[$name] = array_diff($parents, $grandParents);
+        }
+
+        foreach ($hierarchy as $key => $instancesOf) {
+            if ($parent = get_parent_class($key)) {
+                $hierarchy[$key][] = $parent;
+            }
+        }
+
+        $hierarchy = array_filter($hierarchy, function ($val) {
+            return count($val) > 0;
+        });
+
+        return $hierarchy;
     }
 
     /**
