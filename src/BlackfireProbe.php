@@ -935,24 +935,20 @@ class BlackfireProbe
 
         $hierarchy = array();
         foreach ($types as $name) {
-            $parents = class_implements($name);
+            $parents = array_fill_keys(class_implements($name), true);
             if ($extends = get_parent_class($name)) {
-                $parents[] = $extends;
+                $parents[$extends] = true;
             }
 
             $inherited = array();
-            foreach ($parents as $parent) {
-                $inherited = array_merge($inherited, class_implements($parent));
+            foreach ($parents as $parent => $_) {
+                $inherited += array_fill_keys(class_implements($parent), true);
             }
 
-            $hierarchy[$name] = array_diff($parents, $inherited);
+            $hierarchy[$name] = array_keys(array_diff_key($parents, $inherited));
         }
 
-        $hierarchy = array_filter($hierarchy, function ($val) {
-            return count($val) > 0;
-        });
-
-        return $hierarchy;
+        return array_filter($hierarchy);
     }
 
     /**
