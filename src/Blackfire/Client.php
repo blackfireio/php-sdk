@@ -498,7 +498,7 @@ class Client
     }
 
     /**
-     * Creates a context supporting HTTP proxies
+     * Creates a context supporting HTTP proxies.
      *
      * The following method is copy/pasted from Composer v1.5.5
      *
@@ -522,11 +522,13 @@ class Client
      * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
      * THE SOFTWARE.
      *
-     * @param  string            $url            URL the context is to be used for
-     * @param  array             $defaultOptions Options to merge with the default
-     * @param  array             $defaultParams  Parameters to specify on the context
+     * @param string $url            URL the context is to be used for
+     * @param array  $defaultOptions Options to merge with the default
+     * @param array  $defaultParams  Parameters to specify on the context
+     *
      * @throws \RuntimeException if https proxy required and OpenSSL uninstalled
-     * @return resource          Default context
+     *
+     * @return resource Default context
      *
      * @author Jordan Alliot <jordan.alliot@gmail.com>
      * @author Markus Tacker <m@coderbyheart.de>
