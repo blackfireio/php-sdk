@@ -11,9 +11,19 @@
 
 namespace Blackfire\Bridge\PhpUnit;
 
+// BC
+if (class_exists('\PHPUnit_Framework_Constraint') && !class_exists('\PHPUnit\Framework\Constraint\Constraint')) {
+    class_alias('\PHPUnit_Framework_Constraint', '\PHPUnit\Framework\Constraint\Constraint');
+}
+if (class_exists('\PHPUnit_Framework_ExpectationFailedException') && !class_exists('\PHPUnit\Framework\ExpectationFailedException')) {
+    class_alias('\PHPUnit_Framework_ExpectationFailedException', '\PHPUnit\Framework\ExpectationFailedException');
+}
+
+use PHPUnit\Framework\Constraint\Constraint;
+use PHPUnit\Framework\ExpectationFailedException;
 use SebastianBergmann\Comparator\ComparisonFailure;
 
-class TestConstraint extends \PHPUnit_Framework_Constraint
+class TestConstraint extends Constraint
 {
     public function matches($profile)
     {
@@ -57,6 +67,6 @@ class TestConstraint extends \PHPUnit_Framework_Constraint
             $failureDescription = $description."\n".$failureDescription;
         }
 
-        throw new \PHPUnit_Framework_ExpectationFailedException($failureDescription, $comparisonFailure);
+        throw new ExpectationFailedException($failureDescription, $comparisonFailure);
     }
 }

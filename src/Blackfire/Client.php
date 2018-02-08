@@ -11,6 +11,11 @@
 
 namespace Blackfire;
 
+// BC
+if (!class_exists('\PHPUnit_Framework_TestCase') && class_exists('\PHPUnit\Framework\TestCase')) {
+    class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 use Blackfire\Bridge\PhpUnit\TestConstraint as BlackfireConstraint;
 use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
