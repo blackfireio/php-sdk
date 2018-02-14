@@ -12,8 +12,13 @@
 namespace Blackfire\Bridge\PhpUnit;
 
 use SebastianBergmann\Comparator\ComparisonFailure;
+use PHPUnit\Framework\Constraint\Constraint;
 
-class TestConstraint extends \PHPUnit_Framework_Constraint
+if (!class_exists(Constraint::class) && class_exists(\PHPUnit_Framework_Constraint::class)) {
+    class_alias(\PHPUnit_Framework_Constraint::class, Constraint::class);
+}
+
+class TestConstraint extends Constraint
 {
     public function matches($profile)
     {
