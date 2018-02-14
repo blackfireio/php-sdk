@@ -931,21 +931,19 @@ class BlackfireProbe
      */
     private function getClassHierarchy()
     {
-        $types = array_merge(get_declared_interfaces(), get_declared_classes());
-
         $hierarchy = array();
-        foreach ($types as $name) {
-            $parents = array_fill_keys(class_implements($name), true);
-            if ($extends = get_parent_class($name)) {
-                $parents[$extends] = true;
+        foreach (get_declared_classes() as $name) {
+            $r = new \ReflectionClass($name);
+            if ($r->isInternal()) {
+                continue;
             }
 
-            $inherited = array();
-            foreach ($parents as $parent => $_) {
-                $inherited += array_fill_keys(class_implements($parent), true);
+            $instancesOf = $r->getInterfaceNames();
+            if ($parent = $r->getParentClass()) {
+                $instancesOf[] = $parent->getName();
             }
 
-            $hierarchy[$name] = array_keys(array_diff_key($parents, $inherited));
+            $hierarchy[$name] = $instancesOf;
         }
 
         return array_filter($hierarchy);
