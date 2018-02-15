@@ -13,9 +13,14 @@ namespace Blackfire\Bridge\PhpUnit;
 
 use SebastianBergmann\Comparator\ComparisonFailure;
 use PHPUnit\Framework\Constraint\Constraint;
+use PHPUnit\Framework\ExpectationFailedException;
 
 if (!class_exists(Constraint::class) && class_exists(\PHPUnit_Framework_Constraint::class)) {
     class_alias(\PHPUnit_Framework_Constraint::class, Constraint::class);
+}
+
+if (!class_exists(ExpectationFailedException::class) && class_exists(\PHPUnit_Framework_ExpectationFailedException::class)) {
+    class_alias(\PHPUnit_Framework_ExpectationFailedException::class, ExpectationFailedException::class);
 }
 
 class TestConstraint extends Constraint
@@ -62,6 +67,6 @@ class TestConstraint extends Constraint
             $failureDescription = $description."\n".$failureDescription;
         }
 
-        throw new \PHPUnit_Framework_ExpectationFailedException($failureDescription, $comparisonFailure);
+        throw new ExpectationFailedException($failureDescription, $comparisonFailure);
     }
 }
