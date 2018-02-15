@@ -65,7 +65,6 @@ class BlackfireProbe
         ),
     );
 
-    private $query;
     private $seqId;
     private $fileFormat = 'BlackfireProbe';
     private $autoEnabled = false;
@@ -83,6 +82,7 @@ class BlackfireProbe
     private $configYml;
     private $signedArgs;
     private $signature;
+    private $args;
     private $flags;
     private $configuration;
     private $envId;
@@ -201,12 +201,12 @@ class BlackfireProbe
             }
         }
 
-        $this->query = $query;
         $this->seqId = self::$nextSeqId++;
         $query = preg_split('/(?:^|&)signature=(.+?)(?:&|$)/', $query, 2, PREG_SPLIT_DELIM_CAPTURE);
-        list($this->challenge, $this->signature, $args) = $query + array(1 => '', '');
+        list($this->challenge, $this->signature, $this->args) = $query + array(1 => '', '');
         $this->signature = rawurldecode($this->signature);
-        parse_str($args, $args);
+        parse_str($this->args, $this->args);
+        $args = $this->args;
         parse_str($this->challenge, $this->signedArgs);
         $query = array(
             'BLACKFIRE_SERVER_ID' => get_cfg_var('blackfire.server_id') ?: null,
@@ -384,23 +384,23 @@ class BlackfireProbe
     }
 
     /**
-     * Create a sub-query string to create a new profile linked to the current one.
+     * Creates a sub-query string to create a new profile linked to the current one.
      * This query must be set in the X-Blackire-Query HTTP header or in the BLACKFIRE_QUERY environment variable.
      *
-     * @return string|null   The sub-query or null if the current profile is not the first sample.
+     * @return string|null The sub-query or null if the current profile is not the first sample or profiling is disabled.
      *
      * @api
      */
     public function createSubProfileQuery()
     {
-        if (!$this->isFirstSample) {
+        if (!$this->isFirstSample || !self::$profilerIsEnabled) {
             return null;
         }
 
-        parse_str($this->query, $features);
+        $features = $this->args;
 
-        if (isset($features['sub_profile']) && preg_match('/^(?:[+\/=a-zA-Z0-9]{9}){0,1}:[+\/=a-zA-Z0-9]{9}$/', $features['sub_profile'])) {
-            $subProfile = explode(':', $features['sub_profile']);
+        if (isset($features['sub_profile']) && false !== strpos($features['sub_profile'], ':')) {
+            $subProfile = explode(':', $features['sub_profile'], 2);
             $subProfile = $subProfile[1];
         } else {
             $subProfile = '';
@@ -409,7 +409,7 @@ class BlackfireProbe
 
         unset($features['aggreg_samples']);
 
-        return strtr(http_build_query($features, '', '&'), self::$urlEncMap);
+        return $this->challenge.'&'.'signature='.$this->signature.'&'.strtr(http_build_query($features, '', '&'), self::$urlEncMap);
     }
 
     // XXX
