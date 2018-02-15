@@ -65,6 +65,7 @@ class BlackfireProbe
         ),
     );
 
+    private $query;
     private $seqId;
     private $fileFormat = 'BlackfireProbe';
     private $autoEnabled = false;
@@ -80,7 +81,6 @@ class BlackfireProbe
     private $challenge;
     private $profileTitle;
     private $configYml;
-    private $subProfile;
     private $signedArgs;
     private $signature;
     private $flags;
@@ -201,6 +201,7 @@ class BlackfireProbe
             }
         }
 
+        $this->query = $query;
         $this->seqId = self::$nextSeqId++;
         $query = preg_split('/(?:^|&)signature=(.+?)(?:&|$)/', $query, 2, PREG_SPLIT_DELIM_CAPTURE);
         list($this->challenge, $this->signature, $args) = $query + array(1 => '', '');
@@ -237,7 +238,6 @@ class BlackfireProbe
         $this->aggregSamples = isset($args['aggreg_samples']) && is_string($args['aggreg_samples']) ? max((int) $args['aggreg_samples'], 1) : 1;
         isset($args['profile_title']) and $this->profileTitle = $args['profile_title'];
         isset($args['config_yml']) and $this->configYml = $args['config_yml'];
-        isset($args['sub_profile']) and $this->subProfile = $args['sub_profile'];
 
         if ($this->logFile && strpos($this->logFile, '://') === false) {
             $this->logFile = 'file://'.$this->logFile;
@@ -385,50 +385,31 @@ class BlackfireProbe
 
     /**
      * Create a sub-query string to create a new profile linked to the current one.
-     * This query must be set in the X-Blackire-Query HTTP header or in the BLACKFIRE_QUERY environment variable
-     *
-     * Available options are:
-     * - profile_title (string)
-     * - auto_enable (bool)
-     *
-     * @param array $options An array of options
+     * This query must be set in the X-Blackire-Query HTTP header or in the BLACKFIRE_QUERY environment variable.
      *
      * @return string|null   The sub-query or null if the current profile is not the first sample.
      *
      * @api
      */
-    public function createSubProfileQuery(array $options = array())
+    public function createSubProfileQuery()
     {
         if (!$this->isFirstSample) {
             return null;
         }
 
-        $line = 'signature='.$this->signature.'&aggreg_samples=1';
-        isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
+        parse_str($this->query, $features);
 
-        if ((isset($options['auto_enable']) && !$options['auto_enable']) || (!isset($options['auto_enable']) && !$this->autoEnabled)) {
-            $line .= '&auto_enable=0';
-        }
-
-        if (isset($options['profile_title']) && is_string($options['profile_title'])) {
-            $line .= '&profile_title='.rawurlencode($options['profile_title']);
-        } elseif ($this->profileTitle) {
-            $line .= '&profile_title='.$this->profileTitle;
-        }
-
-        if ($this->subProfile) {
-            $parts = explode(':', $this->subProfile);
-            if (!isset($parts[1])) {
-                $this->warn('The sub_profile parameter is invalid.');
-
-                return null;
-            }
-            $line .= '&sub_profile='.$parts[1].':'.$this->getRandomId();
+        if (isset($features['sub_profile']) && preg_match('/^(?:[+\/=a-zA-Z0-9]{9}){0,1}:[+\/=a-zA-Z0-9]{9}$/', $features['sub_profile'])) {
+            $subProfile = explode(':', $features['sub_profile']);
+            $subProfile = $subProfile[1];
         } else {
-            $line .= '&sub_profile=:'.$this->getRandomId();
+            $subProfile = '';
         }
+        $features['sub_profile'] = $subProfile.':'.$this->generateSubId();
 
-        return $line;
+        unset($features['aggreg_samples']);
+
+        return strtr(http_build_query($features, '', '&'), self::$urlEncMap);
     }
 
     // XXX
@@ -1059,15 +1040,15 @@ class BlackfireProbe
         return isset($_SERVER['REQUEST_METHOD']) && 'POST' === strtoupper($_SERVER['REQUEST_METHOD']) && false !== strpos($this->signedArgs['agentIds'], 'request-id-blackfire-yml');
     }
 
-    private function getRandomId()
+    private function generateSubId()
     {
         if (function_exists('random_bytes')) {
-            $id = base64_encode(random_bytes(7));
+            $id = random_bytes(7);
         } else {
             $id = md5(uniqid(mt_rand(), true), true);
         }
 
-        return substr($id, 0, 9);
+        return substr(base64_encode($id), 0, 9);
     }
 
     /**
