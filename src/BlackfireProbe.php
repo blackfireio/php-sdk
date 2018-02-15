@@ -80,6 +80,7 @@ class BlackfireProbe
     private $challenge;
     private $profileTitle;
     private $configYml;
+    private $subProfile;
     private $signedArgs;
     private $signature;
     private $flags;
@@ -236,6 +237,7 @@ class BlackfireProbe
         $this->aggregSamples = isset($args['aggreg_samples']) && is_string($args['aggreg_samples']) ? max((int) $args['aggreg_samples'], 1) : 1;
         isset($args['profile_title']) and $this->profileTitle = $args['profile_title'];
         isset($args['config_yml']) and $this->configYml = $args['config_yml'];
+        isset($args['sub_profile']) and $this->subProfile = $args['sub_profile'];
 
         if ($this->logFile && strpos($this->logFile, '://') === false) {
             $this->logFile = 'file://'.$this->logFile;
@@ -379,6 +381,54 @@ class BlackfireProbe
     public static function addMarker($label = '')
     {
         $label = ''; // prevent OPcache optimization
+    }
+
+    /**
+     * Create a sub-query string to create a new profile linked to the current one.
+     * This query must be set in the X-Blackire-Query HTTP header or in the BLACKFIRE_QUERY environment variable
+     *
+     * Available options are:
+     * - profile_title (string)
+     * - auto_enable (bool)
+     *
+     * @param array $options An array of options
+     *
+     * @return string|null   The sub-query or null if the current profile is not the first sample.
+     *
+     * @api
+     */
+    public function createSubProfileQuery(array $options = array())
+    {
+        if (!$this->isFirstSample) {
+            return null;
+        }
+
+        $line = 'signature='.$this->signature.'&aggreg_samples=1';
+        isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
+
+        if ((isset($options['auto_enable']) && !$options['auto_enable']) || (!isset($options['auto_enable']) && !$this->autoEnabled)) {
+            $line .= '&auto_enable=0';
+        }
+
+        if (isset($options['profile_title']) && is_string($options['profile_title'])) {
+            $line .= '&profile_title='.rawurlencode($options['profile_title']);
+        } elseif ($this->profileTitle) {
+            $line .= '&profile_title='.$this->profileTitle;
+        }
+
+        if ($this->subProfile) {
+            $parts = explode(':', $this->subProfile);
+            if (!isset($parts[1])) {
+                $this->warn('The sub_profile parameter is invalid.');
+
+                return null;
+            }
+            $line .= '&sub_profile='.$parts[1].':'.$this->getRandomId();
+        } else {
+            $line .= '&sub_profile=:'.$this->getRandomId();
+        }
+
+        return $line;
     }
 
     // XXX
@@ -581,6 +631,7 @@ class BlackfireProbe
                                 $i = $this->getComposerLock();
                                 self::fwrite($h, 'Composer-Lock-Size: '.strlen($i)."\n".$i);
                             }
+
                             $this->isFirstSample = isset($features['first_sample']) ? 'true' === $features['first_sample'] : null;
 
                             while ('' !== rtrim(fgets($h, 4096))) {
@@ -1006,6 +1057,17 @@ class BlackfireProbe
     private function blackfireYmlAsked()
     {
         return isset($_SERVER['REQUEST_METHOD']) && 'POST' === strtoupper($_SERVER['REQUEST_METHOD']) && false !== strpos($this->signedArgs['agentIds'], 'request-id-blackfire-yml');
+    }
+
+    private function getRandomId()
+    {
+        if (function_exists('random_bytes')) {
+            $id = base64_encode(random_bytes(7));
+        } else {
+            $id = md5(uniqid(mt_rand(), true), true);
+        }
+
+        return substr($id, 0, 9);
     }
 
     /**
