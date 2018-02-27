@@ -23,19 +23,9 @@ if (!class_exists(ExpectationFailedException::class) && class_exists(\PHPUnit_Fr
     class_alias(\PHPUnit_Framework_ExpectationFailedException::class, ExpectationFailedException::class);
 }
 
-class TestConstraint extends Constraint
+trait BlackfireTestContraintTrait
 {
-    public function matches($profile)
-    {
-        return $profile->isSuccessful();
-    }
-
-    public function toString()
-    {
-        return '';
-    }
-
-    protected function fail($profile, $description, ComparisonFailure $comparisonFailure = null)
+    protected function doFail($profile, $description, ComparisonFailure $comparisonFailure = null)
     {
         $failureDescription = sprintf('An error occurred when profiling the test. More information at %s', $profile->getUrl().'?settings%5BtabPane%5D=assertions');
 
@@ -68,5 +58,47 @@ class TestConstraint extends Constraint
         }
 
         throw new ExpectationFailedException($failureDescription, $comparisonFailure);
+    }
+}
+
+if (PHP_VERSION_ID > 70100) {
+    class TestConstraint extends Constraint
+    {
+        use BlackfireTestContraintTrait;
+
+        public function matches($profile): bool
+        {
+            return $profile->isSuccessful();
+        }
+
+        protected function fail($profile, $description, ComparisonFailure $comparisonFailure = null): void
+        {
+            $this->doFail($profile, $description, $comparisonFailure);
+        }
+
+        public function toString(): string
+        {
+            return '';
+        }
+    }
+} else {
+    class TestConstraint extends Constraint
+    {
+        use BlackfireTestContraintTrait;
+
+        public function matches($profile)
+        {
+            return $profile->isSuccessful();
+        }
+
+        protected function fail($profile, $description, ComparisonFailure $comparisonFailure = null)
+        {
+            $this->doFail($profile, $description, $comparisonFailure);
+        }
+
+        public function toString()
+        {
+            return '';
+        }
     }
 }
