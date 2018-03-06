@@ -581,9 +581,7 @@ class BlackfireProbe
                                 $i = $this->getComposerLock();
                                 self::fwrite($h, 'Composer-Lock-Size: '.strlen($i)."\n".$i);
                             }
-                            if (isset($features['first_sample'])) {
-                                $this->isFirstSample = 'true' === $features['first_sample'];
-                            }
+                            $this->isFirstSample = isset($features['first_sample']) ? 'true' === $features['first_sample'] : null;
 
                             while ('' !== rtrim(fgets($h, 4096))) {
                                 // No-op (Blackfire-Keys, Blackfire-Fn-Args)
