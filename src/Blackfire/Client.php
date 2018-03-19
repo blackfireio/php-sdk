@@ -134,7 +134,7 @@ class Client
      *
      * @deprecated since 1.4, to be removed in 2.0
      */
-    public function assertPhpUnit(\PHPUnit_Framework_TestCase $testCase, ProfileConfiguration $config, $callback)
+    public function assertPhpUnit(\PHPUnit\Framework\TestCase $testCase, ProfileConfiguration $config, $callback)
     {
         if (!$config->hasMetadata('skip_timeline')) {
             $config->setMetadata('skip_timeline', 'true');

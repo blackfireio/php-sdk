@@ -15,12 +15,12 @@ use SebastianBergmann\Comparator\ComparisonFailure;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\ExpectationFailedException;
 
-if (!class_exists(Constraint::class) && class_exists(\PHPUnit_Framework_Constraint::class)) {
-    class_alias(\PHPUnit_Framework_Constraint::class, Constraint::class);
+if (!class_exists(Constraint::class) && class_exists(\PHPUnit\Framework\Constraint::class)) {
+    class_alias(\PHPUnit\Framework\Constraint::class, Constraint::class);
 }
 
-if (!class_exists(ExpectationFailedException::class) && class_exists(\PHPUnit_Framework_ExpectationFailedException::class)) {
-    class_alias(\PHPUnit_Framework_ExpectationFailedException::class, ExpectationFailedException::class);
+if (!class_exists(ExpectationFailedException::class) && class_exists(\PHPUnit\Framework\ExpectationFailedException::class)) {
+    class_alias(\PHPUnit\Framework\ExpectationFailedException::class, ExpectationFailedException::class);
 }
 
 trait BlackfireTestContraintTrait
