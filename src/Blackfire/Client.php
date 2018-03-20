@@ -526,7 +526,7 @@ class Client
      * @param array  $defaultOptions Options to merge with the default
      * @param array  $defaultParams  Parameters to specify on the context
      *
-     * @throws \RuntimeException if https proxy required and OpenSSL uninstalled
+     * @throws \RuntimeException if HTTPS proxy required and OpenSSL uninstalled
      *
      * @return resource Default context
      *
@@ -601,7 +601,7 @@ class Client
                     break;
             }
 
-            // add SNI opts for https URLs
+            // add SNI opts for HTTPS URLs
             if ('https' === parse_url($url, PHP_URL_SCHEME)) {
                 $options['ssl']['SNI_enabled'] = true;
                 if (PHP_VERSION_ID < 50600) {
