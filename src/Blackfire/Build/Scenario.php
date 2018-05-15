@@ -9,29 +9,29 @@
  * file that was distributed with this source code.
  */
 
-namespace Blackfire;
+namespace Blackfire\Build;
 
-@trigger_error('The \Blackfire\Build class is deprecated since 1.14 and will be removed in 2.0. Use the class \Blackfire\Build\Scenario instead.', E_USER_DEPRECATED);
-
-/**
- * @deprecated since 1.14, to be removed in 2.0. Use the class \Blackfire\Build\Scenario instead.
- */
-class Build
+class Scenario
 {
-    private $env;
+    private $build;
     private $data;
     private $jobCount;
 
-    public function __construct($env, $data)
+    public function __construct(Build $build, $data)
     {
-        $this->env = $env;
+        $this->build = $build;
         $this->data = $data;
         $this->jobCount = 0;
     }
 
     public function getEnv()
     {
-        return $this->env;
+        return $this->build->getEnv();
+    }
+
+    public function getBuild()
+    {
+        return $this->build;
     }
 
     public function getUuid()

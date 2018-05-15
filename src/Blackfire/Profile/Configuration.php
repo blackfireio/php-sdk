@@ -27,8 +27,13 @@ class Configuration
     private $isReference = false;
     private $metadata = array();
     private $layers = array();
-    private $build;
+    private $scenario;
     private $requestInfo = array();
+
+    /**
+     * @deprecated since 1.14, to be removed in 2.0.
+     */
+    private $build;
 
     public function getUuid()
     {
@@ -62,6 +67,8 @@ class Configuration
 
     /**
      * @return Build
+     *
+     * @deprecated since 1.14, to be removed in 2.0. Use method "getScenario" instead.
      */
     public function getBuild()
     {
@@ -70,10 +77,27 @@ class Configuration
 
     /**
      * @return $this
+     *
+     * @deprecated since 1.14, to be removed in 2.0. Use method "setScenario" instead.
      */
     public function setBuild(Build $build)
     {
         $this->build = $build;
+
+        return $this;
+    }
+
+    public function getScenario()
+    {
+        return $this->scenario;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setScenario(Build\Scenario $scenario)
+    {
+        $this->scenario = $scenario;
 
         return $this;
     }

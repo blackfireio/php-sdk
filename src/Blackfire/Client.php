@@ -12,6 +12,7 @@
 namespace Blackfire;
 
 use Blackfire\Bridge\PhpUnit\TestConstraint as BlackfireConstraint;
+use Blackfire\Build\Scenario;
 use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
 use Blackfire\Exception\ReferenceNotFoundException;
@@ -92,7 +93,70 @@ class Client
      * @param array       $options An array of Build options
      *                             (title, metadata, trigger_name, external_id, external_parent_id)
      *
+     * @return Build\Build
+     */
+    public function startBuild($env = null, $options = array())
+    {
+        $env = $this->getEnvUuid(null === $env ? $this->config->getEnv() : $env);
+        $content = json_encode($options);
+        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v2/builds/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+
+        return new Build\Build($env, $data);
+    }
+
+    /**
+     * Closes a build.
+     */
+    public function closeBuild(Build\Build $build)
+    {
+        $uuid = $build->getUuid();
+
+        $content = json_encode(['closed' => true]);
+        $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/builds/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
+    }
+
+    /**
+     * Creates a Blackfire Scenario.
+     */
+    public function startScenario(Build\Build $build = null, $options = array())
+    {
+        if (null === $build) {
+            $build = $this->startBuild();
+        }
+
+        $content = json_encode($options);
+        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/builds/'.$build->getUuid(), 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+
+        $build->incScenario();
+
+        return new Scenario($build, $data);
+    }
+
+    /**
+     * Closes a Blackfire Scenario.
+     *
+     * @return Report
+     */
+    public function closeScenario(Scenario $scenario)
+    {
+        $uuid = $scenario->getUuid();
+
+        $content = json_encode(['nb_jobs' => $scenario->getJobCount()]);
+        $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
+
+        return $this->getReport($uuid);
+    }
+
+    /**
+     * Creates a Blackfire Scenario in a dedicated Build.
+     *
+     * @param string|null $env     The environment name (or null to use the one configured on the client)
+     * @param array       $options An array of Build options
+     *                             (title, metadata, trigger_name, external_id, external_parent_id)
+     *
      * @return Build
+     *
+     * @deprecated since 1.14, to be removed in 2.0. Use method "startScenario" instead.
      */
     public function createBuild($env = null, $options = array())
     {
@@ -115,9 +179,11 @@ class Client
     }
 
     /**
-     * Closes a build.
+     * Closes a Blackfire Scenario.
      *
      * @return Report
+     *
+     * @deprecated since 1.14, to be removed in 2.0. Use method "closeScenario" instead.
      */
     public function endBuild(Build $build)
     {
@@ -219,7 +285,23 @@ class Client
      * @param ProfileConfiguration $config
      * @param Build                $build
      */
+    public function addJobInScenario(ProfileConfiguration $config, Scenario $scenario)
+    {
+        return $this->doAddJobInScenario($config, $scenario);
+    }
+
+    /**
+     * @param ProfileConfiguration $config
+     * @param Build                $build
+     *
+     * @deprecated since 1.14, to be removed in 2.0. Use method "addJobInScenario" instead.
+     */
     public function addJobInBuild(ProfileConfiguration $config, Build $build)
+    {
+        return $this->doAddJobInScenario($config, $build);
+    }
+
+    private function doAddJobInScenario(ProfileConfiguration $config, $scenario)
     {
         $body = $config->getRequestInfo();
 
@@ -231,7 +313,7 @@ class Client
 
         $content = json_encode($body);
 
-        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$build->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$scenario->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
     }
 
     /**
@@ -378,19 +460,21 @@ class Client
     private function getRequestDetails(ProfileConfiguration $config)
     {
         $details = array();
-        $build = $config->getBuild();
-        $envDetails = $this->getEnvDetails($build ? $build->getEnv() : $this->config->getEnv());
+        if (!$scenario = $config->getScenario()) { // BC
+            $scenario = $config->getBuild();
+        }
+        $envDetails = $this->getEnvDetails($scenario ? $scenario->getEnv() : $this->config->getEnv());
 
         if (null !== $config->getUuid()) {
             $details['requestId'] = $config->getUuid();
         }
 
-        if ($build) {
-            $details['collabToken'] = $build->getEnv();
+        if ($scenario) {
+            $details['collabToken'] = $scenario->getEnv();
 
-            $data = $this->addJobInBuild($config, $build);
+            $data = $this->doAddJobInScenario($config, $scenario);
 
-            $build->incJob();
+            $scenario->incJob();
 
             $details['requestId'] = $data['uuid'];
         } else {
