@@ -72,6 +72,8 @@ class Configuration
      */
     public function getBuild()
     {
+        @trigger_error('The method "getBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "getScenario" instead.', E_USER_DEPRECATED);
+
         return $this->build;
     }
 
@@ -82,6 +84,8 @@ class Configuration
      */
     public function setBuild(Build $build)
     {
+        @trigger_error('The method "setBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "setScenario" instead.', E_USER_DEPRECATED);
+
         $this->build = $build;
 
         return $this;

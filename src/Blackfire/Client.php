@@ -160,6 +160,8 @@ class Client
      */
     public function createBuild($env = null, $options = array())
     {
+        @trigger_error('The method "createBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "startScenario" instead.', E_USER_DEPRECATED);
+
         // BC layer
         if (!is_array($options)) {
             $options = array('title' => $options);
@@ -187,6 +189,8 @@ class Client
      */
     public function endBuild(Build $build)
     {
+        @trigger_error('The method "endBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "closeScenario" instead.', E_USER_DEPRECATED);
+
         $uuid = $build->getUuid();
 
         $content = json_encode(['nb_jobs' => $build->getJobCount()]);
@@ -202,6 +206,8 @@ class Client
      */
     public function assertPhpUnit(\PHPUnit\Framework\TestCase $testCase, ProfileConfiguration $config, $callback)
     {
+        @trigger_error('The method "assertPhpUnit" is deprecated since blackfire/php-sdk 1.4 and will be removed in 2.0. Use method "assertBlackfire" of trait "\Blackfire\Bridge\PhpUnit\TestCaseTrait" instead.', E_USER_DEPRECATED);
+
         if (!$config->hasMetadata('skip_timeline')) {
             $config->setMetadata('skip_timeline', 'true');
         }
@@ -298,6 +304,8 @@ class Client
      */
     public function addJobInBuild(ProfileConfiguration $config, Build $build)
     {
+        @trigger_error('The method "addJobInBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "addJobInScenario" instead.', E_USER_DEPRECATED);
+
         return $this->doAddJobInScenario($config, $build);
     }
 

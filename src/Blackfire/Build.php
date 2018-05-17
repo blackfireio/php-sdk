@@ -11,7 +11,7 @@
 
 namespace Blackfire;
 
-@trigger_error('The \Blackfire\Build class is deprecated since 1.14 and will be removed in 2.0. Use the class \Blackfire\Build\Scenario instead.', E_USER_DEPRECATED);
+@trigger_error('The \Blackfire\Build class is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use the class \Blackfire\Build\Scenario instead.', E_USER_DEPRECATED);
 
 /**
  * @deprecated since 1.14, to be removed in 2.0. Use the class \Blackfire\Build\Scenario instead.
