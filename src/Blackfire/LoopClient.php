@@ -27,6 +27,7 @@ class LoopClient
     private $referenceId;
     private $running = false;
     private $build;
+    private $scenario;
     private $buildFactory;
     private $env = false;
 
@@ -151,15 +152,21 @@ class LoopClient
     }
 
     /**
-     * @return Build
+     * @return Build|Build\Build
      */
     protected function createBuild($env = null)
     {
         if ($this->buildFactory) {
-            return call_user_func($this->buildFactory, $this->client, $env);
+            $build = call_user_func($this->buildFactory, $this->client, $env);
+
+            if ($build instanceof Build) {
+                @trigger_error('The buildFactory passed to "generateBuilds" must returns an instance of \Blackfire\Build\Build. Returning an instance of \Blackfire\Build is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0.', E_USER_DEPRECATED);
+            }
+
+            return $build;
         }
 
-        return $this->client->createBuild($env);
+        return $this->client->startBuild($env);
     }
 
     private function createProbe($config)
@@ -181,7 +188,14 @@ class LoopClient
         }
 
         if (false !== $this->env) {
-            $config->setBuild($this->build = $this->createBuild($this->env));
+            $this->build = $this->createBuild($this->env);
+
+            if ($this->build instanceof Build) { // BC
+                $config->setBuild($this->build);
+            } else {
+                $this->scenario = $this->client->startScenario($this->build);
+                $config->setScenario($this->scenario);
+            }
         }
 
         return $this->client->createProbe($config, false);
@@ -197,6 +211,14 @@ class LoopClient
         }
 
         $profile = $this->client->endProbe($this->probe);
+
+        if (null !== $this->scenario) {
+            $this->client->closeScenario($this->scenario);
+            $this->client->closeBuild($this->build);
+
+            $this->scenario = null;
+            $this->build = null;
+        }
 
         if (null !== $this->build) {
             $this->client->endBuild($this->build);
