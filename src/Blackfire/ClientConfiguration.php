@@ -196,6 +196,10 @@ class ClientConfiguration
 
     private function parseConfigFile($file)
     {
+        if (!is_readable($file)) {
+            throw new ConfigErrorException(sprintf('Unable to parse configuration file "%s": file is not readable.', $file));
+        }
+
         if (false === $config = @parse_ini_file($file)) {
             throw new ConfigErrorException(sprintf('Unable to parse configuration file "%s".', $file));
         }
