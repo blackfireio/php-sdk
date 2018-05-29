@@ -72,6 +72,12 @@ class Configuration
      */
     public function getBuild()
     {
+        // BC: do not trigger the deprecation notice if the build has not been set,
+        // because the method is always called in \Blackfire\Client.
+        if (!$this->build) {
+            return;
+        }
+
         @trigger_error('The method "getBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "getScenario" instead.', E_USER_DEPRECATED);
 
         return $this->build;
