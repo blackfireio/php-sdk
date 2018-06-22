@@ -137,11 +137,15 @@ class Client
      *
      * @return Report
      */
-    public function closeScenario(Scenario $scenario)
+    public function closeScenario(Scenario $scenario, array $errors = [])
     {
         $uuid = $scenario->getUuid();
 
-        $content = json_encode(['nb_jobs' => $scenario->getJobCount()]);
+        $content = json_encode([
+            'nb_jobs' => $scenario->getJobCount(),
+            'errors' => $errors,
+        ]);
+
         $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
 
         return $this->getReport($uuid);
