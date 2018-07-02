@@ -713,6 +713,10 @@ class BlackfireProbe
             return $this->configuration;
         }
 
+        if ($file = $this->getRootFile('.blackfire.yaml')) {
+            return $file;
+        }
+
         return $this->getRootFile('.blackfire.yml');
     }
 
