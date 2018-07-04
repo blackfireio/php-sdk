@@ -106,6 +106,8 @@ class Client
 
     /**
      * Closes a build.
+     *
+     * @return Report
      */
     public function closeBuild(Build\Build $build)
     {
@@ -113,6 +115,8 @@ class Client
 
         $content = json_encode(['closed' => true]);
         $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/builds/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
+
+        return $this->getBuildReport($uuid);
     }
 
     /**
@@ -148,7 +152,7 @@ class Client
 
         $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
 
-        return $this->getReport($uuid);
+        return $this->getScenarioReport($uuid);
     }
 
     /**
@@ -325,7 +329,7 @@ class Client
 
         $content = json_encode($body);
 
-        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$scenario->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/'.$scenario->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
     }
 
     /**
@@ -365,29 +369,59 @@ class Client
     }
 
     /**
-     * @param string $uuid A Report UUID
+     * @param string $scenarioUuid A Scenario Report UUID
+     *
+     * @return Report
+     *
+     * @deprecated since 1.16, to be removed in 2.0. Use method "getScenarioReport" instead.
+     */
+    public function getReport($scenarioUuid)
+    {
+        @trigger_error('The method "getReport" is deprecated since blackfire/php-sdk 1.16 and will be removed in 2.0. Use method "getScenarioReport" instead.', E_USER_DEPRECATED);
+
+        return $this->getScenarioReport($scenarioUuid);
+    }
+
+    /**
+     * @param string $uuid A Scenario Report UUID
      *
      * @return Report
      */
-    public function getReport($uuid)
+    public function getScenarioReport($uuid)
     {
         $self = $this;
 
         return new Report(function () use ($self, $uuid) {
-            return $self->doGetReport($uuid);
+            return $self->doGetReport($uuid, 'scenario');
+        });
+    }
+
+    /**
+     * @param string $uuid A Build Report UUID
+     *
+     * @return Report
+     */
+    public function getBuildReport($uuid)
+    {
+        $self = $this;
+
+        return new Report(function () use ($self, $uuid) {
+            return $self->doGetReport($uuid, 'build');
         });
     }
 
     /**
      * @internal
      */
-    public function doGetReport($uuid)
+    public function doGetReport($uuid, $type = 'scenario')
     {
         $retry = 0;
         $e = null;
+        $path = 'build' === $type ? '/api/v2/builds/'.$uuid : '/api/v2/scenarios/'.$uuid;
+
         while (true) {
             try {
-                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid), true);
+                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().$path), true);
 
                 if ('finished' === $data['status']['name']) {
                     return $data;

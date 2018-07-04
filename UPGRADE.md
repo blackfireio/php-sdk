@@ -1,6 +1,13 @@
 PHP-SDK UPGRADE
 ===============
 
+To v1.16.0
+----------
+
+* Method `getReport($scenarioUuid)` is deprecated. Use `getScenarioReport($scenarioUuid)` instead,
+  or `getBuildReport($buildUuid)` for a full Build Report.
+* Method `closeBuild()` return was void. It now returns a `Blackfire\Report`.
+
 To v1.14.0
 ----------
 

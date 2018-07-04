@@ -1,0 +1,7 @@
+Blackfire PHP-SDK Changelog
+===========================
+
+* 1.16.0 (2018-07-04)
+
+ * Update to use the Build API version 2
+ * Add a new method `getBuildReport()` to get the Report of a full Build

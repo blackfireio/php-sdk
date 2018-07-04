@@ -43,4 +43,9 @@ class Build
     {
         return $this->scenarioCount;
     }
+
+    public function getUrl()
+    {
+        return isset($this->data['_links']['report']['href']) ? $this->data['_links']['report']['href'] : null;
+    }
 }
