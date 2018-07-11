@@ -1,6 +1,12 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.17.0 (2018-07-11)
+
+ * Add proper version in the User-Agent header
+ * Add User-Agent header as well as the X-Blackfire-User-Agent one
+ * Add possibility to suffix the User Agent header
+
 * 1.16.0 (2018-07-04)
 
  * Update to use the Build API version 2

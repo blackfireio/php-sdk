@@ -28,6 +28,7 @@ class Client
 {
     const MAX_RETRY = 60;
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
+    const VERSION = '1.17.0';
 
     private $config;
     private $collabTokens;
@@ -564,8 +565,11 @@ class Client
 
     private function sendHttpRequest($url, $method = 'GET', $context = array(), $headers = array())
     {
+        $userAgent = sprintf('Blackfire PHP SDK/%s%s', self::VERSION, $this->config->getUserAgentSuffix() ? ' - '.$this->config->getUserAgentSuffix() : '');
+
         $headers[] = 'Authorization: Basic '.base64_encode($this->config->getClientId().':'.$this->config->getClientToken());
-        $headers[] = 'X-Blackfire-User-Agent: Blackfire PHP SDK/1.0';
+        $headers[] = 'X-Blackfire-User-Agent: '.$userAgent;
+        $headers[] = 'User-Agent: '.$userAgent;
 
         $caPath = CaBundle::getSystemCaRootBundlePath();
         $sslOpts = array(

@@ -21,18 +21,21 @@ class ClientConfiguration
     private $clientId;
     private $clientToken;
     private $env;
+    private $userAgentSuffix;
     private $endpoint;
 
     /**
      * @param string|null $clientId
      * @param string|null $clientToken
      * @param string|null $env
+     * @param string      $userAgentSuffix
      */
-    public function __construct($clientId = null, $clientToken = null, $env = null)
+    public function __construct($clientId = null, $clientToken = null, $env = null, $userAgentSuffix = '')
     {
         $this->clientId = $clientId;
         $this->clientToken = $clientToken;
         $this->env = $env;
+        $this->userAgentSuffix = (string) $userAgentSuffix;
     }
 
     public static function createFromFile($file)
@@ -65,6 +68,26 @@ class ClientConfiguration
     public function getEnv()
     {
         return $this->env;
+    }
+
+    /**
+     * @param string $userAgentSuffix
+     *
+     * @return $this
+     */
+    public function setUserAgentSuffix($userAgentSuffix)
+    {
+        $this->userAgentSuffix = (string) $userAgentSuffix;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserAgentSuffix()
+    {
+        return $this->userAgentSuffix;
     }
 
     /**
