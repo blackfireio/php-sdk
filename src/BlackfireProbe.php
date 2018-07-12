@@ -259,7 +259,7 @@ class BlackfireProbe
         }
 
         if ($this->logLevel >= 4) {
-            $this->debug('New probe instanciated');
+            $this->debug('New probe instantiated');
             foreach ($this as $k => $v) {
                 if ('options' !== $k && 'signedArgs' !== $k && 'args' !== $k) {
                     if ('' !== $v = (string) $v) {
