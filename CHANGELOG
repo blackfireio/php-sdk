@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.17.1 (2018-07-16)
+
+ * Fix usage of PHPUnit Bridge without assertions
+
 * 1.17.0 (2018-07-11)
 
  * Add proper version in the User-Agent header
