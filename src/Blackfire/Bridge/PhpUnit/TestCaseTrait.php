@@ -46,7 +46,9 @@ trait TestCaseTrait
 
             $profile = self::$blackfire->endProbe($probe);
 
-            $this->assertThat($profile, new TestConstraint());
+            if ($config->hasAssertions()) {
+                $this->assertThat($profile, new TestConstraint());
+            }
         } catch (ExceptionInterface $e) {
             $this->markTestSkipped($e->getMessage());
         }

@@ -213,6 +213,14 @@ class Configuration
     }
 
     /**
+     * @return bool
+     */
+    public function hasAssertions()
+    {
+        return (bool) $this->assertions;
+    }
+
+    /**
      * @return $this
      */
     public function defineLayer(MetricLayer $layer)
