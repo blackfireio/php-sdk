@@ -32,7 +32,7 @@ This repository provides a [Blackfire](https://blackfire.io/) PHP Probe
 implementation that should only be used under the following circumstancies:
 
  * You already have XHProf installed and cannot install the Blackfire PHP
-   extension (think PHP 5.2 or HHVM);
+   extension (think PHP 5.2);
 
  * You want a fallback in case the Blackfire PHP extension is not installed on
    some machines (manual instrumentation will be converted to noops).
