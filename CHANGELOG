@@ -1,6 +1,11 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.17.2 (2018-10-22)
+
+ * Remove headers from Blackfire\Exception\ApiException's message
+ * Add method "getHeaders()" to Blackfire\Exception\ApiException
+
 * 1.17.1 (2018-07-16)
 
  * Fix usage of PHPUnit Bridge without assertions
