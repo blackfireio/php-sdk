@@ -62,43 +62,7 @@ trait BlackfireTestContraintTrait
 }
 
 if (PHP_VERSION_ID > 70100) {
-    class TestConstraint extends Constraint
-    {
-        use BlackfireTestContraintTrait;
-
-        public function matches($profile): bool
-        {
-            return $profile->isSuccessful();
-        }
-
-        protected function fail($profile, $description, ComparisonFailure $comparisonFailure = null): void
-        {
-            $this->doFail($profile, $description, $comparisonFailure);
-        }
-
-        public function toString(): string
-        {
-            return '';
-        }
-    }
+    require_once __DIR__.'/TestConstraint71.php';
 } else {
-    class TestConstraint extends Constraint
-    {
-        use BlackfireTestContraintTrait;
-
-        public function matches($profile)
-        {
-            return $profile->isSuccessful();
-        }
-
-        protected function fail($profile, $description, ComparisonFailure $comparisonFailure = null)
-        {
-            $this->doFail($profile, $description, $comparisonFailure);
-        }
-
-        public function toString()
-        {
-            return '';
-        }
-    }
+    require_once __DIR__.'/TestConstraint5x.php';
 }
