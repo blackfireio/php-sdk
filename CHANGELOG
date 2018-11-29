@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.17.3 (2018-11-30)
+
+ * [PHPunit Bridge] Fix compatibility with PHP 5.x
+
 * 1.17.2 (2018-10-22)
 
  * Remove headers from Blackfire\Exception\ApiException's message
