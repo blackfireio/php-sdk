@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.17.5 (2018-12-14)
+
+ * Fix PHPUnit bridge
+
 * 1.17.4 (2018-12-14)
 
  * Fix profiling with Hoster environment
