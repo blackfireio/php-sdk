@@ -1,6 +1,14 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.17.4 (2018-12-14)
+
+ * Fix profiling with Hoster environment
+
+* 1.17.3 (2018-11-30)
+
+ * [PHPunit Bridge] Fix compatibility with PHP 5.x
+
 * 1.17.3 (2018-11-30)
 
  * [PHPunit Bridge] Fix compatibility with PHP 5.x
