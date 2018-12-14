@@ -467,7 +467,11 @@ class Client
 
     private function getCollabTokens()
     {
-        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/collab-tokens'), true);
+        if (null === $this->collabTokens) {
+            $this->collabTokens = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/collab-tokens'), true);
+        }
+
+        return $this->collabTokens;
     }
 
     private function getEnvUuid($env)
@@ -477,17 +481,28 @@ class Client
         return $env['collabToken'];
     }
 
+    private function getPersonalCollabToken()
+    {
+        $collabTokens = $this->getCollabTokens();
+
+        foreach ($collabTokens['collabTokens'] as $collabToken) {
+            if ('personal' === $collabToken['type']) {
+                return $collabToken;
+            }
+        }
+
+        throw new EnvNotFoundException('No personal collab token found');
+    }
+
     private function getEnvDetails($env)
     {
-        if (null === $this->collabTokens) {
-            $this->collabTokens = $this->getCollabTokens();
-        }
-
         if (!$env) {
-            return $this->collabTokens['collabTokens'][0];
+            return $this->getPersonalCollabToken();
         }
 
-        foreach ($this->collabTokens['collabTokens'] as $i => $collabToken) {
+        $collabTokens = $this->getCollabTokens();
+
+        foreach ($collabTokens['collabTokens'] as $i => $collabToken) {
             if (isset($collabToken['search_identifiers']) && in_array($env, $collabToken['search_identifiers'])) {
                 return $collabToken;
             }
@@ -517,16 +532,15 @@ class Client
         }
 
         if ($scenario) {
-            $details['collabToken'] = $scenario->getEnv();
-
             $data = $this->doAddJobInScenario($config, $scenario);
 
             $scenario->incJob();
 
             $details['requestId'] = $data['uuid'];
-        } else {
-            $details['collabToken'] = $envDetails['collabToken'];
         }
+
+        $personalCollabToken = $this->getPersonalCollabToken();
+        $details['collabToken'] = $personalCollabToken['collabToken'];
 
         $id = self::NO_REFERENCE_ID;
         if ($config->getReference() || $config->isNewReference()) {
