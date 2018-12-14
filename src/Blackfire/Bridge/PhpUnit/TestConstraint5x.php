@@ -5,7 +5,7 @@ namespace Blackfire\Bridge\PhpUnit;
 use PHPUnit\Framework\Constraint\Constraint;
 use SebastianBergmann\Comparator\ComparisonFailure;
 
-class TestConstraint extends Constraint
+class TestConstraint5x extends Constraint
 {
     use BlackfireTestContraintTrait;
 

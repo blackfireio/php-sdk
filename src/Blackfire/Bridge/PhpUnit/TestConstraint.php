@@ -48,7 +48,7 @@ trait BlackfireTestContraintTrait
             $details .= sprintf("\nMore information at %s.", $profile->getUrl().'?settings%5BtabPane%5D=assertions');
 
             $failureDescription = "Failed asserting that Blackfire tests pass.\n";
-            $failureDescription .= sprintf("%d tests failures out of %d.\n\n", $failures, count($tests));
+            $failureDescription .= sprintf("%d tests failures out of %d.\n\n", $failures, \count($tests));
             $failureDescription .= $details;
         }
 
@@ -61,8 +61,14 @@ trait BlackfireTestContraintTrait
     }
 }
 
-if (PHP_VERSION_ID > 70100) {
-    require_once __DIR__.'/TestConstraint71.php';
+if (\PHP_VERSION_ID > 70100) {
+    class_alias('Blackfire\Bridge\PhpUnit\TestConstraint', 'Blackfire\Bridge\PhpUnit\TestConstraint71');
 } else {
-    require_once __DIR__.'/TestConstraint5x.php';
+    class_alias('Blackfire\Bridge\PhpUnit\TestConstraint', 'Blackfire\Bridge\PhpUnit\TestConstraint5x');
+}
+
+if (false) {
+    class TestConstraint
+    {
+    }
 }
