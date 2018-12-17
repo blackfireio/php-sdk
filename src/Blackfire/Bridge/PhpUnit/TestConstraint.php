@@ -62,9 +62,9 @@ trait BlackfireTestContraintTrait
 }
 
 if (\PHP_VERSION_ID > 70100) {
-    class_alias('Blackfire\Bridge\PhpUnit\TestConstraint', 'Blackfire\Bridge\PhpUnit\TestConstraint71');
+    class_alias('Blackfire\Bridge\PhpUnit\TestConstraint71', 'Blackfire\Bridge\PhpUnit\TestConstraint');
 } else {
-    class_alias('Blackfire\Bridge\PhpUnit\TestConstraint', 'Blackfire\Bridge\PhpUnit\TestConstraint5x');
+    class_alias('Blackfire\Bridge\PhpUnit\TestConstraint5x', 'Blackfire\Bridge\PhpUnit\TestConstraint');
 }
 
 if (false) {
