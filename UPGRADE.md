@@ -1,6 +1,15 @@
 PHP-SDK UPGRADE
 ===============
 
+To v1.18.0
+----------
+
+* Methods `Blackfire\LoopClient::promoteReferenceSignal`, `Blackfire\LoopClient::attachReference`,
+  `Blackfire\Profile\Configuration::getReference`, `Blackfire\Profile\Configuration::setReference`,
+  `Blackfire\Profile\Configuration::isNewReference`, `Blackfire\Profile\Configuration::setAsReference`
+  are deprecated.
+* Class `\Blackfire\Exception\ReferenceNotFoundException` is deprecated.
+
 To v1.16.0
 ----------
 

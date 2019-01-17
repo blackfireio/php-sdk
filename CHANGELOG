@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.18.0 (2019-01-21)
+
+ * Deprecate methods and classes related to references
+
 * 1.17.6 (2018-12-17)
 
  * Fix PHPUnit bridge

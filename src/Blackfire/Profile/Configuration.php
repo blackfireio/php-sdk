@@ -127,31 +127,65 @@ class Configuration
         return $this;
     }
 
+    /**
+     * @deprecated since 1.18, to be removed in 2.0.
+     */
     public function getReference()
+    {
+        @trigger_error('The method "getReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
+
+        return $this->reference;
+    }
+
+    /**
+     * @internal
+     */
+    public function getReferenceInternal()
     {
         return $this->reference;
     }
 
     /**
      * @return $this
+     *
+     * @deprecated since 1.18, to be removed in 2.0.
      */
     public function setReference($reference)
     {
+        @trigger_error('The method "setReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
+
         $this->reference = $reference;
 
         return $this;
     }
 
+    /**
+     * @deprecated since 1.18, to be removed in 2.0.
+     */
     public function isNewReference()
+    {
+        @trigger_error('The method "isNewReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
+
+        return $this->isReference;
+    }
+
+    /**
+     * @internal
+     */
+    public function isNewReferenceInternal()
     {
         return $this->isReference;
     }
 
     /**
      * @return $this
+     *
+     * @deprecated since 1.18, to be removed in 2.0.
      */
     public function setAsReference()
     {
+        @trigger_error('The method "setAsReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
+
         $this->isReference = true;
 
         return $this;

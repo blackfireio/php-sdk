@@ -28,7 +28,7 @@ class Client
 {
     const MAX_RETRY = 60;
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
-    const VERSION = '1.17.6';
+    const VERSION = '1.18.0';
 
     private $config;
     private $collabTokens;
@@ -456,7 +456,7 @@ class Client
 
         $request = new Profile\Request($config, $data);
 
-        if ($config->getReference() && $config->isNewReference()) {
+        if ($config->getReferenceInternal() && $config->isNewReferenceInternal()) {
             // promote the profile as being the new reference
             $content = json_encode(['request_id' => $request->getUuid(), 'slot_id' => $details['profileSlot']]);
             $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$request->getUuid().'/promote-reference', 'POST', array('content' => $content), array('Content-Type: application/json'));
@@ -543,15 +543,15 @@ class Client
         $details['collabToken'] = $personalCollabToken['collabToken'];
 
         $id = self::NO_REFERENCE_ID;
-        if ($config->getReference() || $config->isNewReference()) {
+        if ($config->getReferenceInternal() || $config->isNewReferenceInternal()) {
             foreach ($envDetails['profileSlots'] as $profileSlot) {
-                if ($config->isNewReference()) {
+                if ($config->isNewReferenceInternal()) {
                     if ($profileSlot['empty'] && self::NO_REFERENCE_ID !== $profileSlot['id']) {
                         $id = $profileSlot['id'];
 
                         break;
                     }
-                } elseif ($config->getReference() == $profileSlot['number'] || $config->getReference() == $profileSlot['id']) {
+                } elseif ($config->getReferenceInternal() == $profileSlot['number'] || $config->getReferenceInternal() == $profileSlot['id']) {
                     $id = $profileSlot['id'];
 
                     break;
@@ -559,10 +559,10 @@ class Client
             }
 
             if (self::NO_REFERENCE_ID === $id) {
-                if ($config->isNewReference()) {
+                if ($config->isNewReferenceInternal()) {
                     throw new ReferenceNotFoundException('Unable to create a new reference, your reference quota is reached');
                 } else {
-                    throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReference()));
+                    throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReferenceInternal()));
                 }
             }
         }

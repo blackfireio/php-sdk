@@ -60,9 +60,13 @@ class LoopClient
 
     /**
      * @param int $signal A signal that triggers profiling for a reference (like SIGUSR2)
+     *
+     * @deprecated since 1.18, to be removed in 2.0.
      */
     public function promoteReferenceSignal($signal)
     {
+        @trigger_error('The method "promoteReferenceSignal" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
+
         if (!$this->referenceId) {
             throw new LogicException('Cannot set signal to promote the reference without an attached reference (call attachReference() first).');
         }
@@ -85,9 +89,13 @@ class LoopClient
 
     /**
      * @param int $referenceId The reference ID to use (rolling reference)
+     *
+     * @deprecated since 1.18, to be removed in 2.0.
      */
     public function attachReference($referenceId)
     {
+        @trigger_error('The method "attachReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
+
         $this->referenceId = $referenceId;
     }
 
