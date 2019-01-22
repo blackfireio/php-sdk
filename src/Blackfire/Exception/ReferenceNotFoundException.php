@@ -11,7 +11,7 @@
 
 namespace Blackfire\Exception;
 
-@trigger_error('The \Blackfire\Exception\ReferenceNotFoundException class is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0.', E_USER_DEPRECATED);
+@trigger_error('The \Blackfire\Exception\ReferenceNotFoundException class is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
 
 /**
  * @deprecated since 1.18, to be removed in 2.0.
