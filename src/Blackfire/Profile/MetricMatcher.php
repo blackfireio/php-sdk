@@ -16,9 +16,13 @@ class MetricMatcher
     private $selector;
     private $argument;
 
-    public function __construct($selector)
+    public function __construct($selector, $indice = null, $matcher = null)
     {
         $this->selector = $selector;
+
+        if ((null !== $indice) AND (null !== $matcher)) {
+            $this->selectArgument($indice, $matcher);
+        }
     }
 
     public function selectArgument($indice, $matcher)

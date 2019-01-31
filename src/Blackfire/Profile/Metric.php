@@ -18,12 +18,12 @@ class Metric
     private $label;
     private $matchers = array();
 
-    public function __construct($name, $selectors = null)
+    public function __construct($name, $selectors = null, $indice = null, $matcher = null)
     {
         $this->name = $this->label = $name;
 
         foreach ((array) $selectors as $selector) {
-            $this->addCallee($selector);
+            $this->addCallee($selector, $indice, $matcher);
         }
     }
 
@@ -50,9 +50,9 @@ class Metric
     /**
      * @return MetricMatcher
      */
-    public function addCallee($selector)
+    public function addCallee($selector, $indice = null, $matcher = null)
     {
-        $this->matchers[] = $matcher = new MetricMatcher($selector);
+        $this->matchers[] = $matcher = new MetricMatcher($selector, $indice, $matcher);
 
         return $matcher;
     }
