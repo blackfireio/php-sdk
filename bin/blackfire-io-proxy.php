@@ -54,7 +54,7 @@ while ($upstream = stream_socket_accept($proxy, -1)) {
 
     $write = array();
 
-    for (;;) {
+    while (true) {
         $read = array($upstream, $backend);
         if (!stream_select($read, $write, $write, 5)) {
             break;
