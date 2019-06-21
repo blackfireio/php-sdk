@@ -114,7 +114,7 @@ class Client
     {
         $uuid = $build->getUuid();
 
-        $content = json_encode(['closed' => true]);
+        $content = json_encode(array('closed' => true));
         $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/builds/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
 
         return $this->getBuildReport($uuid);
@@ -146,10 +146,10 @@ class Client
     {
         $uuid = $scenario->getUuid();
 
-        $content = json_encode([
+        $content = json_encode(array(
             'nb_jobs' => $scenario->getJobCount(),
             'errors' => $errors,
-        ]);
+        ));
 
         $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
 
@@ -202,7 +202,7 @@ class Client
 
         $uuid = $build->getUuid();
 
-        $content = json_encode(['nb_jobs' => $build->getJobCount()]);
+        $content = json_encode(array('nb_jobs' => $build->getJobCount()));
         $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
 
         return $this->getReport($uuid);
@@ -269,7 +269,7 @@ class Client
             $this->getProfile($uuid)->getUrl();
 
             if (null !== $title) {
-                $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', array('content' => http_build_query(['label' => $title], '', '&')), array('Content-Type: application/x-www-form-urlencoded'));
+                $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'PUT', array('content' => http_build_query(array('label' => $title), '', '&')), array('Content-Type: application/x-www-form-urlencoded'));
             }
 
             if (null !== $metadata) {
@@ -458,7 +458,7 @@ class Client
 
         if ($config->getReferenceInternal() && $config->isNewReferenceInternal()) {
             // promote the profile as being the new reference
-            $content = json_encode(['request_id' => $request->getUuid(), 'slot_id' => $details['profileSlot']]);
+            $content = json_encode(array('request_id' => $request->getUuid(), 'slot_id' => $details['profileSlot']));
             $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$request->getUuid().'/promote-reference', 'POST', array('content' => $content), array('Content-Type: application/json'));
         }
 
@@ -597,17 +597,17 @@ class Client
             $sslOpts['cafile'] = $caPath;
         }
 
-        $context = self::getContext($url, [
-            'http' => array_replace([
+        $context = self::getContext($url, array(
+            'http' => array_replace(array(
                 'method' => $method,
                 'header' => implode("\r\n", $headers),
                 'ignore_errors' => true,
                 'follow_location' => true,
                 'max_redirects' => 3,
                 'timeout' => 60,
-            ], $context),
+            ), $context),
             'ssl' => $sslOpts,
-        ]);
+        ));
 
         set_error_handler(function ($type, $message) {
             throw new OfflineException(sprintf('An error occurred: %s.', $message));
