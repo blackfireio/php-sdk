@@ -1052,7 +1052,7 @@ class BlackfireProbe
             $id = md5(uniqid(mt_rand(), true), true);
         }
 
-        return substr(strtr(rtrim(base64_encode($id), '='), '+/', '-_'), 0, 9);
+        return substr(strtr(rtrim(base64_encode($id), '='), '+/', 'AB'), 0, 9);
     }
 
     /**
