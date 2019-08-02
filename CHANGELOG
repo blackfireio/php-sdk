@@ -1,6 +1,12 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.19.0 (2019-08-02)
+
+ * Add Symfony HttpClient bridge
+ * Fix compatibility with PHP 5.3
+ * Fix sub-profile id generation to be compatible with url encoding
+
 * 1.18.0 (2019-01-21)
 
  * Deprecate methods and classes related to references

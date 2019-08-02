@@ -28,7 +28,7 @@ class Client
 {
     const MAX_RETRY = 60;
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
-    const VERSION = '1.18.0';
+    const VERSION = '1.19.0';
 
     private $config;
     private $collabTokens;
@@ -172,12 +172,12 @@ class Client
         @trigger_error('The method "createBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "startScenario" instead.', E_USER_DEPRECATED);
 
         // BC layer
-        if (!is_array($options)) {
+        if (!\is_array($options)) {
             $options = array('title' => $options);
-            if (func_get_args() >= 3) {
+            if (\func_get_args() >= 3) {
                 $options['trigger_name'] = func_get_arg(2);
             }
-            if (func_get_args() >= 4) {
+            if (\func_get_args() >= 4) {
                 $options['metadata'] = (array) func_get_arg(3);
             }
         }
@@ -247,7 +247,7 @@ class Client
      */
     public function createRequest($config = null)
     {
-        if (is_string($config)) {
+        if (\is_string($config)) {
             $cfg = new ProfileConfiguration();
             $config = $cfg->setTitle($config);
         } elseif (null === $config) {
@@ -503,7 +503,7 @@ class Client
         $collabTokens = $this->getCollabTokens();
 
         foreach ($collabTokens['collabTokens'] as $i => $collabToken) {
-            if (isset($collabToken['search_identifiers']) && in_array($env, $collabToken['search_identifiers'])) {
+            if (isset($collabToken['search_identifiers']) && \in_array($env, $collabToken['search_identifiers'])) {
                 return $collabToken;
             }
 
@@ -690,7 +690,7 @@ class Client
         ));
 
         // Handle HTTP_PROXY/http_proxy on CLI only for security reasons
-        if (PHP_SAPI === 'cli' && (!empty($_SERVER['HTTP_PROXY']) || !empty($_SERVER['http_proxy']))) {
+        if (\PHP_SAPI === 'cli' && (!empty($_SERVER['HTTP_PROXY']) || !empty($_SERVER['http_proxy']))) {
             $proxy = parse_url(!empty($_SERVER['http_proxy']) ? $_SERVER['http_proxy'] : $_SERVER['HTTP_PROXY']);
         }
 
@@ -713,21 +713,21 @@ class Client
         }
 
         if (!empty($proxy)) {
-            $proxyURL = isset($proxy['scheme']) ? $proxy['scheme'] . '://' : '';
+            $proxyURL = isset($proxy['scheme']) ? $proxy['scheme'].'://' : '';
             $proxyURL .= isset($proxy['host']) ? $proxy['host'] : '';
 
             if (isset($proxy['port'])) {
-                $proxyURL .= ":" . $proxy['port'];
+                $proxyURL .= ':'.$proxy['port'];
             } elseif ('http://' == substr($proxyURL, 0, 7)) {
-                $proxyURL .= ":80";
+                $proxyURL .= ':80';
             } elseif ('https://' == substr($proxyURL, 0, 8)) {
-                $proxyURL .= ":443";
+                $proxyURL .= ':443';
             }
 
             // http(s):// is not supported in proxy
             $proxyURL = str_replace(array('http://', 'https://'), array('tcp://', 'ssl://'), $proxyURL);
 
-            if (0 === strpos($proxyURL, 'ssl:') && !extension_loaded('openssl')) {
+            if (0 === strpos($proxyURL, 'ssl:') && !\extension_loaded('openssl')) {
                 throw new \RuntimeException('You must enable the openssl extension to use a proxy over https');
             }
 
@@ -737,13 +737,13 @@ class Client
             switch (parse_url($url, PHP_URL_SCHEME)) {
                 case 'http': // default request_fulluri to true
                     $reqFullUriEnv = getenv('HTTP_PROXY_REQUEST_FULLURI');
-                    if ($reqFullUriEnv === false || $reqFullUriEnv === '' || (strtolower($reqFullUriEnv) !== 'false' && (bool) $reqFullUriEnv)) {
+                    if (false === $reqFullUriEnv || '' === $reqFullUriEnv || ('false' !== strtolower($reqFullUriEnv) && (bool) $reqFullUriEnv)) {
                         $options['http']['request_fulluri'] = true;
                     }
                     break;
                 case 'https': // default request_fulluri to true
                     $reqFullUriEnv = getenv('HTTPS_PROXY_REQUEST_FULLURI');
-                    if ($reqFullUriEnv === false || $reqFullUriEnv === '' || (strtolower($reqFullUriEnv) !== 'false' && (bool) $reqFullUriEnv)) {
+                    if (false === $reqFullUriEnv || '' === $reqFullUriEnv || ('false' !== strtolower($reqFullUriEnv) && (bool) $reqFullUriEnv)) {
                         $options['http']['request_fulluri'] = true;
                     }
                     break;
@@ -752,7 +752,7 @@ class Client
             // add SNI opts for HTTPS URLs
             if ('https' === parse_url($url, PHP_URL_SCHEME)) {
                 $options['ssl']['SNI_enabled'] = true;
-                if (PHP_VERSION_ID < 50600) {
+                if (\PHP_VERSION_ID < 50600) {
                     $options['ssl']['SNI_server_name'] = parse_url($url, PHP_URL_HOST);
                 }
             }
@@ -761,13 +761,13 @@ class Client
             if (isset($proxy['user'])) {
                 $auth = urldecode($proxy['user']);
                 if (isset($proxy['pass'])) {
-                    $auth .= ':' . urldecode($proxy['pass']);
+                    $auth .= ':'.urldecode($proxy['pass']);
                 }
                 $auth = base64_encode($auth);
 
                 // Preserve headers if already set in default options
                 if (isset($defaultOptions['http']['header'])) {
-                    if (is_string($defaultOptions['http']['header'])) {
+                    if (\is_string($defaultOptions['http']['header'])) {
                         $defaultOptions['http']['header'] = array($defaultOptions['http']['header']);
                     }
                     $defaultOptions['http']['header'][] = "Proxy-Authorization: Basic {$auth}";
@@ -780,7 +780,7 @@ class Client
         $options = array_replace_recursive($options, $defaultOptions);
 
         if (isset($options['http']['header'])) {
-            if (!is_array($header = $options['http']['header'])) {
+            if (!\is_array($header = $options['http']['header'])) {
                 $header = explode("\r\n", $header);
             }
             uasort($header, function ($el) {
