@@ -142,7 +142,7 @@ class Client
      *
      * @return Report
      */
-    public function closeScenario(Scenario $scenario, array $errors = [])
+    public function closeScenario(Scenario $scenario, array $errors = array())
     {
         $uuid = $scenario->getUuid();
 

@@ -27,7 +27,7 @@ class BlackfiredHttpClient implements HttpClientInterface
         $this->autoEnable = $autoEnable;
     }
 
-    public function request(string $method, string $url, array $options = []): ResponseInterface
+    public function request(string $method, string $url, array $options = array()): ResponseInterface
     {
         // this normalizes HTTP headers and allows direct access to $options['headers']['x-blackfire-query']
         // without checking the header name case sensitivity
