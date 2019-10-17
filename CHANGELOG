@@ -1,0 +1,61 @@
+Blackfire PHP-SDK Changelog
+===========================
+
+* 1.19.2 (2019-10-09)
+
+ * Fix PHP 5.3 compatibility
+
+* 1.19.1 (2019-08-14)
+
+ * Fix invalid header name breaking the Guzzle middleware with recent guzzle/psr7
+ * Modify subprofile ID generator so that it's only ever composed of alphanumerics
+
+* 1.19.0 (2019-08-02)
+
+ * Add Symfony HttpClient bridge
+ * Fix compatibility with PHP 5.3
+ * Fix sub-profile id generation to be compatible with url encoding
+
+* 1.18.0 (2019-01-21)
+
+ * Deprecate methods and classes related to references
+
+* 1.17.6 (2018-12-17)
+
+ * Fix PHPUnit bridge
+
+* 1.17.5 (2018-12-14)
+
+ * Fix PHPUnit bridge
+
+* 1.17.4 (2018-12-14)
+
+ * Fix profiling with Hoster environment
+
+* 1.17.3 (2018-11-30)
+
+ * [PHPunit Bridge] Fix compatibility with PHP 5.x
+
+* 1.17.3 (2018-11-30)
+
+ * [PHPunit Bridge] Fix compatibility with PHP 5.x
+
+* 1.17.2 (2018-10-22)
+
+ * Remove headers from Blackfire\Exception\ApiException's message
+ * Add method "getHeaders()" to Blackfire\Exception\ApiException
+
+* 1.17.1 (2018-07-16)
+
+ * Fix usage of PHPUnit Bridge without assertions
+
+* 1.17.0 (2018-07-11)
+
+ * Add proper version in the User-Agent header
+ * Add User-Agent header as well as the X-Blackfire-User-Agent one
+ * Add possibility to suffix the User Agent header
+
+* 1.16.0 (2018-07-04)
+
+ * Update to use the Build API version 2
+ * Add a new method `getBuildReport()` to get the Report of a full Build

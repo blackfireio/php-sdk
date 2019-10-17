@@ -1,0 +1,36 @@
+{
+    "name": "blackfire/php-sdk",
+    "description": "Blackfire.io PHP SDK",
+    "keywords": ["profiler", "xhprof", "performance", "uprofiler"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Blackfire.io",
+            "email": "support@blackfire.io"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.0",
+        "composer/ca-bundle": "^1.0"
+    },
+    "suggest": {
+        "ext-blackfire": "The C version of the Blackfire probe",
+        "ext-zlib": "To push config to remote profiling targets"
+    },
+    "autoload": {
+        "files": [
+            "src/autostart.php"
+        ],
+        "psr-4": {
+            "Blackfire\\": "src/Blackfire"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.5.x-dev"
+        }
+    },
+    "require-dev": {
+        "symfony/http-client": "^4.3"
+    }
+}
