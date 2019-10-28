@@ -23,7 +23,7 @@ class BlackfireSpan
     private $meta;
     private $finished = false;
 
-    public function __construct($name, $category = null, array $meta = array())
+    public function __construct($name = null, $category = null, array $meta = array())
     {
         $this->id = microtime(true).mt_rand(0, 9999);
         $this->name = $name;
@@ -34,8 +34,8 @@ class BlackfireSpan
             '__type__' => 'start',
             '__id__' => $this->id,
             '__name__' => $name,
-            '__category__' => $category
-        ), '', '&')));
+            '__category__' => $category,
+        )), '', '&'));
     }
 
     public function __destruct()
@@ -56,7 +56,7 @@ class BlackfireSpan
         $this->addEntry(http_build_query(array_merge($meta, array(
             '__type__' => 'stop',
             '__id__' => $this->id,
-        ), '', '&')));
+        )), '', '&'));
         $this->finished = true;
     }
 
@@ -66,7 +66,7 @@ class BlackfireSpan
             '__type__' => 'event',
             '__description__' => $description,
             '__id__' => $this->id,
-        ), '', '&')));
+        )), '', '&'));
         $this->finished = true;
     }
 
