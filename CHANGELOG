@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.20.0 (2019-11-18)
+
+ * Add BlackfireSpan
+
 * 1.19.2 (2019-10-09)
 
  * Fix PHP 5.3 compatibility
