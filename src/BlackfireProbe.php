@@ -38,16 +38,16 @@ class BlackfireProbe
         'config' => true,
         'timespan' => false,
         'server_keys' => array(
-            'HTTP_HOST',
-            'HTTP_USER_AGENT',
-            'HTTPS',
-            'REQUEST_METHOD',
-            'REQUEST_URI',
-            'SERVER_ADDR',
-            'SERVER_PORT',
-            'SERVER_SOFTWARE',
-            '_',
-            'argv',
+            'HTTP_HOST' => 'http_header_host',
+            'HTTP_USER_AGENT' => 'http_header_user_agent',
+            'HTTPS' => 'https',
+            'REQUEST_METHOD' => 'http_method',
+            'REQUEST_URI' => 'http_uri',
+            'SERVER_ADDR' => 'http_server_addr',
+            'SERVER_PORT' => 'http_server_port',
+            'SERVER_SOFTWARE' => 'http_server_software',
+            '_' => 'script',
+            'argv' => 'argv',
         ),
         'ignored_functions' => array(
             'array_map',
@@ -777,10 +777,10 @@ class BlackfireProbe
         $cookies = array_keys($_COOKIE);
 
         // Keep selected keys from $_SERVER
-        $servers = array();
-        foreach ($this->options['server_keys'] as $e) {
-            if (isset($_SERVER[$e])) {
-                $servers[$e] = $_SERVER[$e];
+        $context = array();
+        foreach ($this->options['server_keys'] as $serverKey => $contextName) {
+            if (isset($_SERVER[$serverKey])) {
+                $context[$contextName] = $_SERVER[$serverKey];
             }
         }
 
@@ -806,7 +806,7 @@ class BlackfireProbe
         }
 
         if (!empty($e)) {
-            $servers['REQUEST_URI'] = $e;
+            $context['http_uri'] = $e;
         }
 
         self::fwrite($this->outputStream, 'file-format: '.$this->fileFormat."\n"
@@ -816,7 +816,7 @@ class BlackfireProbe
             .'probed-features: '.((UPROFILER_FLAGS_CPU & $this->flags) ? 'flag_cpu=1&' : '').((UPROFILER_FLAGS_MEMORY & $this->flags) ? 'flag_memory=1&' : '')."\n"
             .'php-extensions: '.strtr(http_build_query($extensions, '', '&'), self::$urlEncMap)."\n"
             .'_COOKIE: '.strtr(http_build_query($cookies, '', '&'), self::$urlEncMap)."\n"
-            .'_SERVER: '.strtr(http_build_query($servers, '', '&'), self::$urlEncMap)."\n"
+            .'context: '.strtr(http_build_query($context, '', '&'), self::$urlEncMap)."\n"
             ."\nmain()//1 0 0 0 0\n\n"
         );
 
