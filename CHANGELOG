@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.21.0 (2019-12-05)
+
+ * Replace the "_server" header in fallback probe by "context"
+
 * 1.20.0 (2019-11-18)
 
  * Add BlackfireSpan
