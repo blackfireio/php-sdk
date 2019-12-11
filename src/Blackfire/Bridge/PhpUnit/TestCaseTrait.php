@@ -12,6 +12,7 @@
 namespace Blackfire\Bridge\PhpUnit;
 
 use Blackfire\Client;
+use Blackfire\Profile;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\ClientConfiguration;
 use Blackfire\Exception\ExceptionInterface;
@@ -32,6 +33,7 @@ trait TestCaseTrait
 
     /**
      * @param callable $callback The code to profile
+     * @return Profile
      */
     public function assertBlackfire(ProfileConfiguration $config, $callback)
     {
