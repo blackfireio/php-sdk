@@ -13,7 +13,7 @@ See https://blackfire.io/docs/integrations/php/sdk
 PhpUnit Integration
 -------------------
 
-See https://blackfire.io/docs/integrations/phpunit
+See https://blackfire.io/docs/integrations/php/phpunit
 
 Proxy
 -----
