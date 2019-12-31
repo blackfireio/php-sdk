@@ -29,7 +29,7 @@ PHP Probe
 extension is not possible.
 
 This repository provides a [Blackfire](https://blackfire.io/) PHP Probe
-implementation that should only be used under the following circumstancies:
+implementation that should only be used under the following circumstances:
 
  * You already have XHProf installed and cannot install the Blackfire PHP
    extension (think PHP 5.2);
