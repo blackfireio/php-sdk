@@ -134,8 +134,14 @@ class BlackfireProbe
 
         if (!isset($query['auto_enable']) || $query['auto_enable']) {
             if (self::$probe->isVerified()) {
-                if (self::$probe->blackfireYmlAsked()) {
-                    self::$probe->info('blackfire.yml asked.');
+                if (self::$probe->dotBlackfireAsked()) {
+                    self::$probe->info('Directory .blackfire asked.');
+
+                    self::$probe->writeDotBlackfireMimeMessage();
+
+                    exit(0);
+                } elseif (self::$probe->blackfireYmlAsked()) {
+                    self::$probe->info('blackfire.yaml asked.');
 
                     $config = self::$probe->getConfiguration();
                     if (null === $config) {
@@ -581,7 +587,7 @@ class BlackfireProbe
 
         $this->outputStream = false;
         $url = $this->agentSocket;
-        $noop = $this->blackfireYmlAsked();
+        $noop = $this->blackfireYmlAsked() || $this->dotBlackfireAsked();
 
         if (($i = strpos($url, '://')) && in_array(substr($url, 0, $i), stream_get_transports(), true)) {
             $this->debug('Lets open '.$url);
@@ -707,6 +713,88 @@ class BlackfireProbe
     /**
      * @internal
      */
+    private function writeDotBlackfireMimeMessage()
+    {
+        $path = $this->getRootPath('.blackfire.yaml');
+        if (!$path) {
+            if (!$path = $this->getRootPath('.blackfire.yml')) {
+                self::$probe->responseLine .= '&no-dot-blackfire';
+
+                if (!headers_sent()) {
+                    header('X-' . self::$probe->getResponseLine());
+                }
+
+                return;
+            }
+        }
+
+        $boundary = md5(uniqid(mt_rand(), true));
+        if (!headers_sent()) {
+            self::$probe->responseLine .= '&found-dot-blackfire';
+            header('X-'.self::$probe->getResponseLine());
+        }
+
+        echo "MIME-Version: 1.0\r
+Content-Type: multipart/mixed; boundary=$boundary\r
+\r
+.blackfire directory content.\r
+";
+
+        $this->writeMimeMessagePart($path, $boundary, '.blackfire.yaml');
+
+        if ($path = $this->getRootPath('.blackfire', false)) {
+            $this->dumpDirContent($path, $boundary, '.blackfire/');
+        }
+
+        echo "--$boundary--\r\n";
+
+        return;
+    }
+
+    /**
+     * @internal
+     */
+    private function writeMimeMessagePart($path, $boundary, $name)
+    {
+        $rawurlencodedEntry = rawurlencode($name);
+        echo "--$boundary\r
+Content-Type: application/octet-stream\r
+Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
+\r
+";
+        readfile($path);
+        echo "\r\n";
+    }
+
+    /**
+     * @internal
+     */
+    private function dumpDirContent($path, $boundary, $relativePath = '')
+    {
+        if ($handle = opendir($path)) {
+            while (false !== $entry = readdir($handle)) {
+                if ('.' === $entry || '..' === $entry) {
+                    continue;
+                }
+
+                $entryPath = $path.'/'.$entry;
+                if (is_dir($entryPath)) {
+                    $this->dumpDirContent($entryPath, $boundary, $relativePath.$entry.'/');
+
+                    continue;
+                }
+
+                $this->writeMimeMessagePart($entryPath, $boundary, $relativePath.$entry);
+            }
+            closedir($handle);
+        } else {
+            $this->debug('Unable to open directory '.$path);
+        }
+    }
+
+    /**
+     * @internal
+     */
     private function getConfiguration()
     {
         if ($this->configuration !== null) {
@@ -731,7 +819,7 @@ class BlackfireProbe
     /**
      * @internal
      */
-    private function getRootFile($file)
+    private function getRootPath($search, $isFile = true)
     {
         try {
             if (PHP_SAPI === 'cli-server') {
@@ -743,22 +831,32 @@ class BlackfireProbe
             if ($dir = realpath($baseDir)) {
                 do {
                     $prevDir = $dir;
-                    $rootFile = $dir.DIRECTORY_SEPARATOR.$file;
+                    $path = $dir.DIRECTORY_SEPARATOR.$search;
                     $dir = dirname($dir);
-                } while (!(file_exists($rootFile) && is_file($rootFile)) && $prevDir !== $dir);
+                } while (!(file_exists($path) && ($isFile ? is_file($path) : is_dir($path))) && $prevDir !== $dir);
 
                 if ($prevDir !== $dir) {
-                    $this->debug("Found $rootFile");
+                    $this->debug("Found $path");
 
-                    return file_get_contents($rootFile);
+                    return $path;
                 }
 
-                $this->debug(sprintf('No %s found', $file));
+                $this->debug(sprintf('No %s found', $search));
             } else {
                 $this->debug('Realpath failed on '.$baseDir);
             }
         } catch (ErrorException $e) {
             $this->warn($e->getMessage().' in '.$e->getFile().':'.$e->getLine());
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private function getRootFile($file)
+    {
+        if ($path = $this->getRootPath($file)) {
+            return file_get_contents($path);
         }
     }
 
@@ -1037,6 +1135,11 @@ class BlackfireProbe
     public function onShutdown($extraHeaders = '')
     {
         $this->box('doShutdown', null, $extraHeaders);
+    }
+
+    private function dotBlackfireAsked()
+    {
+        return isset($_SERVER['REQUEST_METHOD']) && 'POST' === strtoupper($_SERVER['REQUEST_METHOD']) && false !== strpos($this->signedArgs['agentIds'], 'request-id-dot-blackfire');
     }
 
     private function blackfireYmlAsked()
