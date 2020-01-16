@@ -757,13 +757,23 @@ Content-Type: multipart/mixed; boundary=$boundary\r
     private function writeMimeMessagePart($path, $boundary, $name)
     {
         $rawurlencodedEntry = rawurlencode($name);
-        echo "--$boundary\r
+
+        if (function_exists('gzencode')) {
+            echo "--$boundary\r
+Content-Type: application/octet-stream\r
+Content-Encoding: gzip\r
+Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
+\r
+";
+            echo gzencode(file_get_contents($path));
+        } else {
+            echo "--$boundary\r
 Content-Type: application/octet-stream\r
 Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
 \r
 ";
-        readfile($path);
-        echo "\r\n";
+            readfile($path);
+        }
     }
 
     /**
