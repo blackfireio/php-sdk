@@ -35,7 +35,6 @@ class BlackfireSpan
             '__id__' => $this->id,
             '__name__' => $name,
             '__category__' => $category,
-            '__time__' => microtime(true),
         )), '', '&'));
     }
 
@@ -57,7 +56,6 @@ class BlackfireSpan
         $this->addEntry(http_build_query(array_merge($meta, array(
             '__type__' => 'stop',
             '__id__' => $this->id,
-            '__time__' => microtime(true),
         )), '', '&'));
         $this->finished = true;
     }
@@ -68,7 +66,6 @@ class BlackfireSpan
             '__type__' => 'event',
             '__description__' => $description,
             '__id__' => $this->id,
-            '__time__' => microtime(true),
         )), '', '&'));
     }
 
