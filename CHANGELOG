@@ -1,6 +1,13 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.22.0 (2020-03-13)
+
+ * Add "dot-blackfire" protocol feature support in the probe
+ * Remove duplicated data from BlackfireSpan
+ * Better unsuccessful profiles detection
+ * Add Profile return to help with auto-complete in TestCaseTrait::assertBlackfire
+
 * 1.21.0 (2019-12-05)
 
  * Replace the "_server" header in fallback probe by "context"
