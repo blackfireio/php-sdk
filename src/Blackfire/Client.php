@@ -344,11 +344,11 @@ class Client
             try {
                 $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid), true);
 
-                if ('finished' == $data['status']['name']) {
-                    return $data;
-                }
+                if ($data['status']['code'] > 0) {
+                    if ('finished' == $data['status']['name']) {
+                        return $data;
+                    }
 
-                if ('failure' == $data['status']['name']) {
                     throw new ApiException($data['status']['failure_reason']);
                 }
             } catch (ApiException $e) {
