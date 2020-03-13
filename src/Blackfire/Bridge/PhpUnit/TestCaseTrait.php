@@ -33,6 +33,7 @@ trait TestCaseTrait
 
     /**
      * @param callable $callback The code to profile
+     *
      * @return Profile
      */
     public function assertBlackfire(ProfileConfiguration $config, $callback)
