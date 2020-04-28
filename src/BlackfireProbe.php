@@ -384,6 +384,12 @@ class BlackfireProbe
         return $this->box('doDisable', true, true);
     }
 
+    /**
+     * Adds a marker for the Timeline View.
+     * Production safe. Operates a no-op if no profile is requested.
+     *
+     * @param string $markerName
+     */
     public static function addMarker($label = '')
     {
         $label = ''; // prevent OPcache optimization
