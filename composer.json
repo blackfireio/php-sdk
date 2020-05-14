@@ -31,6 +31,8 @@
         }
     },
     "require-dev": {
-        "symfony/http-client": "^4.3"
+        "symfony/http-client": "^4.3",
+        "psr/http-message": "^1.0",
+        "guzzlehttp/psr7": "^1.6"
     }
 }
