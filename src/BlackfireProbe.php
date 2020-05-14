@@ -98,7 +98,7 @@ class BlackfireProbe
         '%21' => '!', '%22' => '"', '%23' => '#', '%24' => '$', '%27' => "'",
         '%28' => '(', '%29' => ')', '%2A' => '*', '%2C' => ',', '%2F' => '/',
         '%3A' => ':', '%3B' => ';', '%3C' => '<', '%3D' => '=', '%3E' => '>',
-        '%40' => '@', '%5B' => '[', '%5C' => '\\','%5D' => ']', '%5E' => '^',
+        '%40' => '@', '%5B' => '[', '%5C' => '\\', '%5D' => ']', '%5E' => '^',
         '%60' => '`', '%7B' => '{', '%7C' => '|', '%7D' => '}', '%7E' => '~',
     );
 
@@ -182,9 +182,9 @@ class BlackfireProbe
      * Instantiate a probe object.
      *
      * @param string $query       An URL-encoded string that configures the probe. Part of the string is signed.
-     * @param string $envId       An id that is given to the agent for signature impersonation.
-     * @param string $envToken    The token associated to $envId.
-     * @param string $agentSocket The URL where profiles will be written (directory, socket or TCP destination).
+     * @param string $envId       an id that is given to the agent for signature impersonation
+     * @param string $envToken    the token associated to $envId
+     * @param string $agentSocket the URL where profiles will be written (directory, socket or TCP destination)
      *
      * @api
      */
@@ -245,7 +245,7 @@ class BlackfireProbe
         isset($args['profile_title']) and $this->profileTitle = $args['profile_title'];
         isset($args['config_yml']) and $this->configYml = $args['config_yml'];
 
-        if ($this->logFile && strpos($this->logFile, '://') === false) {
+        if ($this->logFile && false === strpos($this->logFile, '://')) {
             $this->logFile = 'file://'.$this->logFile;
         } elseif (!$this->logFile) {
             $this->logFile = 'php://stderr';
@@ -290,7 +290,7 @@ class BlackfireProbe
 
     public function setConfiguration($configuration)
     {
-        if ($configuration === null) {
+        if (null === $configuration) {
             $this->configuration = null;
         } else {
             $this->configuration = (string) $configuration;
@@ -320,7 +320,7 @@ class BlackfireProbe
      *
      * @see getResponseLine() for error/status reporting
      *
-     * @return bool False if enabling failed.
+     * @return bool false if enabling failed
      *
      * @api
      */
@@ -345,7 +345,7 @@ class BlackfireProbe
      *
      * Does not close the profile payload, allowing to re-enable the probe and aggregate data in the same profile.
      *
-     * @return bool False if the probe was not enabled.
+     * @return bool false if the probe was not enabled
      *
      * @api
      */
@@ -360,7 +360,7 @@ class BlackfireProbe
      * Does not close the profile payload, allowing to re-enable the probe and aggregate data in the same profile.
      * As a side-effect, flushes the collected profile to the output.
      *
-     * @return bool False if the probe was not enabled.
+     * @return bool false if the probe was not enabled
      *
      * @api
      */
@@ -375,7 +375,7 @@ class BlackfireProbe
      * Closing means that a later enable() will create a new profile on the output.
      * As a side-effect, flushes the collected profile to the output.
      *
-     * @return bool False if the probe was not enabled.
+     * @return bool false if the probe was not enabled
      *
      * @api
      */
@@ -399,7 +399,7 @@ class BlackfireProbe
      * Creates a sub-query string to create a new profile linked to the current one.
      * This query must be set in the X-Blackire-Query HTTP header or in the BLACKFIRE_QUERY environment variable.
      *
-     * @return string|null The sub-query or null if the current profile is not the first sample or profiling is disabled.
+     * @return string|null the sub-query or null if the current profile is not the first sample or profiling is disabled
      *
      * @api
      */
@@ -727,7 +727,7 @@ class BlackfireProbe
                 self::$probe->responseLine .= '&no-dot-blackfire';
 
                 if (!headers_sent()) {
-                    header('X-' . self::$probe->getResponseLine());
+                    header('X-'.self::$probe->getResponseLine());
                 }
 
                 return;
@@ -813,7 +813,7 @@ Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
      */
     private function getConfiguration()
     {
-        if ($this->configuration !== null) {
+        if (null !== $this->configuration) {
             return $this->configuration;
         }
 

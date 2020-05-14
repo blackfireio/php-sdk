@@ -11,8 +11,8 @@
 
 namespace Blackfire;
 
-use Blackfire\Profile\Request;
 use Blackfire\Exception\ApiException;
+use Blackfire\Profile\Request;
 
 /**
  * Represents a Blackfire Probe.

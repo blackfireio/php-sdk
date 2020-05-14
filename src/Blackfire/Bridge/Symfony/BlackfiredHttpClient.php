@@ -2,13 +2,13 @@
 
 namespace Blackfire\Bridge\Symfony;
 
-use Symfony\Component\HttpClient\HttpClientTrait;
-use Symfony\Contracts\HttpClient\ResponseInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 use Blackfire\Client as BlackfireClient;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpClient\HttpClientTrait;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
 class BlackfiredHttpClient implements HttpClientInterface
 {

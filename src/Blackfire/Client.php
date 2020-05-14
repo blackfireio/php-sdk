@@ -15,8 +15,8 @@ use Blackfire\Bridge\PhpUnit\TestConstraint as BlackfireConstraint;
 use Blackfire\Build\Scenario;
 use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
-use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Exception\OfflineException;
+use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\Util\NoProxyPattern;
 use Composer\CaBundle\CaBundle;
@@ -296,19 +296,12 @@ class Client
         });
     }
 
-    /**
-     * @param ProfileConfiguration $config
-     * @param Build                $build
-     */
     public function addJobInScenario(ProfileConfiguration $config, Scenario $scenario)
     {
         return $this->doAddJobInScenario($config, $scenario);
     }
 
     /**
-     * @param ProfileConfiguration $config
-     * @param Build                $build
-     *
      * @deprecated since 1.14, to be removed in 2.0. Use method "addJobInScenario" instead.
      */
     public function addJobInBuild(ProfileConfiguration $config, Build $build)
@@ -491,7 +484,7 @@ class Client
             }
         }
 
-        throw new EnvNotFoundException('No personal collab token found');
+        throw new EnvNotFoundException('No personal collab token found.');
     }
 
     private function getEnvDetails($env)
@@ -560,7 +553,7 @@ class Client
 
             if (self::NO_REFERENCE_ID === $id) {
                 if ($config->isNewReferenceInternal()) {
-                    throw new ReferenceNotFoundException('Unable to create a new reference, your reference quota is reached');
+                    throw new ReferenceNotFoundException('Unable to create a new reference, your reference quota is reached.');
                 } else {
                     throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReferenceInternal()));
                 }
@@ -610,7 +603,7 @@ class Client
         ));
 
         set_error_handler(function ($type, $message) {
-            throw new OfflineException(sprintf('An error occurred: %s.', $message));
+            throw new OfflineException(sprintf('An error occurred: "%s".', $message));
         });
         try {
             $body = file_get_contents($url, 0, $context);
@@ -728,7 +721,7 @@ class Client
             $proxyURL = str_replace(array('http://', 'https://'), array('tcp://', 'ssl://'), $proxyURL);
 
             if (0 === strpos($proxyURL, 'ssl:') && !\extension_loaded('openssl')) {
-                throw new \RuntimeException('You must enable the openssl extension to use a proxy over https');
+                throw new \RuntimeException('You must enable the openssl extension to use a proxy over https.');
             }
 
             $options['http']['proxy'] = $proxyURL;

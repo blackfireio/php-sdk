@@ -55,7 +55,7 @@ class NoProxyPattern
      *
      * @param string $url
      *
-     * @return true if the URL matches one of the rules.
+     * @return true if the URL matches one of the rules
      */
     public function test($url)
     {
@@ -74,7 +74,7 @@ class NoProxyPattern
         }
 
         foreach ($this->rules as $rule) {
-            if ($rule == '*') {
+            if ('*' == $rule) {
                 return true;
             }
 
@@ -87,7 +87,7 @@ class NoProxyPattern
                 if (!isset($ip)) {
                     $ip = gethostbyname($host);
                 }
-                if (strpos($ruleHost, '/') === false) {
+                if (false === strpos($ruleHost, '/')) {
                     $match = $ip === $ruleHost;
                 } else {
                     // gethostbyname() failed to resolve $host to an ip, so we assume
@@ -101,13 +101,13 @@ class NoProxyPattern
                 }
             } else {
                 // match end of domain
-                $haystack = '.' . trim($host, '.') . '.';
-                $needle = '.'. trim($ruleHost, '.') .'.';
-                $match = stripos(strrev($haystack), strrev($needle)) === 0;
+                $haystack = '.'.trim($host, '.').'.';
+                $needle = '.'.trim($ruleHost, '.').'.';
+                $match = 0 === stripos(strrev($haystack), strrev($needle));
             }
 
             // final port check
-            if ($match && strpos($rule, ':') !== false) {
+            if ($match && false !== strpos($rule, ':')) {
                 list(, $rulePort) = explode(':', $rule);
                 if (!empty($rulePort) && $port != $rulePort) {
                     $match = false;
@@ -123,7 +123,7 @@ class NoProxyPattern
     }
 
     /**
-     * Check an IP address against a CIDR
+     * Check an IP address against a CIDR.
      *
      * http://framework.zend.com/svn/framework/extras/incubator/library/ZendX/Whois/Adapter/Cidr.php
      *
@@ -140,7 +140,7 @@ class NoProxyPattern
         list($a, $b, $c, $d) = explode('.', $base);
         // Now do some bit shifting/switching to convert to ints
         $i = ($a << 24) + ($b << 16) + ($c << 8) + $d;
-        $mask = $bits == 0 ? 0 : (~0 << (32 - $bits));
+        $mask = 0 == $bits ? 0 : (~0 << (32 - $bits));
         // Here's our lowest int
         $low = $i & $mask;
         // Here's our highest int

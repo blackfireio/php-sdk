@@ -15,7 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Helper used to profile React Http Server requests.
- * Please refer to the sample below for usage:
+ * Please refer to the sample below for usage.
  *
  * $loop = Factory::create();
  * $blackfire = new \Blackfire\Bridge\ReactHttpServerHelper();
@@ -54,7 +54,7 @@ class ReactHttpServerHelper
             return false;
         }
 
-        if ($this->probe !== null) {
+        if (null !== $this->probe) {
             return false;
         }
 
@@ -70,7 +70,7 @@ class ReactHttpServerHelper
 
     public function stop()
     {
-        if ($this->probe === null) {
+        if (null === $this->probe) {
             return array();
         }
 

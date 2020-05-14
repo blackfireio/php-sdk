@@ -93,8 +93,6 @@ class Middleware
     }
 
     /**
-     * @param RequestInterface                   $request
-     * @param array                              $options
      * @param ResponseInterface|PromiseInterface $response
      *
      * @return ResponseInterface|PromiseInterface
@@ -142,7 +140,7 @@ class Middleware
             if (isset($_SERVER['HTTP_X_BLACKFIRE_QUERY'])) {
                 // Let's disable subrequest profiling if aggregation is enabled
                 if (preg_match('/aggreg_samples=(\d+)/', $_SERVER['HTTP_X_BLACKFIRE_QUERY'], $matches)) {
-                    return $matches[1] === '1';
+                    return '1' === $matches[1];
                 }
             }
         }

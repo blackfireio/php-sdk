@@ -11,9 +11,9 @@
 
 namespace Blackfire;
 
-use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\Exception\LogicException;
 use Blackfire\Exception\RuntimeException;
+use Blackfire\Profile\Configuration as ProfileConfiguration;
 
 class LoopClient
 {

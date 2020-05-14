@@ -11,9 +11,9 @@
 
 namespace Blackfire\Bridge\PhpUnit;
 
-use SebastianBergmann\Comparator\ComparisonFailure;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\ExpectationFailedException;
+use SebastianBergmann\Comparator\ComparisonFailure;
 
 if (!class_exists(Constraint::class) && class_exists(\PHPUnit_Framework_Constraint::class)) {
     class_alias(\PHPUnit_Framework_Constraint::class, Constraint::class);
