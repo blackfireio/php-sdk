@@ -220,7 +220,6 @@ class BlackfireProbe
             'BLACKFIRE_ENV_ID' => get_cfg_var('blackfire.env_id') ?: null,
             'BLACKFIRE_ENV_TOKEN' => get_cfg_var('blackfire.env_token') ?: null,
             'BLACKFIRE_AGENT_SOCKET' => get_cfg_var('blackfire.agent_socket') ?: null,
-            'BLACKFIRE_AGENT_TIMEOUT' => get_cfg_var('blackfire.agent_timeout') ?: null,
             'BLACKFIRE_LOG_LEVEL' => get_cfg_var('blackfire.log_level') ?: null,
             'BLACKFIRE_LOG_FILE' => get_cfg_var('blackfire.log_file') ?: null,
         );
@@ -237,8 +236,7 @@ class BlackfireProbe
         $this->agentSocket or $this->agentSocket = self::$defaultAgentSocket;
         $this->agentSocket or $this->agentSocket = ini_get('uprofiler.output_dir');
         $this->agentSocket or $this->agentSocket = ini_get('xhprof.output_dir');
-        $this->agentTimeout = 1000000 * $query['BLACKFIRE_AGENT_TIMEOUT'];
-        $this->agentTimeout or $this->agentTimeout = 250000;
+        $this->agentTimeout = 250000;
         $query['BLACKFIRE_LOG_LEVEL'] and $this->logLevel = $query['BLACKFIRE_LOG_LEVEL'];
         $query['BLACKFIRE_LOG_FILE'] and $this->logFile = $query['BLACKFIRE_LOG_FILE'];
         $this->aggregSamples = isset($args['aggreg_samples']) && is_string($args['aggreg_samples']) ? max((int) $args['aggreg_samples'], 1) : 1;
