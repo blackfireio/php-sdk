@@ -22,6 +22,7 @@ use Blackfire\Profile\Test;
  */
 class Profile
 {
+    private $uuid;
     private $initializeProfileCallback;
     private $data;
     private $tests;
@@ -30,9 +31,23 @@ class Profile
     /**
      * @internal
      */
-    public function __construct($initializeProfileCallback)
+    public function __construct($initializeProfileCallback, $uuid = null)
     {
+        $this->uuid = $uuid;
         $this->initializeProfileCallback = $initializeProfileCallback;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUuid()
+    {
+        if (null === $this->uuid) {
+            $this->initializeProfile();
+            $this->uuid = $this->data['uuid'];
+        }
+
+        return $this->uuid;
     }
 
     /**

@@ -293,7 +293,7 @@ class Client
 
         return new Profile(function () use ($self, $uuid) {
             return $self->doGetProfile($uuid);
-        });
+        }, $uuid);
     }
 
     public function addJobInScenario(ProfileConfiguration $config, Scenario $scenario)
