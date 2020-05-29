@@ -1,6 +1,11 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.23.0 (2020-05-29)
+
+ * Add Blackfire\Profile::getUuid() method
+ * Fix some docblocks
+
 * 1.22.0 (2020-03-13)
 
  * Add "dot-blackfire" protocol feature support in the probe
