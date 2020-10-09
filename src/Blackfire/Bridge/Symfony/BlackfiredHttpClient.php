@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Blackfire SDK package.
+ *
+ * (c) Blackfire <support@blackfire.io>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Blackfire\Bridge\Symfony;
 
 use Blackfire\Client as BlackfireClient;
@@ -31,7 +40,7 @@ class BlackfiredHttpClient implements HttpClientInterface
     {
         // this normalizes HTTP headers and allows direct access to $options['headers']['x-blackfire-query']
         // without checking the header name case sensitivity
-        [, $options] = self::prepareRequest($method, $url, $options);
+        [, $options] = self::prepareRequest($method, $url, $options, static::OPTIONS_DEFAULTS);
 
         if ($this->shouldAutoEnable() && !isset($options['extra']['blackfire'])) {
             $options['extra']['blackfire'] = new ProfileConfiguration();
@@ -76,7 +85,7 @@ class BlackfiredHttpClient implements HttpClientInterface
 
     private function processResponse($method, $url, array $options, ResponseInterface $response)
     {
-        $headers = $response->getHeaders();
+        $headers = $response->getHeaders(false);
 
         if (!isset($headers['x-blackfire-response'])) {
             if (null !== $this->logger) {

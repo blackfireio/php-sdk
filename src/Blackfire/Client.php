@@ -20,6 +20,7 @@ use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\Util\NoProxyPattern;
 use Composer\CaBundle\CaBundle;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The Blackfire Client.
@@ -213,7 +214,7 @@ class Client
      *
      * @deprecated since 1.4, to be removed in 2.0
      */
-    public function assertPhpUnit(\PHPUnit\Framework\TestCase $testCase, ProfileConfiguration $config, $callback)
+    public function assertPhpUnit(TestCase $testCase, ProfileConfiguration $config, $callback)
     {
         @trigger_error('The method "assertPhpUnit" is deprecated since blackfire/php-sdk 1.4 and will be removed in 2.0. Use method "assertBlackfire" of trait "\Blackfire\Bridge\PhpUnit\TestCaseTrait" instead.', E_USER_DEPRECATED);
 
