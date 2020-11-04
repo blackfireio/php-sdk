@@ -94,6 +94,7 @@ class BlackfireProbe
     private static $profilerIsEnabled = false;
     private static $shutdownFunctionRegistered = false;
     private static $defaultAgentSocket = false;
+    private static $transactionName;
     private static $urlEncMap = array(
         '%21' => '!', '%22' => '"', '%23' => '#', '%24' => '$', '%27' => "'",
         '%28' => '(', '%29' => ')', '%2A' => '*', '%2C' => ',', '%2F' => '/',
@@ -420,6 +421,24 @@ class BlackfireProbe
         unset($features['aggreg_samples']);
 
         return $this->challenge.'&'.'signature='.$this->signature.'&'.strtr(http_build_query($features, '', '&'), self::$urlEncMap);
+    }
+
+    /**
+     * Set the transaction name.
+     *
+     * @return null
+     *
+     * @api
+     */
+    public static function setTransactionName($transactionName)
+    {
+        if (!is_string($transactionName)) {
+            trigger_error('BlackfireProbe::setTransactionName() expects parameter 1 to be string, '.gettype($transactionName).' given.', E_USER_WARNING);
+
+            return;
+        }
+
+        self::$transactionName = $transactionName;
     }
 
     // XXX
@@ -929,6 +948,7 @@ Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
             .'php-extensions: '.strtr(http_build_query($extensions, '', '&'), self::$urlEncMap)."\n"
             .'_COOKIE: '.strtr(http_build_query($cookies, '', '&'), self::$urlEncMap)."\n"
             .'context: '.strtr(http_build_query($context, '', '&'), self::$urlEncMap)."\n"
+            .(self::$transactionName ? 'controller-name: '.self::$transactionName."\n" : '')
             ."\nmain()//1 0 0 0 0\n\n"
         );
 
