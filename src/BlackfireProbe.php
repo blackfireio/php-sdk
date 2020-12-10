@@ -441,6 +441,19 @@ class BlackfireProbe
         self::$transactionName = $transactionName;
     }
 
+    public static function getBrowserProbe($withTags = true)
+    {
+        $script = '!function(e,t,c,o,r){o=t.createElement(c),r=t.getElementsByTagName(c)[0],o.async=1,o.src=(e.BFCFG&&e.BFCFG.collector?e.BFCFG.collector:"https://apm.blackfire.io")+"/js/probe.js",r.parentNode.insertBefore(o,r)}(window,document,"script");';
+
+        $js = 'window.BFCFG = window.BFCFG || {}; window.BFCFG.is_proto = true; console.log("This is a BlackfireProbe PHP fallback, it does not support apm_browser_key injection yet. Use window.BFCFG.browser_key=\"your_browser_key\" to use it.");'.$script;
+
+        if (!$withTags) {
+            return $js;
+        }
+
+        return '<script>'.$js.'</script>';
+    }
+
     // XXX
     // XXX - END OF PUBLIC API - XXX
     // XXX
