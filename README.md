@@ -39,3 +39,9 @@ implementation that should only be used under the following circumstances:
 
 [Read more](https://blog.blackfire.io/blackfire-for-xhprof-users.html) about
 how to use this feature on Blackfire's blog.
+
+Blackfire Support
+-----------------
+
+If you are facing any issue with using the Blackfire PHP SDK, please check
+[our support site](https://support.blackfire.io) or reach out to [support@blackfire.io](mailto:support@blackfire.io).
