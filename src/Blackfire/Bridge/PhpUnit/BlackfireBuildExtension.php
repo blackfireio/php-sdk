@@ -55,7 +55,7 @@ class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook
             return;
         }
 
-        $this->buildHelper->startBuild($this->blackfireEnvironmentId, $this->buildTitle, $this->externalId, $this->externalParentId, 'PHPUnit');
+        $this->buildHelper->deferBuild($this->blackfireEnvironmentId, $this->buildTitle, $this->externalId, $this->externalParentId, 'PHPUnit');
     }
 
     public function executeAfterLastTest(): void

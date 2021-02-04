@@ -16,4 +16,11 @@ use Symfony\Component\Panther\PantherTestCase;
 class BlackfireTestCase extends PantherTestCase
 {
     use BlackfireTestCaseTrait;
+
+    public function tearDown(): void
+    {
+        // Enforce to "quit" the browser session.
+        self::$httpBrowserClient = null;
+        parent::tearDown();
+    }
 }

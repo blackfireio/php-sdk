@@ -31,6 +31,10 @@ class BuildHelper
      */
     private $currentBuild;
 
+    private $buildDeferred = false;
+
+    private $buildOptions = array();
+
     /**
      * @var Scenario
      */
@@ -104,6 +108,64 @@ class BuildHelper
     }
 
     /**
+     * Defers the build start at the first scenario.
+     *
+     * @param string      $blackfireEnvironment The Blackfire environment name or UUID
+     * @param string      $buildTitle           The build title
+     * @param string|null $externalId           Reference for this build
+     * @param string|null $externalParentId     Reference to compare this build to
+     * @param string      $triggerName          Name of the build trigger
+     *
+     * @throws \RuntimeException
+     */
+    public function deferBuild($blackfireEnvironment, $buildTitle, $externalId = null, $externalParentId = null, $triggerName = 'Build SDK')
+    {
+        if ($this->hasCurrentBuild()) {
+            throw new \RuntimeException('A Blackfire build was already started.');
+        }
+
+        if (!$this->enabled) {
+            throw new \RuntimeException('Cannot start a build because Blackfire builds are globally disabled.');
+        }
+
+        $this->buildDeferred = true;
+        $this->buildOptions = array(
+            'environment' => $blackfireEnvironment,
+            'trigger_name' => $triggerName,
+            'title' => $buildTitle,
+            'external_id' => $externalId,
+            'external_parent_id' => $externalParentId,
+        );
+    }
+
+    /**
+     * Starts a build that has been deferred.
+     *
+     * @throws \RuntimeException
+     *
+     * @return Build
+     */
+    public function startDeferredBuild()
+    {
+        if (!$this->buildDeferred) {
+            throw new \RuntimeException('There is no deferred build to start.');
+        }
+
+        return $this->startBuild(
+            $this->buildOptions['environment'],
+            $this->buildOptions['title'],
+            $this->buildOptions['external_id'],
+            $this->buildOptions['external_parent_id'],
+            $this->buildOptions['trigger_name']
+        );
+    }
+
+    public function isBuildDeferred()
+    {
+        return $this->buildDeferred;
+    }
+
+    /**
      * @return Report
      */
     public function endCurrentBuild()
@@ -143,6 +205,10 @@ class BuildHelper
     {
         if (!$this->enabled) {
             throw new \RuntimeException('Unable to create a Scenario because Blackfire build is globally disabled.');
+        }
+
+        if ($this->isBuildDeferred()) {
+            $this->startDeferredBuild();
         }
 
         if (!$this->hasCurrentBuild()) {
