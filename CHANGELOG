@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.24.0 (2021-02-05)
+
+ * Enable the use of Symfony web test cases with Blackfire
+
 * 1.23.0 (2020-05-29)
 
  * Add Blackfire\Profile::getUuid() method
