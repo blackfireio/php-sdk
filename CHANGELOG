@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.25.0 (2021-02-26)
+
+ * Add Behat support
+
 * 1.24.0 (2021-02-05)
 
  * Enable the use of Symfony web test cases with Blackfire
