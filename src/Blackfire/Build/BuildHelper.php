@@ -207,7 +207,7 @@ class BuildHelper
             throw new \RuntimeException('Unable to create a Scenario because Blackfire build is globally disabled.');
         }
 
-        if ($this->isBuildDeferred()) {
+        if ($this->isBuildDeferred() && !$this->hasCurrentBuild()) {
             $this->startDeferredBuild();
         }
 
