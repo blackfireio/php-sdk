@@ -114,7 +114,7 @@ class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook,
 
     public function executeAfterTest(string $test, float $time): void
     {
-        list($class,) = explode('::', $test);
+        list($class) = explode('::', $test);
         if (!method_exists($class, 'isBlackfireScenarioAutoStart')) {
             return;
         }
