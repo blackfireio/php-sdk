@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.25.1
+
+ * Behat Support bug fix: start a deferred build only if there is no current build running
+
 * 1.25.0 (2021-02-26)
 
  * Add Behat support
