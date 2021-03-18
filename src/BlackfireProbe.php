@@ -426,8 +426,6 @@ class BlackfireProbe
     /**
      * Set the transaction name.
      *
-     * @return null
-     *
      * @api
      */
     public static function setTransactionName($transactionName)
