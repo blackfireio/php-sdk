@@ -14,10 +14,11 @@ namespace Blackfire\Bridge\PhpUnit;
 use Blackfire\Build\BuildHelper;
 use Blackfire\Exception\ApiException;
 use PHPUnit\Runner\AfterLastTestHook;
+use PHPUnit\Runner\AfterTestHook;
 use PHPUnit\Runner\BeforeFirstTestHook;
 use PHPUnit\Util\Color;
 
-class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook
+class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook, AfterTestHook
 {
     private $buildHelper;
     private $blackfireEnvironmentId;
@@ -108,6 +109,25 @@ class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook
             echo "\n";
             echo Color::colorize('bg-red,fg-white', 'Blackfire: The build has errored');
             echo "\n";
+        }
+    }
+
+    public function executeAfterTest(string $test, float $time): void
+    {
+        list($class,) = explode('::', $test);
+        if (!method_exists($class, 'isBlackfireScenarioAutoStart')) {
+            return;
+        }
+
+        if (true === call_user_func("$class::isBlackfireScenarioAutoStart")) {
+            return;
+        }
+
+        // If scenario is not automatically started, it should at least be ended
+        // at the end of each test.
+        // This is to avoid an exception when creating a new scenario.
+        if ($this->buildHelper->hasCurrentScenario()) {
+            $this->buildHelper->endCurrentScenario();
         }
     }
 }

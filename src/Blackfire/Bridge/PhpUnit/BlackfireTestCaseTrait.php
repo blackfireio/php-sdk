@@ -26,7 +26,7 @@ trait BlackfireTestCaseTrait
     // Define this constant to give a title to the auto-started scenario.
     //protected const BLACKFIRE_SCENARIO_TITLE = null;
 
-    private static function isBlackfireScenarioAutoStart(): bool
+    public static function isBlackfireScenarioAutoStart(): bool
     {
         $autoStartConstant = static::class.'::BLACKFIRE_SCENARIO_AUTO_START';
 
