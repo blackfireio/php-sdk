@@ -449,6 +449,11 @@ class BlackfireProbe
         // Not implemented here
     }
 
+    public static function ignoreTransaction()
+    {
+        // Not implemented here
+    }
+
     public static function getBrowserProbe($withTags = true)
     {
         $script = '!function(e,t,c,o,r){o=t.createElement(c),r=t.getElementsByTagName(c)[0],o.async=1,o.src=(e.BFCFG&&e.BFCFG.collector?e.BFCFG.collector:"https://apm.blackfire.io")+"/js/probe.js",r.parentNode.insertBefore(o,r)}(window,document,"script");';
