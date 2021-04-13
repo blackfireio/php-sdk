@@ -439,12 +439,12 @@ class BlackfireProbe
         self::$transactionName = $transactionName;
     }
 
-    public static function startTracing()
+    public static function startTransaction()
     {
         // Not implemented here
     }
 
-    public static function stopTracing()
+    public static function stopTransaction()
     {
         // Not implemented here
     }
