@@ -38,6 +38,7 @@
         "guzzlehttp/psr7": "^1.6",
         "symfony/panther": "^1.0",
         "symfony/framework-bundle": "^5.1",
+        "symfony/messenger": "^5.1",
         "symfony/phpunit-bridge": "^5.2",
         "phpunit/phpunit": "^9.5",
         "behat/behat": "^3.8",
