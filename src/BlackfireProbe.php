@@ -660,7 +660,7 @@ class BlackfireProbe
                             // Let's parse what is in "Blackfire-Response: " (20 chars)
                             parse_str(substr($response, 20), $features);
                             if (isset($features['blackfire_yml'])) {
-                                $i = $this->getConfiguration();
+                                $i = (string) $this->getConfiguration();
                                 self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($i)."\n".$i);
                             }
                             if (isset($features['composer_lock'])) {
