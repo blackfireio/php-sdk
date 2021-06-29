@@ -972,7 +972,7 @@ Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
             .'probed-runtime: PHP '.PHP_VERSION.' ('.PHP_SAPI.")\n"
             .'probed-features: '.((UPROFILER_FLAGS_CPU & $this->flags) ? 'flag_cpu=1&' : '').((UPROFILER_FLAGS_MEMORY & $this->flags) ? 'flag_memory=1&' : '')."\n"
             .'php-extensions: '.strtr(http_build_query($extensions, '', '&'), self::$urlEncMap)."\n"
-            .'_COOKIE: '.strtr(http_build_query($cookies, '', '&'), self::$urlEncMap)."\n"
+            .'_cookie: '.strtr(http_build_query($cookies, '', '&'), self::$urlEncMap)."\n"
             .'context: '.strtr(http_build_query($context, '', '&'), self::$urlEncMap)."\n"
             .(self::$transactionName ? 'controller-name: '.self::$transactionName."\n" : '')
             ."\nmain()//1 0 0 0 0\n\n"
