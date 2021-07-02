@@ -346,7 +346,10 @@ class Client
                     throw new ApiException($data['status']['failure_reason']);
                 }
             } catch (ApiException $e) {
-                if (404 != $e->getCode() || $retry > self::MAX_RETRY) {
+                $code = $e->getCode();
+                $canBeRetried = \in_array($code, array(0, 404, 405), true) || $code >= 500;
+
+                if (!$canBeRetried || $retry > self::MAX_RETRY) {
                     throw $e;
                 }
             }
@@ -497,7 +500,7 @@ class Client
         $collabTokens = $this->getCollabTokens();
 
         foreach ($collabTokens['collabTokens'] as $i => $collabToken) {
-            if (isset($collabToken['search_identifiers']) && \in_array($env, $collabToken['search_identifiers'])) {
+            if (isset($collabToken['search_identifiers']) && \in_array($env, $collabToken['search_identifiers'], true)) {
                 return $collabToken;
             }
 
