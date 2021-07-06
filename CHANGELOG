@@ -1,7 +1,12 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
-* 1.25.1
+* 1.26.0 (2021-07-06)
+
+ * Retry HTTP request on specific cases
+ * Scenarios should be closed after each test in manual start mode
+
+* 1.25.1 (2021-03-18)
 
  * Behat Support bug fix: start a deferred build only if there is no current build running
 
