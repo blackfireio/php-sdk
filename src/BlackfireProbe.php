@@ -141,7 +141,8 @@ class BlackfireProbe
                     self::$probe->writeDotBlackfireMimeMessage();
 
                     exit(0);
-                } elseif (self::$probe->blackfireYmlAsked()) {
+                }
+                if (self::$probe->blackfireYmlAsked()) {
                     self::$probe->info('blackfire.yaml asked.');
 
                     $config = self::$probe->getConfiguration();
@@ -796,8 +797,6 @@ Content-Type: multipart/mixed; boundary=$boundary\r
         }
 
         echo "--$boundary--\r\n";
-
-        return;
     }
 
     /**
@@ -1026,15 +1025,15 @@ Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
             $this->debug($p);
 
             return $p();
-        } elseif (is_array($this->profiler)) {
+        }
+        if (is_array($this->profiler)) {
             $this->debug('data array profiler_disable');
 
             return $this->profiler;
-        } else {
-            $this->info('No profiler to disable');
-
-            return array();
         }
+        $this->info('No profiler to disable');
+
+        return array();
     }
 
     /**

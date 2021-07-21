@@ -558,9 +558,8 @@ class Client
             if (self::NO_REFERENCE_ID === $id) {
                 if ($config->isNewReferenceInternal()) {
                     throw new ReferenceNotFoundException('Unable to create a new reference, your reference quota is reached.');
-                } else {
-                    throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReferenceInternal()));
                 }
+                throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReferenceInternal()));
             }
         }
 

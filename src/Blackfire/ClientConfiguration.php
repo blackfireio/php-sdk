@@ -122,6 +122,8 @@ class ClientConfiguration
     {
         $this->clientToken = $clientToken;
         $this->configResolved = false;
+
+        return $this;
     }
 
     /**
@@ -145,6 +147,8 @@ class ClientConfiguration
     {
         $this->endpoint = $endPoint;
         $this->configResolved = false;
+
+        return $this;
     }
 
     /**
