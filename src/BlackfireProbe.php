@@ -197,7 +197,11 @@ class BlackfireProbe
             self::$defaultAgentSocket = 'tcp://127.0.0.1:8307';
         } else {
             if ('Darwin' === PHP_OS) {
-                $defaultAgentSocket = '/usr/local/var/run/blackfire-agent.sock';
+                if ('arm64' === php_uname('m')) {
+                    $defaultAgentSocket = '/opt/homebrew/var/run/blackfire-agent.sock';
+                } else {
+                    $defaultAgentSocket = '/usr/local/var/run/blackfire-agent.sock';
+                }
             } else {
                 $defaultAgentSocket = '/var/run/blackfire/agent.sock';
             }
