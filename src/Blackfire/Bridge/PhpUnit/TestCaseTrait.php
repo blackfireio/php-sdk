@@ -59,6 +59,18 @@ trait TestCaseTrait
         return $profile;
     }
 
+    public function assertBlackfireIsSuccessful(ProfileConfiguration $configuration): void
+    {
+        try {
+            if ($configuration->hasAssertions()) {
+                $result = self::$blackfire->doGetProfile($configuration->getUuid());
+                self::assertEquals('successful', $result['report']['state']);
+            }
+        } catch (ExceptionInterface $e) {
+            $this->markTestSkipped($e->getMessage());
+        }
+    }
+
     protected function getBlackfireClientConfiguration()
     {
         return new ClientConfiguration();

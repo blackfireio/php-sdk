@@ -38,6 +38,11 @@ class BlackfiredHttpBrowser extends HttpBrowser
 
     private $profileTitle;
 
+    /**
+     * @var Configuration
+     */
+    private $configuration;
+
     public function __construct(BuildHelper $buildHelper)
     {
         $this->buildHelper = $buildHelper;
@@ -73,10 +78,15 @@ class BlackfiredHttpBrowser extends HttpBrowser
         return $this;
     }
 
+    public function setConfiguration(Configuration $configuration): void
+    {
+        $this->configuration = $configuration;
+    }
+
     public function request(string $method, string $uri, array $parameters = array(), array $files = array(), array $server = array(), string $content = null, bool $changeHistory = true)
     {
         if ($this->isProfilingEnabled()) {
-            $profileConfig = (new Configuration())->setTitle($this->profileTitle ?? sprintf('%s - %s', $uri, $method));
+            $profileConfig = $this->configuration ?? (new Configuration())->setTitle($this->profileTitle ?? sprintf('%s - %s', $uri, $method));
             if ($this->buildHelper->hasCurrentScenario()) {
                 $profileConfig->setScenario($this->buildHelper->getCurrentScenario());
             }
