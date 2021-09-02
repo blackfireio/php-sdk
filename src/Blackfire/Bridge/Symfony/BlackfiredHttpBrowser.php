@@ -78,7 +78,7 @@ class BlackfiredHttpBrowser extends HttpBrowser
         return $this;
     }
 
-    public function setConfiguration(Configuration $configuration): void
+    public function setConfiguration(?Configuration $configuration): void
     {
         $this->configuration = $configuration;
     }
