@@ -39,7 +39,7 @@ class BlackfiredHttpBrowser extends HttpBrowser
     private $profileTitle;
 
     /**
-     * @var Configuration
+     * @var Configuration|null
      */
     private $configuration;
 
