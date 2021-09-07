@@ -59,12 +59,15 @@ trait TestCaseTrait
         return $profile;
     }
 
-    public function assertBlackfireIsSuccessful(ProfileConfiguration $configuration): void
+    public function assertBlackfireProfileIsSuccessful(ProfileConfiguration $config)
     {
         try {
-            if ($configuration->hasAssertions()) {
-                $result = self::$blackfire->doGetProfile($configuration->getUuid());
-                self::assertEquals('successful', $result['report']['state']);
+            if ($config->hasAssertions()) {
+                $profile = self::$blackfire->getProfile($config->getUuid());
+
+                if ($config->hasAssertions()) {
+                    $this->assertThat($profile, new TestConstraint());
+                }
             }
         } catch (ExceptionInterface $e) {
             $this->markTestSkipped($e->getMessage());
