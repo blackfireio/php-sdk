@@ -19,6 +19,9 @@ use Blackfire\Profile\Configuration as ProfileConfiguration;
 
 trait TestCaseTrait
 {
+    /**
+     * @var Client
+     */
     private static $blackfire;
 
     /**
@@ -49,9 +52,7 @@ trait TestCaseTrait
 
             $profile = self::$blackfire->endProbe($probe);
 
-            if ($config->hasAssertions()) {
-                $this->assertThat($profile, new TestConstraint());
-            }
+            $this->assertProfile($config, $profile);
         } catch (ExceptionInterface $e) {
             $this->markTestSkipped($e->getMessage());
         }
@@ -62,20 +63,23 @@ trait TestCaseTrait
     public function assertBlackfireProfileIsSuccessful(ProfileConfiguration $config)
     {
         try {
-            if ($config->hasAssertions()) {
-                $profile = self::$blackfire->getProfile($config->getUuid());
-
-                if ($config->hasAssertions()) {
-                    $this->assertThat($profile, new TestConstraint());
-                }
-            }
+            $profile = self::$blackfire->getProfile($config->getUuid());
         } catch (ExceptionInterface $e) {
             $this->markTestSkipped($e->getMessage());
         }
+
+        $this->assertProfile($config, $profile);
     }
 
     protected function getBlackfireClientConfiguration()
     {
         return new ClientConfiguration();
+    }
+
+    private function assertProfile(ProfileConfiguration $config, Profile $profile)
+    {
+        if ($config->hasAssertions()) {
+            $this->assertThat($profile, new TestConstraint());
+        }
     }
 }
