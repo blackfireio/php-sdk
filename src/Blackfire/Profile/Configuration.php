@@ -19,7 +19,12 @@ use Blackfire\Build;
 class Configuration
 {
     private $uuid;
-    private $assertions;
+
+    /**
+     * @var AssertManager
+     */
+    private $assertManager;
+
     private $metrics;
     private $samples = 1;
     private $reference;
@@ -34,6 +39,11 @@ class Configuration
      * @deprecated since 1.14, to be removed in 2.0.
      */
     private $build;
+
+    public function __construct()
+    {
+        $this->assertManager = new AssertManager();
+    }
 
     public function getUuid()
     {
@@ -227,21 +237,9 @@ class Configuration
     /**
      * @return $this
      */
-    public function assert($assertion, $name = '')
+    public function assert($assertion, $name = null)
     {
-        static $counter = 0;
-
-        if (!$name) {
-            $name = '_assertion_'.(++$counter);
-        }
-
-        $key = $name;
-        $i = 0;
-        while (isset($this->assertions[$key])) {
-            $key = $name.' ('.(++$i).')';
-        }
-
-        $this->assertions[$key] = $assertion;
+        $this->assertManager->assert($assertion, $name);
 
         return $this;
     }
@@ -251,11 +249,14 @@ class Configuration
      */
     public function hasAssertions()
     {
-        return (bool) $this->assertions;
+        return (bool) $this->assertManager->getAssertions();
     }
 
     /**
-     * @return $this
+     * @param string $assertion
+     * @param string $name
+     *
+     * @return self
      */
     public function defineLayer(MetricLayer $layer)
     {
@@ -294,7 +295,9 @@ class Configuration
      */
     public function toYaml()
     {
-        if (!$this->assertions && !$this->metrics) {
+        $assertions = $this->assertManager->getAssertions();
+
+        if (!$assertions && !$this->metrics) {
             return;
         }
 
@@ -311,14 +314,22 @@ class Configuration
             }
         }
 
-        if ($this->assertions) {
+        if ($assertions) {
             $yaml .= "tests:\n";
-            foreach ($this->assertions as $name => $assertion) {
+            foreach ($assertions as $name => $assertion) {
                 $yaml .= "  \"$name\":\n";
                 $yaml .= "    assertions: [\"$assertion\"]\n\n";
             }
         }
 
         return $yaml;
+    }
+
+    /**
+     * @return AssertBuilder
+     */
+    public function getAssertBuilder()
+    {
+        return new AssertBuilder($this->assertManager);
     }
 }

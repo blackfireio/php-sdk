@@ -26,6 +26,11 @@
             "Blackfire\\": "src/Blackfire"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.26.x-dev"
@@ -44,5 +49,8 @@
         "behat/behat": "^3.8",
         "friends-of-behat/mink-extension": "^2.5",
         "friends-of-behat/mink-browserkit-driver": "^1.4"
+    },
+    "scripts": {
+        "tests": "./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
     }
 }
