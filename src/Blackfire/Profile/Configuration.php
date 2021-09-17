@@ -40,9 +40,9 @@ class Configuration
      */
     private $build;
 
-    public function __construct()
+    public function __construct($manager)
     {
-        $this->assertManager = new AssertManager();
+        $this->assertManager = $manager ? $manager : new AssertManager();
     }
 
     public function getUuid()
