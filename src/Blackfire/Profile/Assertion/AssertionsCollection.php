@@ -9,22 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Blackfire\Profile;
+namespace Blackfire\Profile\Assertion;
 
-class AssertManager
+class AssertionsCollection implements AssertionsCollectionInterface
 {
     /**
      * @var array<string, string>
      */
-    private $assertions = [];
+    private $assertions = array();
 
     /**
-     * @param string $assertion
-     * @param string|null $name
-     *
-     * @return self
+     * @inheritDoc
      */
-    public function assert($assertion, $name = null)
+    public function add($assertion, $name = null)
     {
         static $counter = 0;
 
@@ -44,10 +41,18 @@ class AssertManager
     }
 
     /**
-     * @return string[]
+     * @inheritDoc
      */
     public function getAssertions()
     {
         return $this->assertions;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isEmpty()
+    {
+        return empty($this->assertions);
     }
 }

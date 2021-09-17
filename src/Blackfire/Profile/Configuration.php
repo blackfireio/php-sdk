@@ -12,6 +12,10 @@
 namespace Blackfire\Profile;
 
 use Blackfire\Build;
+use Blackfire\Profile\Assertion\AssertionsBuilder;
+use Blackfire\Profile\Assertion\AssertionsBuilderInterface;
+use Blackfire\Profile\Assertion\AssertionsCollection;
+use Blackfire\Profile\Assertion\AssertionsCollectionInterface;
 
 /**
  * Configures a Blackfire profile.
@@ -21,9 +25,14 @@ class Configuration
     private $uuid;
 
     /**
-     * @var AssertManager
+     * @var AssertionsCollectionInterface
      */
-    private $assertManager;
+    private $assertionsCollection;
+
+    /**
+     * @var AssertionsBuilderInterface
+     */
+    private $assertionsBuilder;
 
     private $metrics;
     private $samples = 1;
@@ -40,9 +49,15 @@ class Configuration
      */
     private $build;
 
-    public function __construct($manager)
-    {
-        $this->assertManager = $manager ? $manager : new AssertManager();
+    /**
+     * @param AssertionsCollectionInterface|null $assertionsCollection
+     */
+    public function __construct(
+        AssertionsCollectionInterface $assertionsCollection = null,
+        AssertionsBuilderInterface $assertionsBuilder = null
+    ) {
+        $this->assertionsCollection = $assertionsCollection ? : new AssertionsCollection();
+        $this->assertionsBuilder = $assertionsBuilder ? : new AssertionsBuilder($this->assertionsCollection);
     }
 
     public function getUuid()
@@ -239,7 +254,7 @@ class Configuration
      */
     public function assert($assertion, $name = null)
     {
-        $this->assertManager->assert($assertion, $name);
+        $this->assertionsCollection->add($assertion, $name);
 
         return $this;
     }
@@ -249,7 +264,7 @@ class Configuration
      */
     public function hasAssertions()
     {
-        return (bool) $this->assertManager->getAssertions();
+        return !$this->assertionsCollection->isEmpty();
     }
 
     /**
@@ -295,11 +310,11 @@ class Configuration
      */
     public function toYaml()
     {
-        if (!$this->hasAssertions && !$this->metrics) {
+        if ($this->assertionsCollection->isEmpty() && !$this->metrics) {
             return;
         }
 
-        $assertions = $this->assertManager->getAssertions();
+        $assertions = $this->assertionsCollection->getAssertions();
         $yaml = '';
 
         if ($this->metrics) {
@@ -325,10 +340,10 @@ class Configuration
     }
 
     /**
-     * @return AssertBuilder
+     * @return AssertionsBuilderInterface
      */
-    public function getAssertBuilder()
+    public function getAssertionsBuilder()
     {
-        return new AssertBuilder($this->assertManager);
+        return $this->assertionsBuilder;
     }
 }

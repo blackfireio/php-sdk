@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Unit\Blackfire\Profile;
+namespace Tests\Unit\Blackfire\Profile\Assertion;
 
-use Blackfire\Profile\AssertBuilder;
-use Blackfire\Profile\AssertManager;
+use Blackfire\Profile\Assertion\AssertionsBuilder;
+use Blackfire\Profile\Assertion\AssertionsCollection;
 use PHPUnit\Framework\TestCase;
 
-class AssertBuilderTest extends TestCase
+class AssertionsBuilderTest extends TestCase
 {
     /**
      * @var string $method
@@ -25,16 +25,12 @@ class AssertBuilderTest extends TestCase
      */
     public function testAssertBuilder($method, $expectedResult)
     {
-        $manager = new AssertManager();
-        $builder = new AssertBuilder($manager);
+        $assertionsCollection = new AssertionsCollection();
+        $builder = new AssertionsBuilder($assertionsCollection);
 
         $builder->$method(1, 'test');
 
-        $assertions = $manager->getAssertions();
-
-        $assert = current($assertions);
-
-        self::assertEquals($expectedResult, $assert);
+        self::assertEquals($expectedResult, current($assertionsCollection->getAssertions()));
     }
 
     /**
@@ -56,27 +52,7 @@ class AssertBuilderTest extends TestCase
             'Test http requests count greater than' => ['httpRequestsCountGreaterThan', 'metrics.http.requests.count > 1'],
             'Test http requests count less than' => ['httpRequestsCountLessThan', 'metrics.http.requests.count < 1'],
             'Test http requests count not equals' => ['httpRequestsCountNotEquals', 'metrics.http.requests.count != 1'],
-            'Test http requests countcount equals' => ['httpRequestsCountEquals', 'metrics.http.requests.count == 1'],
+            'Test http requests count equals' => ['httpRequestsCountEquals', 'metrics.http.requests.count == 1'],
         ];
-    }
-
-    public function testCannotResolveMethod()
-    {
-        $manager = new AssertManager();
-        $builder = new AssertBuilder($manager);
-
-        $this->expectException(\RuntimeException::class);
-
-        $builder->nonExistentMethod();
-    }
-
-    public function testMethodIsNotFound()
-    {
-        $manager = new AssertManager();
-        $builder = new AssertBuilder($manager);
-
-        $this->expectException(\RuntimeException::class);
-
-        $builder->nonExistentNotEquals();
     }
 }
