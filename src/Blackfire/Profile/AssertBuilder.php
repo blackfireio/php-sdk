@@ -69,7 +69,7 @@ class AssertBuilder
             }
         }
 
-        if (!$methodName) {
+        if ('' === $methodName) {
             throw new \RuntimeException(sprintf('%s function can\'t be resolve in AssertBuilder class', $methodName));
         }
 
