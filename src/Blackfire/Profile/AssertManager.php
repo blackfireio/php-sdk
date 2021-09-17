@@ -16,7 +16,7 @@ class AssertManager
     /**
      * @var array<string, string>
      */
-    private $assertions;
+    private $assertions = [];
 
     /**
      * @param string $assertion
