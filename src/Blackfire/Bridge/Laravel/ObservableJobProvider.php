@@ -16,7 +16,6 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\ServiceProvider;
 
-
 class ObservableJobProvider extends ServiceProvider
 {
     /**

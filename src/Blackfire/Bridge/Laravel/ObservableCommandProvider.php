@@ -16,7 +16,6 @@ use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
-
 class ObservableCommandProvider extends ServiceProvider
 {
     /**
