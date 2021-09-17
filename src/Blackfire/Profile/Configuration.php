@@ -295,12 +295,11 @@ class Configuration
      */
     public function toYaml()
     {
-        $assertions = $this->assertManager->getAssertions();
-
-        if (!$assertions && !$this->metrics) {
+        if (!$this->hasAssertions && !$this->metrics) {
             return;
         }
 
+        $assertions = $this->assertManager->getAssertions();
         $yaml = '';
 
         if ($this->metrics) {
