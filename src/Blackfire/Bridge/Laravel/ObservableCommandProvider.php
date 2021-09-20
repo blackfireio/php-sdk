@@ -29,24 +29,24 @@ class ObservableCommandProvider extends ServiceProvider
     public function boot()
     {
         Event::listen(
-            [
+            array(
                 CommandStarting::class,
                 ScheduledTaskStarting::class,
-            ],
-            function(CommandStarting $event) {
-                $transactionName = 'artisan ' . ($event->input->__toString() ?? 'Unnamed Command');
+            ),
+            function (CommandStarting $event) {
+                $transactionName = 'artisan '.($event->input->__toString() ?? 'Unnamed Command');
                 \BlackfireProbe::startTransaction();
                 \BlackfireProbe::setTransactionName($transactionName);
             }
         );
 
         Event::listen(
-            [
+            array(
                 CommandFinished::class,
                 ScheduledTaskFinished::class,
                 ScheduledTaskFailed::class,
-            ],
-            function() {
+            ),
+            function () {
                 \BlackfireProbe::stopTransaction();
             }
         );
