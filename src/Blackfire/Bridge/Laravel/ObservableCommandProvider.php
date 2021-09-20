@@ -13,6 +13,9 @@ namespace Blackfire\Bridge\Laravel;
 
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Console\Events\ScheduledTaskFailed;
+use Illuminate\Console\Events\ScheduledTaskFinished;
+use Illuminate\Console\Events\ScheduledTaskStarting;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,14 +28,27 @@ class ObservableCommandProvider extends ServiceProvider
      */
     public function boot()
     {
-        Event::listen(CommandStarting::class, function(CommandStarting $event) {
-            $transactionName = 'artisan ' . ($event->input->__toString() ?? 'Unnamed Command');
-            \BlackfireProbe::startTransaction();
-            \BlackfireProbe::setTransactionName($transactionName);
-        });
+        Event::listen(
+            [
+                CommandStarting::class,
+                ScheduledTaskStarting::class,
+            ],
+            function(CommandStarting $event) {
+                $transactionName = 'artisan ' . ($event->input->__toString() ?? 'Unnamed Command');
+                \BlackfireProbe::startTransaction();
+                \BlackfireProbe::setTransactionName($transactionName);
+            }
+        );
 
-        Event::listen(CommandFinished::class, function() {
-            \BlackfireProbe::stopTransaction();
-        });
+        Event::listen(
+            [
+                CommandFinished::class,
+                ScheduledTaskFinished::class,
+                ScheduledTaskFailed::class,
+            ],
+            function() {
+                \BlackfireProbe::stopTransaction();
+            }
+        );
     }
 }
