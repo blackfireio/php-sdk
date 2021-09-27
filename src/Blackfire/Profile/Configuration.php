@@ -12,7 +12,6 @@
 namespace Blackfire\Profile;
 
 use Blackfire\Build;
-use Symfony\Component\Uid\Uuid;
 
 /**
  * Configures a Blackfire profile.
@@ -41,7 +40,7 @@ class Configuration
 
     public function __construct()
     {
-        $this->uuid = Uuid::v4()->toRfc4122();
+        $this->uuid = uuid_create();
     }
 
     /**
