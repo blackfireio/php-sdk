@@ -1,6 +1,12 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.27.0 (2021-09-23)
+
+ * Add a Symfony Messenger integration
+ * Add Monitoring integration for Laravel Artisan commands and Consumers
+ * Update default agent socket on arm64
+
 * 1.26.0 (2021-07-06)
 
  * Retry HTTP request on specific cases

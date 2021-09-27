@@ -24,7 +24,7 @@ class AutoProfilingBlackfiredClient extends BlackfiredHttpClient
     private $profilingEnabled = true;
 
     /**
-     * @var \Blackfire\Profile\Configuration
+     * @var Configuration
      */
     private $profilingConfig;
 
