@@ -33,7 +33,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.26.x-dev"
+            "dev-master": "1.27.x-dev"
         }
     },
     "require-dev": {
@@ -48,7 +48,10 @@
         "phpunit/phpunit": "^9.5",
         "behat/behat": "^3.8",
         "friends-of-behat/mink-extension": "^2.5",
-        "friends-of-behat/mink-browserkit-driver": "^1.4"
+        "friends-of-behat/mink-browserkit-driver": "^1.4",
+        "illuminate/support": "^8.61",
+        "illuminate/console": "^8.61",
+        "illuminate/queue": "^8.61"
     },
     "scripts": {
         "tests": "./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
