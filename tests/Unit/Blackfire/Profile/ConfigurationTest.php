@@ -11,7 +11,7 @@
 
 namespace Tests\Unit\Blackfire\Profile;
 
-use Blackfire\Profile\Assertion\AssertionsBuilderInterface;
+use Blackfire\Profile\Assertion\AssertionsBuilder;
 use Blackfire\Profile\Configuration;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +19,7 @@ class ConfigurationTest extends TestCase
 {
     public function testGettingCustomAssertionsBuilder()
     {
-        $assertionsBuilderStub = $this->createStub(AssertionsBuilderInterface::class);
+        $assertionsBuilderStub = $this->createStub(AssertionsBuilder::class);
 
         $configuration = new Configuration(null, $assertionsBuilderStub);
 
@@ -30,6 +30,6 @@ class ConfigurationTest extends TestCase
     {
         $configuration = new Configuration();
 
-        self::assertTrue($configuration->getAssertionsBuilder() instanceof AssertionsBuilderInterface);
+        self::assertTrue($configuration->getAssertionsBuilder() instanceof AssertionsBuilder);
     }
 }

@@ -11,7 +11,7 @@
 
 namespace Blackfire\Profile\Assertion;
 
-class AssertionsBuilder implements AssertionsBuilderInterface
+class AssertionsBuilder
 {
     /** @var string */
     const NOT_EQUALS_OPERATOR = '!=';
@@ -32,100 +32,151 @@ class AssertionsBuilder implements AssertionsBuilderInterface
     const LESS_THAN_OR_EQUAL_OPERATOR = '<=';
 
     /**
-     * @var AssertionsCollectionInterface
+     * @var AssertionsCollection
      */
     private $assertionsCollection;
 
     /**
-     * @var AssertionsCollectionInterface $assertionsCollection
+     * @var AssertionsCollection $assertionsCollection
      */
-    public function __construct(AssertionsCollectionInterface $assertionsCollection)
+    public function __construct(AssertionsCollection $assertionsCollection)
     {
         $this->assertionsCollection = $assertionsCollection;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function sqlQueriesCountGreaterThanOrEqual($expected, $name = null)
     {
         $this->addSqlQueriesCountAssertion(self::GREATER_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function sqlQueriesCountLessThanOrEqual($expected, $name = null)
     {
         $this->addSqlQueriesCountAssertion(self::LESS_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function sqlQueriesCountGreaterThan($expected, $name = null)
     {
         $this->addSqlQueriesCountAssertion(self::GREATER_THAN_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function sqlQueriesCountLessThan($expected, $name = null)
     {
         $this->addSqlQueriesCountAssertion(self::LESS_THAN_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function sqlQueriesCountNotEquals($expected, $name = null)
     {
         $this->addSqlQueriesCountAssertion(self::NOT_EQUALS_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function sqlQueriesCountEquals($expected, $name = null)
     {
         $this->addSqlQueriesCountAssertion(self::EQUALS_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function httpRequestsCountGreaterThanOrEqual($expected, $name = null)
     {
         $this->addHttpRequestsCountAssertion(self::GREATER_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function httpRequestsCountLessThanOrEqual($expected, $name = null)
     {
         $this->addHttpRequestsCountAssertion(self::LESS_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function httpRequestsCountGreaterThan($expected, $name = null)
     {
         $this->addHttpRequestsCountAssertion(self::GREATER_THAN_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
+     *
+     * @return self
      */
     public function httpRequestsCountLessThan($expected, $name = null)
     {
         $this->addHttpRequestsCountAssertion(self::LESS_THAN_OPERATOR, $expected, $name);
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
      */
     public function httpRequestsCountNotEquals($expected, $name = null)
     {
@@ -133,7 +184,8 @@ class AssertionsBuilder implements AssertionsBuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @param int $expected
+     * @param string|null $name
      */
     public function httpRequestsCountEquals($expected, $name = null)
     {

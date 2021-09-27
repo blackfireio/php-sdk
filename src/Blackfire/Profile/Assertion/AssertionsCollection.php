@@ -11,7 +11,7 @@
 
 namespace Blackfire\Profile\Assertion;
 
-class AssertionsCollection implements AssertionsCollectionInterface
+class AssertionsCollection
 {
     /**
      * @var array<string, string>
@@ -19,7 +19,8 @@ class AssertionsCollection implements AssertionsCollectionInterface
     private $assertions = array();
 
     /**
-     * @inheritDoc
+     * @param string $assertion
+     * @param string|null $name
      */
     public function add($assertion, $name = null)
     {
@@ -41,7 +42,7 @@ class AssertionsCollection implements AssertionsCollectionInterface
     }
 
     /**
-     * @inheritDoc
+     * @return string[]
      */
     public function getAssertions()
     {
@@ -49,7 +50,7 @@ class AssertionsCollection implements AssertionsCollectionInterface
     }
 
     /**
-     * @inheritDoc
+     * @return bool
      */
     public function isEmpty()
     {

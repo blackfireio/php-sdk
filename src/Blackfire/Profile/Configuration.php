@@ -13,9 +13,7 @@ namespace Blackfire\Profile;
 
 use Blackfire\Build;
 use Blackfire\Profile\Assertion\AssertionsBuilder;
-use Blackfire\Profile\Assertion\AssertionsBuilderInterface;
 use Blackfire\Profile\Assertion\AssertionsCollection;
-use Blackfire\Profile\Assertion\AssertionsCollectionInterface;
 
 /**
  * Configures a Blackfire profile.
@@ -25,12 +23,12 @@ class Configuration
     private $uuid;
 
     /**
-     * @var AssertionsCollectionInterface
+     * @var AssertionsCollection
      */
     private $assertionsCollection;
 
     /**
-     * @var AssertionsBuilderInterface
+     * @var AssertionsBuilder
      */
     private $assertionsBuilder;
 
@@ -50,11 +48,12 @@ class Configuration
     private $build;
 
     /**
-     * @param AssertionsCollectionInterface|null $assertionsCollection
+     * @param AssertionsCollection|null $assertionsCollection
+     * @param AssertionsBuilder|null $assertionsBuilder
      */
     public function __construct(
-        AssertionsCollectionInterface $assertionsCollection = null,
-        AssertionsBuilderInterface $assertionsBuilder = null
+        AssertionsCollection $assertionsCollection = null,
+        AssertionsBuilder $assertionsBuilder = null
     ) {
         $this->assertionsCollection = $assertionsCollection ? : new AssertionsCollection();
         $this->assertionsBuilder = $assertionsBuilder ? : new AssertionsBuilder($this->assertionsCollection);
@@ -340,7 +339,7 @@ class Configuration
     }
 
     /**
-     * @return AssertionsBuilderInterface
+     * @return AssertionsBuilder
      */
     public function getAssertionsBuilder()
     {
