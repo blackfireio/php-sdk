@@ -13,24 +13,6 @@ namespace Blackfire\Profile\Assertion;
 
 class AssertionsBuilder
 {
-    /** @var string */
-    const NOT_EQUALS_OPERATOR = '!=';
-
-    /** @var string */
-    const EQUALS_OPERATOR = '==';
-
-    /** @var string */
-    const LESS_THAN_OPERATOR = '<';
-
-    /** @var string */
-    const GREATER_THAN_OPERATOR = '>';
-
-    /** @var string */
-    const GREATER_THAN_OR_EQUAL_OPERATOR = '>=';
-
-    /** @var string */
-    const LESS_THAN_OR_EQUAL_OPERATOR = '<=';
-
     /**
      * @var AssertionsCollection
      */
@@ -52,7 +34,7 @@ class AssertionsBuilder
      */
     public function sqlQueriesCountGreaterThanOrEqual($expected, $name = null)
     {
-        $this->addSqlQueriesCountAssertion(self::GREATER_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+        $this->addSqlQueriesCountAssertion('>=', $expected, $name);
 
         return $this;
     }
@@ -65,7 +47,7 @@ class AssertionsBuilder
      */
     public function sqlQueriesCountLessThanOrEqual($expected, $name = null)
     {
-        $this->addSqlQueriesCountAssertion(self::LESS_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+        $this->addSqlQueriesCountAssertion('<=', $expected, $name);
 
         return $this;
     }
@@ -78,7 +60,7 @@ class AssertionsBuilder
      */
     public function sqlQueriesCountGreaterThan($expected, $name = null)
     {
-        $this->addSqlQueriesCountAssertion(self::GREATER_THAN_OPERATOR, $expected, $name);
+        $this->addSqlQueriesCountAssertion('>', $expected, $name);
 
         return $this;
     }
@@ -91,7 +73,7 @@ class AssertionsBuilder
      */
     public function sqlQueriesCountLessThan($expected, $name = null)
     {
-        $this->addSqlQueriesCountAssertion(self::LESS_THAN_OPERATOR, $expected, $name);
+        $this->addSqlQueriesCountAssertion('<', $expected, $name);
 
         return $this;
     }
@@ -104,7 +86,7 @@ class AssertionsBuilder
      */
     public function sqlQueriesCountNotEquals($expected, $name = null)
     {
-        $this->addSqlQueriesCountAssertion(self::NOT_EQUALS_OPERATOR, $expected, $name);
+        $this->addSqlQueriesCountAssertion('!=', $expected, $name);
 
         return $this;
     }
@@ -117,7 +99,7 @@ class AssertionsBuilder
      */
     public function sqlQueriesCountEquals($expected, $name = null)
     {
-        $this->addSqlQueriesCountAssertion(self::EQUALS_OPERATOR, $expected, $name);
+        $this->addSqlQueriesCountAssertion('==', $expected, $name);
 
         return $this;
     }
@@ -130,7 +112,7 @@ class AssertionsBuilder
      */
     public function httpRequestsCountGreaterThanOrEqual($expected, $name = null)
     {
-        $this->addHttpRequestsCountAssertion(self::GREATER_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+        $this->addHttpRequestsCountAssertion('>=', $expected, $name);
 
         return $this;
     }
@@ -143,7 +125,7 @@ class AssertionsBuilder
      */
     public function httpRequestsCountLessThanOrEqual($expected, $name = null)
     {
-        $this->addHttpRequestsCountAssertion(self::LESS_THAN_OR_EQUAL_OPERATOR, $expected, $name);
+        $this->addHttpRequestsCountAssertion('<=', $expected, $name);
 
         return $this;
     }
@@ -156,7 +138,7 @@ class AssertionsBuilder
      */
     public function httpRequestsCountGreaterThan($expected, $name = null)
     {
-        $this->addHttpRequestsCountAssertion(self::GREATER_THAN_OPERATOR, $expected, $name);
+        $this->addHttpRequestsCountAssertion('>', $expected, $name);
 
         return $this;
     }
@@ -169,7 +151,7 @@ class AssertionsBuilder
      */
     public function httpRequestsCountLessThan($expected, $name = null)
     {
-        $this->addHttpRequestsCountAssertion(self::LESS_THAN_OPERATOR, $expected, $name);
+        $this->addHttpRequestsCountAssertion('<', $expected, $name);
 
         return $this;
     }
@@ -180,7 +162,7 @@ class AssertionsBuilder
      */
     public function httpRequestsCountNotEquals($expected, $name = null)
     {
-        $this->addHttpRequestsCountAssertion(self::NOT_EQUALS_OPERATOR, $expected, $name);
+        $this->addHttpRequestsCountAssertion('!=', $expected, $name);
     }
 
     /**
@@ -189,7 +171,7 @@ class AssertionsBuilder
      */
     public function httpRequestsCountEquals($expected, $name = null)
     {
-        $this->addHttpRequestsCountAssertion(self::EQUALS_OPERATOR, $expected, $name);
+        $this->addHttpRequestsCountAssertion('==', $expected, $name);
     }
 
     /**
