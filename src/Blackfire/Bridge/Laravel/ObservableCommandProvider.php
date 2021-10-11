@@ -33,7 +33,7 @@ class ObservableCommandProvider extends ServiceProvider
                 CommandStarting::class,
                 ScheduledTaskStarting::class,
             ),
-            function (CommandStarting $event) {
+            function ($event) {
                 $transactionName = 'artisan '.($event->input->__toString() ?? 'Unnamed Command');
                 \BlackfireProbe::startTransaction();
                 \BlackfireProbe::setTransactionName($transactionName);
