@@ -49,7 +49,7 @@ class ObservableCommandProvider extends ServiceProvider
             ),
             function ($event) {
                 $task = $event->task;
-                $transactionName = $task->expression . ' ' . $task->command;
+                $transactionName = $task->expression.' '.$task->command;
                 \BlackfireProbe::startTransaction();
                 \BlackfireProbe::setTransactionName($transactionName);
             }
