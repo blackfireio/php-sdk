@@ -26,6 +26,10 @@ class ObservableJobProvider extends ServiceProvider
      */
     public function boot()
     {
+        if (!class_exists(\BlackfireProbe::class)) {
+            return;
+        }
+
         Queue::before(function (JobProcessing $event) {
             $transactionName = $event->job->payload()['displayName'] ?? 'Job';
             \BlackfireProbe::startTransaction();
