@@ -334,9 +334,10 @@ class Client
     {
         $retry = 0;
         $e = null;
+        $url = $this->config->getEndpoint().'/api/v1/profiles/'.$uuid;
         while (true) {
             try {
-                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid), true);
+                $data = json_decode($this->sendHttpRequest($url), true);
 
                 if ($data['status']['code'] > 0) {
                     if ('finished' == $data['status']['name']) {
@@ -361,7 +362,7 @@ class Client
                     throw new ApiException('Profile is still in the queue.');
                 }
 
-                throw ApiException::fromStatusCode('Unknown error from the API.', $e->getCode(), $e);
+                throw ApiException::fromStatusCode(sprintf('Error while fetching profile from the API at "%s" using client "%s".', $url, $this->config->getClientId()), $e->getCode(), $e);
             }
         }
     }
@@ -416,10 +417,11 @@ class Client
         $retry = 0;
         $e = null;
         $path = 'build' === $type ? '/api/v2/builds/'.$uuid : '/api/v2/scenarios/'.$uuid;
+        $url = $this->config->getEndpoint().$path;
 
         while (true) {
             try {
-                $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().$path), true);
+                $data = json_decode($this->sendHttpRequest($url), true);
 
                 if ('finished' === $data['status']['name']) {
                     return $data;
@@ -441,7 +443,7 @@ class Client
                     throw new ApiException('Report is still in the queue.');
                 }
 
-                throw ApiException::fromStatusCode('Unknown error from the API.', $e->getCode(), $e);
+                throw ApiException::fromStatusCode(sprintf('Error while fetching report from the API at "%s" using client "%s".', $url, $this->config->getClientId()), $e->getCode(), $e);
             }
         }
     }
