@@ -32,7 +32,7 @@ class ScenarioSubscriber implements EventSubscriberInterface
         $this->mink = $mink;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return array(
             ScenarioTested::BEFORE => 'beforeScenario',

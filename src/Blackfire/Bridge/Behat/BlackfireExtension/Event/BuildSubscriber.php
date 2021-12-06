@@ -51,7 +51,7 @@ class BuildSubscriber implements EventSubscriberInterface
         return \is_null($buildDisabled) || '0' === $buildDisabled;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return array(
             SuiteTested::BEFORE => 'prepareBuild',
