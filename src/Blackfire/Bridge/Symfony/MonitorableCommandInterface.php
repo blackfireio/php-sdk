@@ -3,7 +3,7 @@
 namespace Blackfire\Bridge\Symfony;
 
 /**
- * Make your commands implement this interface if you want them to be monitored.
+ * Implement this interface to enable Blackfire Monitoring.
  */
 interface MonitorableCommandInterface
 {

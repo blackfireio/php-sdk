@@ -39,7 +39,7 @@ class MonitoredCommandSubscriber implements EventSubscriberInterface
         }
 
         $command = $event->getCommand();
-        if (!$this->isCommandEligible($command)) {
+        if (!$this->isTracingEnabled($command)) {
             return;
         }
 
@@ -53,14 +53,14 @@ class MonitoredCommandSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->isCommandEligible($event->getCommand())) {
+        if (!$this->isTracingEnabled($event->getCommand())) {
             return;
         }
 
         \BlackfireProbe::stopTransaction();
     }
 
-    private function isCommandEligible(Command $command)
+    private function isTracingEnabled(Command $command)
     {
         return $command instanceof MonitorableCommandInterface;
     }
