@@ -18,7 +18,7 @@ use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * This subscriber automatically sends traces to Blackfire Monitoring for
+ * This subscriber automatically collects traces to Blackfire Monitoring for
  * eligible commands. Transactions are named after the command name.
  *
  * To be eligible, commands need to implement MonitorableCommandInterface.
