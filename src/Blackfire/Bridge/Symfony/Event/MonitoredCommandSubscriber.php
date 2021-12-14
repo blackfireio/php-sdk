@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * This subscriber automatically collects traces to Blackfire Monitoring for
- * eligible commands. Transactions are named after the command name.
+ * commands implementing MonitorableCommandInterface. Transactions are named after the command name.
  *
  * To be eligible, commands need to implement MonitorableCommandInterface.
  */
