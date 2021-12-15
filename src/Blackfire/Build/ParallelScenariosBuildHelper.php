@@ -49,16 +49,16 @@ class ParallelScenariosBuildHelper extends BuildHelper
         unset(self::$scenarios[$scenarioKey]);
     }
 
-    public function createRequest(string $scenarioKey, string $title = null): Request
+    public function createRequest(string $scenarioKey, string $profileTitle = null): Request
     {
-        $configuration = $this->getConfiguration($scenarioKey, $title);
+        $configuration = $this->getConfiguration($scenarioKey, $profileTitle);
 
         return $this->getBlackfireClient()->createRequest($configuration);
     }
 
-    public function createProbe(string $scenarioKey, string $title = null): Probe
+    public function createProbe(string $scenarioKey, string $profileTitle = null): Probe
     {
-        $configuration = $this->getConfiguration($scenarioKey, $title);
+        $configuration = $this->getConfiguration($scenarioKey, $profileTitle);
 
         return $this->getBlackfireClient()->createProbe($configuration);
     }
@@ -68,14 +68,14 @@ class ParallelScenariosBuildHelper extends BuildHelper
         $this->getBlackfireClient()->endProbe($probe);
     }
 
-    public function getConfiguration(string $scenarioKey, $title = null): Configuration
+    public function getConfiguration(string $scenarioKey, $profileTitle = null): Configuration
     {
         $scenario = $this->getScenario($scenarioKey);
 
         return (new Configuration())
             ->setScenario($scenario)
             ->setMetadata('skip_timeline', 'true')
-            ->setTitle($title)
+            ->setTitle($profileTitle)
         ;
     }
 }

@@ -30,6 +30,9 @@ abstract class BlackfireTestCase extends TestCase
     /** @var Request */
     private $request;
 
+    /** @var ?string */
+    private $nextProfileTitle = null;
+
     /** @var ParallelScenariosBuildHelper */
     private static $buildHelper = null;
 
@@ -69,25 +72,6 @@ abstract class BlackfireTestCase extends TestCase
         return $output;
     }
 
-    protected function initializeTestEnvironment(): void
-    {
-        if (!self::$buildHelper) {
-            self::$buildHelper = new ParallelScenariosBuildHelper();
-        }
-
-        if (!self::$buildHelper->hasCurrentBuild()) {
-            self::$buildHelper->startBuild(
-                env('BLACKFIRE_TEST_ENVIRONMENT'),
-                env('BLACKFIRE_TEST_BUILD_TITLE', 'Laravel Tests')
-            );
-        }
-
-        $scenarioKey = get_class(debug_backtrace()[1]['object']);
-        if (!self::$buildHelper->hasScenario($scenarioKey)) {
-            self::$buildHelper->startScenario($scenarioKey, $this->blackfireScenarioTitle);
-        }
-    }
-
     /**
      * Call the given URI and return the Response.
      *
@@ -108,13 +92,34 @@ abstract class BlackfireTestCase extends TestCase
 
             $scenarioKey = get_class(debug_backtrace()[1]['object']);
 
-            $scenarioTitle = $method.' '.$uri;
-            $this->request = self::$buildHelper->createRequest($scenarioKey, $scenarioTitle);
+            $nextProfileTitle = $this->nextProfileTitle ?? $method.' '.$uri;
+            $this->nextProfileTitle = null;
+
+            $this->request = self::$buildHelper->createRequest($scenarioKey, $nextProfileTitle);
 
             $server[$this->formatServerHeaderKey('X-Blackfire-Query')] = $this->request->getToken();
         }
 
         return parent::call($method, $uri, $parameters, $cookies, $files, $server, $content);
+    }
+
+    protected function initializeTestEnvironment(): void
+    {
+        if (!self::$buildHelper) {
+            self::$buildHelper = new ParallelScenariosBuildHelper();
+        }
+
+        if (!self::$buildHelper->hasCurrentBuild()) {
+            self::$buildHelper->startBuild(
+                env('BLACKFIRE_TEST_ENVIRONMENT'),
+                env('BLACKFIRE_TEST_BUILD_TITLE', 'Laravel Tests')
+            );
+        }
+
+        $scenarioKey = get_class(debug_backtrace()[1]['object']);
+        if (!self::$buildHelper->hasScenario($scenarioKey)) {
+            self::$buildHelper->startScenario($scenarioKey, $this->blackfireScenarioTitle);
+        }
     }
 
     protected function createTestResponse($response): TestResponse
@@ -145,6 +150,7 @@ abstract class BlackfireTestCase extends TestCase
     protected function setUp(): void
     {
         $this->profileNextRequest = $this->profileAllRequests;
+        $this->nextProfileTitle = null;
 
         parent::setUp();
     }
@@ -152,8 +158,16 @@ abstract class BlackfireTestCase extends TestCase
     protected function tearDown(): void
     {
         $this->request = null;
+        $this->nextProfileTitle = null;
 
         parent::tearDown();
+    }
+
+    protected function setProfileTitle(?string $profileTitle): self
+    {
+        $this->nextProfileTitle = $profileTitle;
+
+        return $this;
     }
 
     private function printProfileLink(string $profileUuid): void
