@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.28.0 (2021-12-17)
+
+ * Provide support for monitoring Symfony commands
+
 * 1.27.2 (2021-11-17)
 
  * Tweak exception messages
