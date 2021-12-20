@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 abstract class BlackfireTestCase extends TestCase
 {
-    /** @var ?string */
+    /** @var string */
     protected $blackfireScenarioTitle = null;
 
     /** @var bool */
@@ -33,24 +33,18 @@ abstract class BlackfireTestCase extends TestCase
     /** @var ?string */
     private $nextProfileTitle = null;
 
-    /** @var ParallelScenariosBuildHelper */
+    /** @var ?ParallelScenariosBuildHelper */
     private static $buildHelper = null;
-
-    public static function getBuildHelper(): ?ParallelScenariosBuildHelper
-    {
-        return self::$buildHelper;
-    }
 
     public static function tearDownAfterClass(): void
     {
-        $buildHelper = self::getBuildHelper();
-        if (!$buildHelper) {
+        if (!self::$buildHelper) {
             return;
         }
 
         $scenarioKey = debug_backtrace()[1]['object']->toString();
-        if (self::getBuildHelper()->hasScenario($scenarioKey)) {
-            self::getBuildHelper()->closeScenario($scenarioKey);
+        if (self::$buildHelper->hasScenario($scenarioKey)) {
+            self::$buildHelper->closeScenario($scenarioKey);
         }
     }
 
@@ -66,10 +60,21 @@ abstract class BlackfireTestCase extends TestCase
     {
         if ($this->profileNextRequest) {
             $parameters['blackfire-laravel-tests'] = true;
-            $output = parent::artisan($command, $parameters);
         }
 
-        return $output;
+        return parent::artisan($command, $parameters);
+    }
+
+    protected function initializeTestEnvironment(): void
+    {
+        if (!self::$buildHelper) {
+            self::$buildHelper = ParallelScenariosBuildHelper::getInstance();
+        }
+
+        $scenarioKey = get_class(debug_backtrace()[1]['object']);
+        if (!self::$buildHelper->hasScenario($scenarioKey)) {
+            self::$buildHelper->startScenario($scenarioKey, $this->blackfireScenarioTitle);
+        }
     }
 
     /**
@@ -92,34 +97,14 @@ abstract class BlackfireTestCase extends TestCase
 
             $scenarioKey = get_class(debug_backtrace()[1]['object']);
 
-            $nextProfileTitle = $this->nextProfileTitle ?? $method.' '.$uri;
-            $this->nextProfileTitle = null;
-
-            $this->request = self::$buildHelper->createRequest($scenarioKey, $nextProfileTitle);
+            $stepTitle = $this->nextProfileTitle ?? $method.' '.$uri;
+            $this->blackfireStepTitle = null;
+            $this->request = self::$buildHelper->createRequest($scenarioKey, $stepTitle);
 
             $server[$this->formatServerHeaderKey('X-Blackfire-Query')] = $this->request->getToken();
         }
 
         return parent::call($method, $uri, $parameters, $cookies, $files, $server, $content);
-    }
-
-    protected function initializeTestEnvironment(): void
-    {
-        if (!self::$buildHelper) {
-            self::$buildHelper = new ParallelScenariosBuildHelper();
-        }
-
-        if (!self::$buildHelper->hasCurrentBuild()) {
-            self::$buildHelper->startBuild(
-                env('BLACKFIRE_TEST_ENVIRONMENT'),
-                env('BLACKFIRE_TEST_BUILD_TITLE', 'Laravel Tests')
-            );
-        }
-
-        $scenarioKey = get_class(debug_backtrace()[1]['object']);
-        if (!self::$buildHelper->hasScenario($scenarioKey)) {
-            self::$buildHelper->startScenario($scenarioKey, $this->blackfireScenarioTitle);
-        }
     }
 
     protected function createTestResponse($response): TestResponse
@@ -150,6 +135,10 @@ abstract class BlackfireTestCase extends TestCase
     protected function setUp(): void
     {
         $this->profileNextRequest = $this->profileAllRequests;
+        if (env('BLACKFIRE_BUILD_DISABLED', false)) {
+            $this->profileNextRequest = false;
+        }
+
         $this->nextProfileTitle = null;
 
         parent::setUp();

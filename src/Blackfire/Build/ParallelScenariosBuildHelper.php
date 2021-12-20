@@ -11,6 +11,15 @@ class ParallelScenariosBuildHelper extends BuildHelper
     /** @var array<string, Scenario> */
     public static $scenarios = array();
 
+    public static function getInstance(): ParallelScenariosBuildHelper
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
     public function hasScenario(string $scenarioKey): bool
     {
         return array_key_exists($scenarioKey, self::$scenarios);

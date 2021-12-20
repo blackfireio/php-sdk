@@ -16,34 +16,26 @@ use Blackfire\Report;
 
 class BuildHelper
 {
-    /**
-     * @var BuildHelper
-     */
-    private static $instance;
+    /** @var BuildHelper */
+    protected static $instance;
 
-    /**
-     * @var Client
-     */
-    private $blackfire;
+    /** @var Client */
+    protected $blackfire;
 
-    /**
-     * @var Build
-     */
-    private $currentBuild;
+    /** @var Build */
+    protected $currentBuild;
 
-    private $buildDeferred = false;
+    /** @var bool */
+    protected $buildDeferred = false;
 
-    private $buildOptions = array();
+    /** @var array */
+    protected $buildOptions = array();
 
-    /**
-     * @var Scenario
-     */
-    private $currentScenario;
+    /** @var Scenario */
+    protected $currentScenario;
 
-    /**
-     * @var bool
-     */
-    private $enabled = true;
+    /** @var bool */
+    protected $enabled = true;
 
     public function __construct()
     {

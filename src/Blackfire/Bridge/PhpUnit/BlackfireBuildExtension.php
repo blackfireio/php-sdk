@@ -12,6 +12,7 @@
 namespace Blackfire\Bridge\PhpUnit;
 
 use Blackfire\Build\BuildHelper;
+use Blackfire\Build\ParallelScenariosBuildHelper;
 use Blackfire\Exception\ApiException;
 use PHPUnit\Runner\AfterLastTestHook;
 use PHPUnit\Runner\AfterTestHook;
@@ -20,14 +21,26 @@ use PHPUnit\Util\Color;
 
 class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook, AfterTestHook
 {
+    /** @var BuildHelper|ParallelScenariosBuildHelper */
     private $buildHelper;
+
+    /** @var string */
     private $blackfireEnvironmentId;
+
+    /** @var string */
     private $buildTitle;
+
+    /** @var ?string */
     private $externalId;
+
+    /** @var ?string */
     private $externalParentId;
 
-    public function __construct(string $blackfireEnvironmentId, string $buildTitle = 'Build from PHPUnit', BuildHelper $buildHelper = null)
-    {
+    public function __construct(
+        string $blackfireEnvironmentId,
+        string $buildTitle = 'Build from PHPUnit',
+        $buildHelper = null
+    ) {
         $this->blackfireEnvironmentId = $blackfireEnvironmentId;
         $this->buildTitle = $buildTitle;
         $this->externalId = $this->getEnv('BLACKFIRE_EXTERNAL_ID');
