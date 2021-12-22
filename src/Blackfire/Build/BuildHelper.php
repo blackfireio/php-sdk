@@ -20,25 +20,25 @@ use Blackfire\Report;
 class BuildHelper
 {
     /** @var BuildHelper */
-    protected static $instance;
+    private static $instance;
 
     /** @var Client */
-    protected $blackfire;
+    private $blackfire;
 
     /** @var Build */
-    protected $currentBuild;
+    private $currentBuild;
 
     /** @var bool */
-    protected $buildDeferred = false;
+    private $buildDeferred = false;
 
     /** @var array */
-    protected $buildOptions = array();
+    private $buildOptions = array();
 
     /** @var array<string, Scenario> */
-    protected static $scenarios = array();
+    private $scenarios = array();
 
     /** @var bool */
-    protected $enabled = true;
+    private $enabled = true;
 
     public function __construct()
     {
@@ -236,7 +236,7 @@ class BuildHelper
      */
     public function hasCurrentScenario()
     {
-        return array_key_exists('currentScenario', $this->scenarios);
+        return $this->hasScenario('currentScenario');
     }
 
     /**
@@ -269,7 +269,7 @@ class BuildHelper
 
     public function hasScenario(string $scenarioKey): bool
     {
-        return array_key_exists($scenarioKey, self::$scenarios);
+        return array_key_exists($scenarioKey, $this->scenarios);
     }
 
     public function getScenario(string $scenarioKey): Scenario
@@ -278,7 +278,7 @@ class BuildHelper
             throw new \RuntimeException('No Scenario registered with that key');
         }
 
-        return self::$scenarios[$scenarioKey];
+        return $this->scenarios[$scenarioKey];
     }
 
     public function startScenario(string $scenarioKey, string $scenarioTitle = null): void
@@ -299,7 +299,7 @@ class BuildHelper
         $options = array('title' => $scenarioTitle);
         $scenario = $this->getBlackfireClient()->startScenario($this->getCurrentBuild(), $options);
 
-        self::$scenarios[$scenarioKey] = $scenario;
+        $this->scenarios[$scenarioKey] = $scenario;
     }
 
     public function closeScenario(string $scenarioKey): void
@@ -307,7 +307,7 @@ class BuildHelper
         $scenario = $this->getScenario($scenarioKey);
         $this->getBlackfireClient()->closeScenario($scenario);
 
-        unset(self::$scenarios[$scenarioKey]);
+        unset($this->scenarios[$scenarioKey]);
     }
 
     public function createRequest(string $scenarioKey, string $title = null): Request
@@ -342,12 +342,12 @@ class BuildHelper
 
     public function hasAnyScenario(): bool
     {
-        return !empty(self::$scenarios);
+        return !empty($this->scenarios);
     }
 
     public function endAllScenarios(): void
     {
-        $scenarioKeys = array_keys(self::$scenarios);
+        $scenarioKeys = array_keys($this->scenarios);
         foreach ($scenarioKeys as $scenarioKey) {
             $this->closeScenario($scenarioKey);
         }
