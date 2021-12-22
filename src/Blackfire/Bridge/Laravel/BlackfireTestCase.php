@@ -44,7 +44,7 @@ abstract class BlackfireTestCase extends TestCase
 
         $scenarioKey = debug_backtrace()[1]['object']->toString();
         if (self::$buildHelper->hasScenario($scenarioKey)) {
-            self::$buildHelper->closeScenario($scenarioKey);
+            self::$buildHelper->endScenario($scenarioKey);
         }
     }
 
@@ -73,7 +73,10 @@ abstract class BlackfireTestCase extends TestCase
 
         $scenarioKey = get_class(debug_backtrace()[1]['object']);
         if (!self::$buildHelper->hasScenario($scenarioKey)) {
-            self::$buildHelper->startScenario($scenarioKey, $this->blackfireScenarioTitle);
+            self::$buildHelper->createScenario(
+                $this->blackfireScenarioTitle ?? $scenarioKey,
+                $scenarioKey
+            );
         }
     }
 

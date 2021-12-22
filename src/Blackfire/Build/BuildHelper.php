@@ -191,12 +191,7 @@ class BuildHelper
         return $this->currentBuild;
     }
 
-    /**
-     * @param string $scenarioTitle The scenario title
-     *
-     * @return Scenario
-     */
-    public function createScenario($scenarioTitle = null)
+    public function createScenario(?string $scenarioTitle = null, ?string $scenarioKey = 'current'): Scenario
     {
         if (!$this->enabled) {
             throw new \RuntimeException('Unable to create a Scenario because Blackfire build is globally disabled.');
@@ -219,7 +214,7 @@ class BuildHelper
             $options['title'] = $scenarioTitle;
         }
 
-        return $this->scenarios['currentScenario'] = $this->blackfire->startScenario($this->currentBuild, $options);
+        return $this->scenarios[$scenarioKey] = $this->blackfire->startScenario($this->currentBuild, $options);
     }
 
     public function endCurrentScenario()
@@ -228,7 +223,7 @@ class BuildHelper
             throw new \RuntimeException('A Blackfire scenario must be started to be able to end it.');
         }
 
-        $this->closeScenario('currentScenario');
+        $this->endScenario('current');
     }
 
     /**
@@ -236,7 +231,7 @@ class BuildHelper
      */
     public function hasCurrentScenario()
     {
-        return $this->hasScenario('currentScenario');
+        return $this->hasScenario('current');
     }
 
     /**
@@ -244,7 +239,7 @@ class BuildHelper
      */
     public function getCurrentScenario()
     {
-        return $this->scenarios['currentScenario'] ?? null;
+        return $this->scenarios['current'] ?? null;
     }
 
     /**
@@ -267,7 +262,7 @@ class BuildHelper
         return $this->enabled;
     }
 
-    public function hasScenario(string $scenarioKey): bool
+    public function hasScenario(string $scenarioKey = 'current'): bool
     {
         return array_key_exists($scenarioKey, $this->scenarios);
     }
@@ -281,28 +276,7 @@ class BuildHelper
         return $this->scenarios[$scenarioKey];
     }
 
-    public function startScenario(string $scenarioKey, string $scenarioTitle = null): void
-    {
-        if (!$this->enabled) {
-            throw new \RuntimeException('Unable to create a Scenario because Blackfire build is globally disabled.');
-        }
-
-        if (!$scenarioTitle) {
-            $scenarioTitle = $scenarioKey;
-        }
-
-        if ($this->hasScenario($scenarioKey)) {
-            throw new \RuntimeException('A Scenario already registered with that key');
-        }
-
-        $this->startBuildIfNeeded();
-        $options = array('title' => $scenarioTitle);
-        $scenario = $this->getBlackfireClient()->startScenario($this->getCurrentBuild(), $options);
-
-        $this->scenarios[$scenarioKey] = $scenario;
-    }
-
-    public function closeScenario(string $scenarioKey): void
+    public function endScenario(string $scenarioKey): void
     {
         $scenario = $this->getScenario($scenarioKey);
         $this->getBlackfireClient()->closeScenario($scenario);
@@ -312,14 +286,14 @@ class BuildHelper
 
     public function createRequest(string $scenarioKey, string $title = null): Request
     {
-        $configuration = $this->getConfiguration($scenarioKey, $title);
+        $configuration = $this->getConfigurationForScenario($scenarioKey, $title);
 
         return $this->getBlackfireClient()->createRequest($configuration);
     }
 
     public function createProbe(string $scenarioKey, string $title = null): Probe
     {
-        $configuration = $this->getConfiguration($scenarioKey, $title);
+        $configuration = $this->getConfigurationForScenario($scenarioKey, $title);
 
         return $this->getBlackfireClient()->createProbe($configuration);
     }
@@ -329,7 +303,7 @@ class BuildHelper
         $this->getBlackfireClient()->endProbe($probe);
     }
 
-    public function getConfiguration(string $scenarioKey, $title = null): Configuration
+    public function getConfigurationForScenario(string $scenarioKey, $title = null): Configuration
     {
         $scenario = $this->getScenario($scenarioKey);
 
@@ -349,22 +323,7 @@ class BuildHelper
     {
         $scenarioKeys = array_keys($this->scenarios);
         foreach ($scenarioKeys as $scenarioKey) {
-            $this->closeScenario($scenarioKey);
+            $this->endScenario($scenarioKey);
         }
-    }
-
-    private function startBuildIfNeeded(): void
-    {
-        if ($this->hasCurrentBuild()) {
-            return;
-        }
-
-        if ($this->isBuildDeferred()) {
-            $this->startDeferredBuild();
-
-            return;
-        }
-
-        throw new \RuntimeException('Unable to start build.');
     }
 }
