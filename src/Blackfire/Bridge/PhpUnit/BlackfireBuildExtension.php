@@ -12,7 +12,6 @@
 namespace Blackfire\Bridge\PhpUnit;
 
 use Blackfire\Build\BuildHelper;
-use Blackfire\Build\ParallelScenariosBuildHelper;
 use Blackfire\Exception\ApiException;
 use PHPUnit\Runner\AfterLastTestHook;
 use PHPUnit\Runner\AfterTestHook;
@@ -21,7 +20,7 @@ use PHPUnit\Util\Color;
 
 class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook, AfterTestHook
 {
-    /** @var BuildHelper|ParallelScenariosBuildHelper */
+    /** @var BuildHelper */
     private $buildHelper;
 
     /** @var string */
@@ -89,12 +88,12 @@ class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook,
             return;
         }
 
-        if ($this->buildHelper->hasCurrentScenario()) {
+        if ($this->buildHelper->hasAnyScenario()) {
             echo "\n";
             echo Color::colorize('bg-yellow', 'Blackfire: The last scenario was not ended.');
             echo "\n";
 
-            $this->buildHelper->endCurrentScenario();
+            $this->buildHelper->endAllScenarios();
         }
 
         $report = $this->buildHelper->endCurrentBuild();

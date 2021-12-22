@@ -11,7 +11,7 @@
 
 namespace Blackfire\Bridge\Laravel;
 
-use Blackfire\Build\ParallelScenariosBuildHelper;
+use Blackfire\Build\BuildHelper;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\TestCase;
@@ -33,7 +33,7 @@ abstract class BlackfireTestCase extends TestCase
     /** @var ?string */
     private $nextProfileTitle = null;
 
-    /** @var ?ParallelScenariosBuildHelper */
+    /** @var ?BuildHelper */
     private static $buildHelper = null;
 
     public static function tearDownAfterClass(): void
@@ -68,7 +68,7 @@ abstract class BlackfireTestCase extends TestCase
     protected function initializeTestEnvironment(): void
     {
         if (!self::$buildHelper) {
-            self::$buildHelper = ParallelScenariosBuildHelper::getInstance();
+            self::$buildHelper = BuildHelper::getInstance();
         }
 
         $scenarioKey = get_class(debug_backtrace()[1]['object']);
@@ -135,11 +135,12 @@ abstract class BlackfireTestCase extends TestCase
     protected function setUp(): void
     {
         $this->profileNextRequest = $this->profileAllRequests;
-        if (env('BLACKFIRE_BUILD_DISABLED', false)) {
+        $this->nextProfileTitle = null;
+
+        $isBuildDisabled = env('BLACKFIRE_BUILD_DISABLED', false);
+        if ($isBuildDisabled) {
             $this->profileNextRequest = false;
         }
-
-        $this->nextProfileTitle = null;
 
         parent::setUp();
     }

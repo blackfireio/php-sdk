@@ -12,6 +12,9 @@
 namespace Blackfire\Build;
 
 use Blackfire\Client;
+use Blackfire\Probe;
+use Blackfire\Profile\Configuration;
+use Blackfire\Profile\Request;
 use Blackfire\Report;
 
 class BuildHelper
@@ -31,8 +34,8 @@ class BuildHelper
     /** @var array */
     protected $buildOptions = array();
 
-    /** @var Scenario */
-    protected $currentScenario;
+    /** @var array<string, Scenario> */
+    protected static $scenarios = array();
 
     /** @var bool */
     protected $enabled = true;
@@ -216,7 +219,7 @@ class BuildHelper
             $options['title'] = $scenarioTitle;
         }
 
-        return $this->currentScenario = $this->blackfire->startScenario($this->currentBuild, $options);
+        return $this->scenarios['currentScenario'] = $this->blackfire->startScenario($this->currentBuild, $options);
     }
 
     public function endCurrentScenario()
@@ -225,8 +228,7 @@ class BuildHelper
             throw new \RuntimeException('A Blackfire scenario must be started to be able to end it.');
         }
 
-        $this->blackfire->closeScenario($this->currentScenario);
-        unset($this->currentScenario);
+        $this->closeScenario('currentScenario');
     }
 
     /**
@@ -234,7 +236,7 @@ class BuildHelper
      */
     public function hasCurrentScenario()
     {
-        return isset($this->currentScenario);
+        return array_key_exists('currentScenario', $this->scenarios);
     }
 
     /**
@@ -242,7 +244,7 @@ class BuildHelper
      */
     public function getCurrentScenario()
     {
-        return $this->currentScenario;
+        return $this->scenarios['currentScenario'] ?? null;
     }
 
     /**
@@ -263,5 +265,106 @@ class BuildHelper
     public function isEnabled()
     {
         return $this->enabled;
+    }
+
+    public function hasScenario(string $scenarioKey): bool
+    {
+        return array_key_exists($scenarioKey, self::$scenarios);
+    }
+
+    public function getScenario(string $scenarioKey): Scenario
+    {
+        if (!$this->hasScenario($scenarioKey)) {
+            throw new \RuntimeException('No Scenario registered with that key');
+        }
+
+        return self::$scenarios[$scenarioKey];
+    }
+
+    public function startScenario(string $scenarioKey, string $scenarioTitle = null): void
+    {
+        if (!$this->enabled) {
+            throw new \RuntimeException('Unable to create a Scenario because Blackfire build is globally disabled.');
+        }
+
+        if (!$scenarioTitle) {
+            $scenarioTitle = $scenarioKey;
+        }
+
+        if ($this->hasScenario($scenarioKey)) {
+            throw new \RuntimeException('A Scenario already registered with that key');
+        }
+
+        $this->startBuildIfNeeded();
+        $options = array('title' => $scenarioTitle);
+        $scenario = $this->getBlackfireClient()->startScenario($this->getCurrentBuild(), $options);
+
+        self::$scenarios[$scenarioKey] = $scenario;
+    }
+
+    public function closeScenario(string $scenarioKey): void
+    {
+        $scenario = $this->getScenario($scenarioKey);
+        $this->getBlackfireClient()->closeScenario($scenario);
+
+        unset(self::$scenarios[$scenarioKey]);
+    }
+
+    public function createRequest(string $scenarioKey, string $title = null): Request
+    {
+        $configuration = $this->getConfiguration($scenarioKey, $title);
+
+        return $this->getBlackfireClient()->createRequest($configuration);
+    }
+
+    public function createProbe(string $scenarioKey, string $title = null): Probe
+    {
+        $configuration = $this->getConfiguration($scenarioKey, $title);
+
+        return $this->getBlackfireClient()->createProbe($configuration);
+    }
+
+    public function endProbe(Probe $probe): void
+    {
+        $this->getBlackfireClient()->endProbe($probe);
+    }
+
+    public function getConfiguration(string $scenarioKey, $title = null): Configuration
+    {
+        $scenario = $this->getScenario($scenarioKey);
+
+        return (new Configuration())
+            ->setScenario($scenario)
+            ->setMetadata('skip_timeline', 'true')
+            ->setTitle($title)
+        ;
+    }
+
+    public function hasAnyScenario(): bool
+    {
+        return !empty(self::$scenarios);
+    }
+
+    public function endAllScenarios(): void
+    {
+        $scenarioKeys = array_keys(self::$scenarios);
+        foreach ($scenarioKeys as $scenarioKey) {
+            $this->closeScenario($scenarioKey);
+        }
+    }
+
+    private function startBuildIfNeeded(): void
+    {
+        if ($this->hasCurrentBuild()) {
+            return;
+        }
+
+        if ($this->isBuildDeferred()) {
+            $this->startDeferredBuild();
+
+            return;
+        }
+
+        throw new \RuntimeException('Unable to start build.');
     }
 }
