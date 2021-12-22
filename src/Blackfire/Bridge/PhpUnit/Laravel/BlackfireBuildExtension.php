@@ -20,17 +20,12 @@ final class BlackfireBuildExtension extends DefaultBlackfireBuildExtension imple
     public function __construct(
         string $blackfireEnvironmentId,
         string $buildTitle = 'Laravel Tests',
-        $buildHelper = null
+        ?BuildHelper $buildHelper = null
     ) {
         if (!$buildHelper) {
             $buildHelper = BuildHelper::getInstance();
         }
 
         parent::__construct($blackfireEnvironmentId, $buildTitle, $buildHelper);
-    }
-
-    public function executeAfterTest(string $test, float $time): void
-    {
-        // Override parent executeAfterTest function
     }
 }
