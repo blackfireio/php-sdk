@@ -32,7 +32,7 @@ class LoadBlackfireEnvironmentVariables
         $dotenv = Dotenv::createImmutable(base_path(), '.env.testing');
         $dotenv->load();
 
-        if (env('APP_ENV') !== 'testing') {
+        if ('testing' !== env('APP_ENV')) {
             throw new \RuntimeException('The .env.testing file should contain APP_ENV=testing');
         }
     }
