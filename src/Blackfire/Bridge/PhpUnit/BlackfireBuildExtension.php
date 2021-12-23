@@ -20,14 +20,26 @@ use PHPUnit\Util\Color;
 
 class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook, AfterTestHook
 {
+    /** @var BuildHelper */
     private $buildHelper;
+
+    /** @var string */
     private $blackfireEnvironmentId;
+
+    /** @var string */
     private $buildTitle;
+
+    /** @var ?string */
     private $externalId;
+
+    /** @var ?string */
     private $externalParentId;
 
-    public function __construct(string $blackfireEnvironmentId, string $buildTitle = 'Build from PHPUnit', BuildHelper $buildHelper = null)
-    {
+    public function __construct(
+        string $blackfireEnvironmentId,
+        string $buildTitle = 'Build from PHPUnit',
+        ?BuildHelper $buildHelper = null
+    ) {
         $this->blackfireEnvironmentId = $blackfireEnvironmentId;
         $this->buildTitle = $buildTitle;
         $this->externalId = $this->getEnv('BLACKFIRE_EXTERNAL_ID');
@@ -76,12 +88,12 @@ class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook,
             return;
         }
 
-        if ($this->buildHelper->hasCurrentScenario()) {
+        if ($this->buildHelper->hasAnyScenario()) {
             echo "\n";
             echo Color::colorize('bg-yellow', 'Blackfire: The last scenario was not ended.');
             echo "\n";
 
-            $this->buildHelper->endCurrentScenario();
+            $this->buildHelper->endAllScenarios();
         }
 
         $report = $this->buildHelper->endCurrentBuild();
