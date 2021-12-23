@@ -286,16 +286,16 @@ class BuildHelper
 
     public function createRequest(string $scenarioKey, string $title = null): Request
     {
-        $configuration = $this->getConfigurationForScenario($scenarioKey, $title);
-
-        return $this->getBlackfireClient()->createRequest($configuration);
+        return $this->getBlackfireClient()->createRequest(
+            $this->getConfigurationForScenario($scenarioKey, $title)
+        );
     }
 
     public function createProbe(string $scenarioKey, string $title = null): Probe
     {
-        $configuration = $this->getConfigurationForScenario($scenarioKey, $title);
-
-        return $this->getBlackfireClient()->createProbe($configuration);
+        return $this->getBlackfireClient()->createProbe(
+            $this->getConfigurationForScenario($scenarioKey, $title)
+        );
     }
 
     public function endProbe(Probe $probe): void
@@ -305,10 +305,8 @@ class BuildHelper
 
     public function getConfigurationForScenario(string $scenarioKey, $title = null): Configuration
     {
-        $scenario = $this->getScenario($scenarioKey);
-
         return (new Configuration())
-            ->setScenario($scenario)
+            ->setScenario($this->getScenario($scenarioKey))
             ->setMetadata('skip_timeline', 'true')
             ->setTitle($title)
         ;
@@ -321,8 +319,7 @@ class BuildHelper
 
     public function endAllScenarios(): void
     {
-        $scenarioKeys = array_keys($this->scenarios);
-        foreach ($scenarioKeys as $scenarioKey) {
+        foreach (array_keys($this->scenarios) as $scenarioKey) {
             $this->endScenario($scenarioKey);
         }
     }

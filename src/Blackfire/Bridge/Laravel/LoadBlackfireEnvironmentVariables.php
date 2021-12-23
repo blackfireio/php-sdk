@@ -26,8 +26,7 @@ class LoadBlackfireEnvironmentVariables
     public function bootstrap(Application $app)
     {
         $request = Request::capture();
-        $hasBlackfireTestHeaders = $request->headers->has('X-BLACKFIRE-LARAVEL-TESTS') && $request->headers->has('X-BLACKFIRE-QUERY');
-        if (!$hasBlackfireTestHeaders) {
+        if (!($request->headers->has('X-BLACKFIRE-LARAVEL-TESTS') && $request->headers->has('X-BLACKFIRE-QUERY'))) {
             return;
         }
 

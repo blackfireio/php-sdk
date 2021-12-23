@@ -137,15 +137,14 @@ abstract class BlackfireTestCase extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->profileNextRequest = $this->profileAllRequests;
         $this->nextProfileTitle = null;
 
-        $isBuildDisabled = env('BLACKFIRE_BUILD_DISABLED', false);
-        if ($isBuildDisabled) {
+        if (!self::$buildHelper->isEnabled()) {
             $this->profileNextRequest = false;
         }
-
-        parent::setUp();
     }
 
     protected function tearDown(): void
