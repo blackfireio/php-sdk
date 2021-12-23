@@ -12,7 +12,6 @@
 namespace Blackfire\Bridge\Laravel;
 
 use Dotenv\Dotenv;
-use Dotenv\Exception\InvalidFileException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 
@@ -30,10 +29,7 @@ class LoadBlackfireEnvironmentVariables
             return;
         }
 
-        try {
-            $dotenv = Dotenv::createImmutable(base_path(), '.env.testing');
-            $dotenv->safeload();
-        } catch (InvalidFileException $e) {
-        }
+        $dotenv = Dotenv::createImmutable(base_path(), '.env.testing');
+        $dotenv->safeload();
     }
 }

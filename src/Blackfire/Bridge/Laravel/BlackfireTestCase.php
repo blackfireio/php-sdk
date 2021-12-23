@@ -142,7 +142,7 @@ abstract class BlackfireTestCase extends TestCase
         $this->profileNextRequest = $this->profileAllRequests;
         $this->nextProfileTitle = null;
 
-        if (!self::$buildHelper->isEnabled()) {
+        if (!self::$buildHelper || self::$buildHelper->isEnabled()) {
             $this->profileNextRequest = false;
         }
     }
