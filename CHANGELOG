@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.29.0 (2022-01-13)
+
+ * Add the Laravel Tests integration
+
 * 1.28.0 (2021-12-17)
 
  * Provide support for monitoring Symfony commands
