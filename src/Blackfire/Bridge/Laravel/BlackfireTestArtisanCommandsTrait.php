@@ -11,6 +11,8 @@
 
 namespace Blackfire\Bridge\Laravel;
 
+use Blackfire\Build\BuildHelper;
+
 trait BlackfireTestArtisanCommandsTrait
 {
     /**
@@ -25,9 +27,10 @@ trait BlackfireTestArtisanCommandsTrait
      */
     public function call($command, array $parameters = array(), $outputBuffer = null)
     {
-        if (app()->runningUnitTests() && array_key_exists('blackfire-laravel-tests', $parameters)) {
+        if ('testing' === env('APP_ENV') && array_key_exists('blackfire-laravel-tests', $parameters)) {
             $result_code = null;
-            exec('APP_ENV=testing blackfire run --env='.env('BLACKFIRE_TEST_ENVIRONMENT').' ./artisan '.$command, $outputBuffer, $result_code);
+            $buildHelper = BuildHelper::getInstance();
+            exec('APP_ENV=testing blackfire run --env='.$buildHelper->getBlackfireEnvironmentId().' ./artisan '.$command, $outputBuffer, $result_code);
 
             return $result_code;
         }

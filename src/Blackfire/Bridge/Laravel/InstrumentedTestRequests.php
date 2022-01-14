@@ -24,7 +24,7 @@ class InstrumentedTestRequests
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!app()->runningUnitTests()) {
+        if ('testing' !== env('APP_ENV')) {
             return $next($request);
         }
 
@@ -41,7 +41,7 @@ class InstrumentedTestRequests
 
         $httpClient = HttpClient::create();
 
-        return $httpClient->request(
+        $httpClient->request(
             $request->getMethod(),
             $request->getUri(),
             array(
@@ -49,5 +49,7 @@ class InstrumentedTestRequests
                 'body' => $request->request->all(),
             ),
         );
+
+        return $next($request);
     }
 }

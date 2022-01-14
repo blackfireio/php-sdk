@@ -67,10 +67,6 @@ abstract class BlackfireTestCase extends TestCase
 
     protected function initializeTestEnvironment(): void
     {
-        if (!self::$buildHelper) {
-            self::$buildHelper = BuildHelper::getInstance();
-        }
-
         $scenarioKey = get_class(debug_backtrace()[1]['object']);
         if (!self::$buildHelper->hasScenario($scenarioKey)) {
             self::$buildHelper->createScenario(
@@ -141,8 +137,9 @@ abstract class BlackfireTestCase extends TestCase
 
         $this->profileNextRequest = $this->profileAllRequests;
         $this->nextProfileTitle = null;
+        self::$buildHelper = BuildHelper::getInstance();
 
-        if (!self::$buildHelper || !self::$buildHelper->isEnabled()) {
+        if (!self::$buildHelper->isEnabled()) {
             $this->profileNextRequest = false;
         }
     }

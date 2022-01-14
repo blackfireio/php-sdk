@@ -40,6 +40,9 @@ class BuildHelper
     /** @var bool */
     private $enabled = true;
 
+    /** @var string */
+    private $blackfireEnvironmentId;
+
     public function __construct()
     {
         $this->blackfire = new Client();
@@ -322,5 +325,17 @@ class BuildHelper
         foreach (array_keys($this->scenarios) as $scenarioKey) {
             $this->endScenario($scenarioKey);
         }
+    }
+
+    public function getBlackfireEnvironmentId(): string
+    {
+        return $this->blackfireEnvironmentId;
+    }
+
+    public function setBlackfireEnvironmentId(string $blackfireEnvironmentId): self
+    {
+        $this->blackfireEnvironmentId = $blackfireEnvironmentId;
+
+        return $this;
     }
 }

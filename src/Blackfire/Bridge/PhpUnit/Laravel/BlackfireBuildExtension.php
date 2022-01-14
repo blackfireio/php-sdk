@@ -13,9 +13,8 @@ namespace Blackfire\Bridge\PhpUnit\Laravel;
 
 use Blackfire\Bridge\PhpUnit\BlackfireBuildExtension as DefaultBlackfireBuildExtension;
 use Blackfire\Build\BuildHelper;
-use PHPUnit\Runner\AfterTestHook;
 
-final class BlackfireBuildExtension extends DefaultBlackfireBuildExtension implements AfterTestHook
+final class BlackfireBuildExtension extends DefaultBlackfireBuildExtension
 {
     public function __construct(
         string $blackfireEnvironmentId,

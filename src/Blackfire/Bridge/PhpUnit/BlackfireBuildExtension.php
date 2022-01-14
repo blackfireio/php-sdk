@@ -46,6 +46,7 @@ class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook,
         $this->externalParentId = $this->getEnv('BLACKFIRE_EXTERNAL_PARENT_ID');
         $this->buildHelper = $buildHelper ?? BuildHelper::getInstance();
         $this->buildHelper->setEnabled($this->isGloballyEnabled());
+        $this->buildHelper->setBlackfireEnvironmentId($blackfireEnvironmentId);
     }
 
     private function getEnv(string $envVarName): ?string
