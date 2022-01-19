@@ -40,7 +40,7 @@ class BuildHelper
     /** @var bool */
     private $enabled = true;
 
-    /** @var string */
+    /** @var ?string */
     private $blackfireEnvironmentId;
 
     public function __construct()
@@ -327,7 +327,7 @@ class BuildHelper
         }
     }
 
-    public function getBlackfireEnvironmentId(): string
+    public function getBlackfireEnvironmentId(): ?string
     {
         return $this->blackfireEnvironmentId;
     }

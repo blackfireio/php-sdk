@@ -34,17 +34,14 @@ abstract class BlackfireTestCase extends TestCase
     private $nextProfileTitle = null;
 
     /** @var ?BuildHelper */
-    private static $buildHelper = null;
+    private $buildHelper = null;
 
     public static function tearDownAfterClass(): void
     {
-        if (!self::$buildHelper) {
-            return;
-        }
-
+        $buildHelper = BuildHelper::getInstance();
         $scenarioKey = debug_backtrace()[1]['object']->toString();
-        if (self::$buildHelper->hasScenario($scenarioKey)) {
-            self::$buildHelper->endScenario($scenarioKey);
+        if ($buildHelper->hasScenario($scenarioKey)) {
+            $buildHelper->endScenario($scenarioKey);
         }
     }
 
@@ -68,8 +65,8 @@ abstract class BlackfireTestCase extends TestCase
     protected function initializeTestEnvironment(): void
     {
         $scenarioKey = get_class(debug_backtrace()[1]['object']);
-        if (!self::$buildHelper->hasScenario($scenarioKey)) {
-            self::$buildHelper->createScenario(
+        if (!$this->buildHelper->hasScenario($scenarioKey)) {
+            $this->buildHelper->createScenario(
                 $this->blackfireScenarioTitle ?? $scenarioKey,
                 $scenarioKey
             );
@@ -98,7 +95,7 @@ abstract class BlackfireTestCase extends TestCase
 
             $stepTitle = $this->nextProfileTitle ?? $method.' '.$uri;
             $this->blackfireStepTitle = null;
-            $this->request = self::$buildHelper->createRequest($scenarioKey, $stepTitle);
+            $this->request = $this->buildHelper->createRequest($scenarioKey, $stepTitle);
 
             $server[$this->formatServerHeaderKey('X-Blackfire-Query')] = $this->request->getToken();
         }
@@ -137,9 +134,9 @@ abstract class BlackfireTestCase extends TestCase
 
         $this->profileNextRequest = $this->profileAllRequests;
         $this->nextProfileTitle = null;
-        self::$buildHelper = BuildHelper::getInstance();
+        $this->buildHelper = BuildHelper::getInstance();
 
-        if (!self::$buildHelper->isEnabled()) {
+        if (!$this->buildHelper->isEnabled()) {
             $this->profileNextRequest = false;
         }
     }
