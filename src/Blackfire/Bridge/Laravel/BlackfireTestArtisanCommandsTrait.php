@@ -34,6 +34,7 @@ trait BlackfireTestArtisanCommandsTrait
             $process = new Process(
                 array_merge(array(
                     'blackfire',
+                    '--json',
                     'run',
                     '--env='.$buildHelper->getBlackfireEnvironmentId(),
                     './artisan',
@@ -45,7 +46,19 @@ trait BlackfireTestArtisanCommandsTrait
             );
 
             $process->run();
-            echo $process->getErrorOutput();
+            $output = json_decode($process->getOutput());
+
+            $statusCode = $output->status->code;
+            if (64 !== $statusCode ) {
+                $graphUrl = $output->_links->graph_url->href;
+                throw new \PHPUnit\Framework\AssertionFailedError("Profile on error:\n$graphUrl");
+            }
+
+            $reportState = $output->report->state;
+            if ('failed' === $reportState) {
+                $graphUrl = $output->_links->graph_url->href;
+                throw new \PHPUnit\Framework\AssertionFailedError("Blackfire assertions on failure:\n$graphUrl");
+            }
 
             unset($parameters['blackfire-laravel-tests']);
         }
