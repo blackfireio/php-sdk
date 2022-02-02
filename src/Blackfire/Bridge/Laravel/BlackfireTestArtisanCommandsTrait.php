@@ -49,7 +49,7 @@ trait BlackfireTestArtisanCommandsTrait
             $output = json_decode($process->getOutput());
 
             $statusCode = $output->status->code;
-            if (64 !== $statusCode ) {
+            if (64 !== $statusCode) {
                 $graphUrl = $output->_links->graph_url->href;
                 throw new \PHPUnit\Framework\AssertionFailedError("Profile on error:\n$graphUrl");
             }
