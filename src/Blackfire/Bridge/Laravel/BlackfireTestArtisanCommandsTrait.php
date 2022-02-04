@@ -46,18 +46,20 @@ trait BlackfireTestArtisanCommandsTrait
             );
 
             $process->run();
-            $output = json_decode($process->getOutput());
+            $output = @json_decode($process->getOutput(), true);
 
-            $statusCode = $output->status->code;
-            if (64 !== $statusCode) {
-                $graphUrl = $output->_links->graph_url->href;
-                throw new \PHPUnit\Framework\AssertionFailedError("Profile on error:\n$graphUrl");
-            }
+            if (JSON_ERROR_NONE === json_last_error()) {
+                $statusCode = $output['status']['code'] ?? null;
+                if (64 !== $statusCode) {
+                    $graphUrl = $output['_links']['graph_url']['href'] ?? '';
+                    throw new \PHPUnit\Framework\AssertionFailedError("Profile on error:\n$graphUrl");
+                }
 
-            $reportState = $output->report->state;
-            if ('failed' === $reportState) {
-                $graphUrl = $output->_links->graph_url->href;
-                throw new \PHPUnit\Framework\AssertionFailedError("Blackfire assertions on failure:\n$graphUrl");
+                $reportState = $output['report']['state'] ?? null;
+                if ('failed' === $reportState) {
+                    $graphUrl = $output['_links']['graph_url']['href'] ?? '';
+                    throw new \PHPUnit\Framework\AssertionFailedError("Blackfire assertions on failure:\n$graphUrl");
+                }
             }
 
             unset($parameters['blackfire-laravel-tests']);
