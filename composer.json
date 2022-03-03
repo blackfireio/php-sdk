@@ -26,6 +26,11 @@
             "Blackfire\\": "src/Blackfire"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.27.x-dev"
@@ -47,5 +52,8 @@
         "illuminate/support": "^8.61",
         "illuminate/console": "^8.61",
         "illuminate/queue": "^8.61"
+    },
+    "scripts": {
+        "tests": "./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
     }
 }

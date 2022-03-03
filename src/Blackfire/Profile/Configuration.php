@@ -12,6 +12,8 @@
 namespace Blackfire\Profile;
 
 use Blackfire\Build;
+use Blackfire\Profile\Assertion\AssertionsBuilder;
+use Blackfire\Profile\Assertion\AssertionsCollection;
 
 /**
  * Configures a Blackfire profile.
@@ -19,7 +21,17 @@ use Blackfire\Build;
 class Configuration
 {
     private $uuid;
-    private $assertions;
+
+    /**
+     * @var AssertionsCollection
+     */
+    private $assertionsCollection;
+
+    /**
+     * @var AssertionsBuilder
+     */
+    private $assertionsBuilder;
+
     private $metrics;
     private $samples = 1;
     private $reference;
@@ -34,6 +46,18 @@ class Configuration
      * @deprecated since 1.14, to be removed in 2.0.
      */
     private $build;
+
+    /**
+     * @param AssertionsCollection|null $assertionsCollection
+     * @param AssertionsBuilder|null $assertionsBuilder
+     */
+    public function __construct(
+        AssertionsCollection $assertionsCollection = null,
+        AssertionsBuilder $assertionsBuilder = null
+    ) {
+        $this->assertionsCollection = $assertionsCollection ? : new AssertionsCollection();
+        $this->assertionsBuilder = $assertionsBuilder ? : new AssertionsBuilder($this->assertionsCollection);
+    }
 
     public function getUuid()
     {
@@ -227,21 +251,9 @@ class Configuration
     /**
      * @return $this
      */
-    public function assert($assertion, $name = '')
+    public function assert($assertion, $name = null)
     {
-        static $counter = 0;
-
-        if (!$name) {
-            $name = '_assertion_'.(++$counter);
-        }
-
-        $key = $name;
-        $i = 0;
-        while (isset($this->assertions[$key])) {
-            $key = $name.' ('.(++$i).')';
-        }
-
-        $this->assertions[$key] = $assertion;
+        $this->assertionsCollection->add($assertion, $name);
 
         return $this;
     }
@@ -251,11 +263,14 @@ class Configuration
      */
     public function hasAssertions()
     {
-        return (bool) $this->assertions;
+        return !$this->assertionsCollection->isEmpty();
     }
 
     /**
-     * @return $this
+     * @param string $assertion
+     * @param string $name
+     *
+     * @return self
      */
     public function defineLayer(MetricLayer $layer)
     {
@@ -294,10 +309,11 @@ class Configuration
      */
     public function toYaml()
     {
-        if (!$this->assertions && !$this->metrics) {
+        if ($this->assertionsCollection->isEmpty() && !$this->metrics) {
             return;
         }
 
+        $assertions = $this->assertionsCollection->getAssertions();
         $yaml = '';
 
         if ($this->metrics) {
@@ -311,14 +327,22 @@ class Configuration
             }
         }
 
-        if ($this->assertions) {
+        if ($assertions) {
             $yaml .= "tests:\n";
-            foreach ($this->assertions as $name => $assertion) {
+            foreach ($assertions as $name => $assertion) {
                 $yaml .= "  \"$name\":\n";
                 $yaml .= "    assertions: [\"$assertion\"]\n\n";
             }
         }
 
         return $yaml;
+    }
+
+    /**
+     * @return AssertionsBuilder
+     */
+    public function getAssertionsBuilder()
+    {
+        return $this->assertionsBuilder;
     }
 }
