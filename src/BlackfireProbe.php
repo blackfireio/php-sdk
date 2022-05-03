@@ -444,7 +444,7 @@ class BlackfireProbe
         self::$transactionName = $transactionName;
     }
 
-    public static function startTransaction()
+    public static function startTransaction($transactionName = null)
     {
         // Not implemented here
     }
