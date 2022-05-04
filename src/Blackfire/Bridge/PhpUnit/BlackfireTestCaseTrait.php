@@ -21,10 +21,10 @@ trait BlackfireTestCaseTrait
 
     // Define this constant in your test case to control the scenario auto-start.
     // By default a scenario is created for each test case.
-    //protected const BLACKFIRE_SCENARIO_AUTO_START = true;
+    // protected const BLACKFIRE_SCENARIO_AUTO_START = true;
 
     // Define this constant to give a title to the auto-started scenario.
-    //protected const BLACKFIRE_SCENARIO_TITLE = null;
+    // protected const BLACKFIRE_SCENARIO_TITLE = null;
 
     public static function isBlackfireScenarioAutoStart(): bool
     {
