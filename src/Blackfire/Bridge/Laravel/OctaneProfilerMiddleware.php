@@ -36,11 +36,13 @@ class OctaneProfilerMiddleware
             return $next($request);
         }
 
-        $this->profiler->start($request);
-        $response = $next($request);
-        \BlackfireProbe::setAttribute('http.status_code', $response->status());
-
-        $this->profiler->stop($request, $response);
+        try {
+            $this->profiler->start($request);
+            $response = $next($request);
+            \BlackfireProbe::setAttribute('http.status_code', $response->status());
+        } finally {
+            $this->profiler->stop($request, $response);
+        }
 
         return $response;
     }
