@@ -51,7 +51,7 @@ class OctaneProfiler
     }
 
     /**
-     * @param \Swoole\Http\Request      $request
+     * @param \Swoole\Http\Request       $request
      * @param ?Response|RedirectResponse $response
      */
     public function stop(Request $request, $response = null): bool
