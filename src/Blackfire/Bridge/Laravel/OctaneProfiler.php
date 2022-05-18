@@ -52,9 +52,9 @@ class OctaneProfiler
 
     /**
      * @param \Swoole\Http\Request      $request
-     * @param Response|RedirectResponse $response
+     * @param ?Response|RedirectResponse $response
      */
-    public function stop(Request $request, $response): bool
+    public function stop(Request $request, $response = null): bool
     {
         if (!class_exists(\BlackfireProbe::class)) {
             return false;
@@ -73,8 +73,10 @@ class OctaneProfiler
         }
 
         $this->probe->close();
-        list($probeHeaderName, $probeHeaderValue) = explode(':', $this->probe->getResponseLine(), 2);
-        $response->header(strtolower("x-$probeHeaderName"), trim($probeHeaderValue));
+        if ($response) {
+            list($probeHeaderName, $probeHeaderValue) = explode(':', $this->probe->getResponseLine(), 2);
+            $response->header(strtolower("x-$probeHeaderName"), trim($probeHeaderValue));
+        }
         $this->reset();
 
         return true;

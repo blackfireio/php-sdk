@@ -41,7 +41,7 @@ class OctaneProfilerMiddleware
             $response = $next($request);
             \BlackfireProbe::setAttribute('http.status_code', $response->status());
         } finally {
-            $this->profiler->stop($request, $response);
+            $this->profiler->stop($request, $response ?? null);
         }
 
         return $response;
