@@ -29,7 +29,7 @@ class Client
 {
     const MAX_RETRY = 60;
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
-    const VERSION = '1.29.0';
+    const VERSION = '1.30.0';
 
     private $config;
     private $collabTokens;
