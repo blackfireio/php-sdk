@@ -38,8 +38,12 @@ class ObservableCommandProvider extends ServiceProvider
             ),
             function ($event) {
                 $transactionName = 'artisan '.($event->input->__toString() ?? 'Unnamed Command');
-                \BlackfireProbe::startTransaction();
-                \BlackfireProbe::setTransactionName($transactionName);
+                if (version_compare(phpversion('blackfire'), '1.78.0', '>=')) {
+                    \BlackfireProbe::startTransaction($transactionName);
+                } else {
+                    \BlackfireProbe::startTransaction();
+                    \BlackfireProbe::setTransactionName($transactionName);
+                }
             }
         );
 
@@ -50,8 +54,12 @@ class ObservableCommandProvider extends ServiceProvider
             function ($event) {
                 $task = $event->task;
                 $transactionName = $task->expression.' '.$task->command;
-                \BlackfireProbe::startTransaction();
-                \BlackfireProbe::setTransactionName($transactionName);
+                if (version_compare(phpversion('blackfire'), '1.78.0', '>=')) {
+                    \BlackfireProbe::startTransaction($transactionName);
+                } else {
+                    \BlackfireProbe::startTransaction();
+                    \BlackfireProbe::setTransactionName($transactionName);
+                }
             }
         );
 

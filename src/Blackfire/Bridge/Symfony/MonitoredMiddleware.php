@@ -24,8 +24,14 @@ class MonitoredMiddleware implements MiddlewareInterface
             return $stack->next()->handle($envelope, $stack);
         }
 
-        \BlackfireProbe::setTransactionName(\get_class($envelope->getMessage()));
-        \BlackfireProbe::startTransaction();
+        $txName = \get_class($envelope->getMessage());
+
+        if (version_compare(phpversion('blackfire'), '1.78.0', '>=')) {
+            \BlackfireProbe::startTransaction($txName);
+        } else {
+            \BlackfireProbe::startTransaction();
+            \BlackfireProbe::setTransactionName($txName);
+        }
 
         try {
             return $stack->next()->handle($envelope, $stack);

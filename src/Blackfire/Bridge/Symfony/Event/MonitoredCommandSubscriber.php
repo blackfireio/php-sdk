@@ -43,8 +43,12 @@ class MonitoredCommandSubscriber implements EventSubscriberInterface
             return;
         }
 
-        \BlackfireProbe::setTransactionName($command->getName());
-        \BlackfireProbe::startTransaction();
+        if (version_compare(phpversion('blackfire'), '1.78.0', '>=')) {
+            \BlackfireProbe::startTransaction($command->getName());
+        } else {
+            \BlackfireProbe::startTransaction();
+            \BlackfireProbe::setTransactionName($command->getName());
+        }
     }
 
     public function onConsoleTerminate(ConsoleTerminateEvent $event)
