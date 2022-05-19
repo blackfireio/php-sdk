@@ -32,8 +32,12 @@ class ObservableJobProvider extends ServiceProvider
 
         Queue::before(function (JobProcessing $event) {
             $transactionName = $event->job->payload()['displayName'] ?? 'Job';
-            \BlackfireProbe::startTransaction();
-            \BlackfireProbe::setTransactionName($transactionName);
+            if (version_compare(phpversion('blackfire'), '1.78.0', '>=')) {
+                \BlackfireProbe::startTransaction($transactionName);
+            } else {
+                \BlackfireProbe::startTransaction();
+                \BlackfireProbe::setTransactionName($transactionName);
+            }
         });
 
         Queue::after(function (JobProcessed $event) {
