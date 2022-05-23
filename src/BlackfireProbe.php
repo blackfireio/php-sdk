@@ -669,7 +669,7 @@ class BlackfireProbe
                                 self::fwrite($h, 'Blackfire-Yaml-Size: '.strlen($i)."\n".$i);
                             }
                             if (isset($features['composer_lock'])) {
-                                $i = $this->getComposerLock();
+                                $i = (string) $this->getComposerLock();
                                 self::fwrite($h, 'Composer-Lock-Size: '.strlen($i)."\n".$i);
                             }
 
