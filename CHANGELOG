@@ -1,6 +1,11 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.31.0 (2022-06-14)
+
+ * Name transaction using latest API
+ * Upgrade to PHP 8.1 to run functional tests
+
 * 1.30.0 (2022-05-19)
 
  * Add Laravel Octane integration
