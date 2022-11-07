@@ -11,7 +11,6 @@
 
 namespace Blackfire\Bridge\Laravel;
 
-use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -22,7 +21,7 @@ class InstrumentedTestRequests
      *
      * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, \Closure $next)
     {
         if ('testing' !== env('APP_ENV')) {
             return $next($request);

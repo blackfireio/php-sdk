@@ -75,9 +75,9 @@ class BuildHelper
      * @param string|null $externalParentId     Reference to compare this build to
      * @param string      $triggerName          Name of the build trigger
      *
-     * @throws \RuntimeException
-     *
      * @return Build
+     *
+     * @throws \RuntimeException
      */
     public function startBuild($blackfireEnvironment, $buildTitle, $externalId = null, $externalParentId = null, $triggerName = 'Build SDK')
     {
@@ -139,9 +139,9 @@ class BuildHelper
     /**
      * Starts a build that has been deferred.
      *
-     * @throws \RuntimeException
-     *
      * @return Build
+     *
+     * @throws \RuntimeException
      */
     public function startDeferredBuild()
     {

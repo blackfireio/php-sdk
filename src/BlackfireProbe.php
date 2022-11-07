@@ -425,7 +425,7 @@ class BlackfireProbe
 
         unset($features['aggreg_samples']);
 
-        return $this->challenge.'&'.'signature='.$this->signature.'&'.strtr(http_build_query($features, '', '&'), self::$urlEncMap);
+        return $this->challenge.'&signature='.$this->signature.'&'.strtr(http_build_query($features, '', '&'), self::$urlEncMap);
     }
 
     /**

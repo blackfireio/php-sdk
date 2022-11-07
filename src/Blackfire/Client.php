@@ -672,9 +672,9 @@ class Client
      * @param array  $defaultOptions Options to merge with the default
      * @param array  $defaultParams  Parameters to specify on the context
      *
-     * @throws \RuntimeException if HTTPS proxy required and OpenSSL uninstalled
-     *
      * @return resource Default context
+     *
+     * @throws \RuntimeException if HTTPS proxy required and OpenSSL uninstalled
      *
      * @author Jordan Alliot <jordan.alliot@gmail.com>
      * @author Markus Tacker <m@coderbyheart.de>
