@@ -739,7 +739,7 @@ class BlackfireProbe
         }
         $line = 'signature='.$this->signature.'&aggreg_samples='.$this->aggregSamples;
         isset($this->challenge[0]) and $line = $this->challenge.'&'.$line;
-        isset($this->profileTitle) and $line .= '&profile_title='.$this->profileTitle;
+        isset($this->profileTitle) and $line .= '&profile_title='.rawurlencode($this->profileTitle);
         isset($this->configYml) and $line .= '&config_yml='.$this->configYml;
         $hello .= 'Blackfire-Query: '.$line."\n";
         $hello .= sprintf('Blackfire-Probe: php-%s', PHP_VERSION);
