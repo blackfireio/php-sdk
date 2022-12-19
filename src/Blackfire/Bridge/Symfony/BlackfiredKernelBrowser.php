@@ -78,7 +78,7 @@ class BlackfiredKernelBrowser extends KernelBrowser
         try {
             return parent::doRequest($request);
         } finally {
-            if ($this->blackfireEnabled && isset($probe)) {
+            if (isset($probe)) {
                 $this->blackfire->endProbe($probe);
             }
         }
