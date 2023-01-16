@@ -1,6 +1,12 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.32.0 (2023-01-16)
+
+ * Use new intention feature when creating builds
+ * Fix profile_title encoding
+ * Update dependencies
+
 * 1.31.0 (2022-06-14)
 
  * Name transaction using latest API
