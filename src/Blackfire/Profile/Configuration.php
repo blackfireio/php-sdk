@@ -29,6 +29,7 @@ class Configuration
     private $layers = array();
     private $scenario;
     private $requestInfo = array();
+    private $intention;
 
     /**
      * @deprecated since 1.14, to be removed in 2.0.
@@ -285,6 +286,21 @@ class Configuration
     public function setSamples($samples)
     {
         $this->samples = (int) $samples;
+
+        return $this;
+    }
+
+    public function getIntention()
+    {
+        return $this->intention;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setIntention($intention)
+    {
+        $this->intention = (string) $intention;
 
         return $this;
     }

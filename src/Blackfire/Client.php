@@ -538,6 +538,10 @@ class Client
             $details['requestId'] = $data['uuid'];
         }
 
+        if ($intention = $config->getIntention()) {
+            $details['intention'] = $intention;
+        }
+
         $personalCollabToken = $this->getPersonalCollabToken();
         $details['collabToken'] = $personalCollabToken['collabToken'];
 
