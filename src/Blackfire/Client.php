@@ -542,6 +542,10 @@ class Client
             $details['intention'] = $intention;
         }
 
+        if ($debug = $config->isDebug()) {
+            $details['debug'] = $debug;
+        }
+
         $personalCollabToken = $this->getPersonalCollabToken();
         $details['collabToken'] = $personalCollabToken['collabToken'];
 

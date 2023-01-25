@@ -30,6 +30,7 @@ class Configuration
     private $scenario;
     private $requestInfo = array();
     private $intention;
+    private $debug = false;
 
     /**
      * @deprecated since 1.14, to be removed in 2.0.
@@ -301,6 +302,21 @@ class Configuration
     public function setIntention($intention)
     {
         $this->intention = (string) $intention;
+
+        return $this;
+    }
+
+    public function isDebug()
+    {
+        return $this->debug;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setDebug($debug)
+    {
+        $this->debug = (bool) $debug;
 
         return $this;
     }
