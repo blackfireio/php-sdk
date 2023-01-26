@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.33.0 (2023-01-26)
+
+ * Allow creating debug profile using PHP SDK
+
 * 1.32.0 (2023-01-16)
 
  * Use new intention feature when creating builds
