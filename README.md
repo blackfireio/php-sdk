@@ -44,4 +44,4 @@ Blackfire Support
 -----------------
 
 If you are facing any issue with using the Blackfire PHP SDK, please check
-[our support site](https://support.blackfire.io) or reach out to [support@blackfire.io](mailto:support@blackfire.io).
+[our support site](https://support.blackfire.platform.sh) or reach out to [support@blackfire.io](mailto:support@blackfire.io).
