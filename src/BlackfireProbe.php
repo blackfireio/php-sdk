@@ -1290,4 +1290,12 @@ Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
             file_put_contents($this->logFile, sprintf("[%3x] DBUG: %s\n", $this->seqId, $msg), FILE_APPEND);
         }
     }
+
+    /**
+     * @internal
+     */
+    public static function setAttribute($key, $value)
+    {
+        self::getMainInstance()->{$key} = $value;
+    }
 }
