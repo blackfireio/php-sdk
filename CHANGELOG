@@ -1,6 +1,11 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.34.0 (2023-04-05)
+
+ * Update support URL
+ * Add BlackfireProbe::setAttribute signature
+
 * 1.33.0 (2023-01-26)
 
  * Allow creating debug profile using PHP SDK
