@@ -1200,6 +1200,13 @@ Content-Disposition: attachment; filename*=utf8''$rawurlencodedEntry;\r
         $this->box('doShutdown', null, $extraHeaders);
     }
 
+    /**
+     * @internal
+     */
+    public static function setAttribute(string $key, mixed $value, int $scope = 7 /* \Blackfire\SCOPE_ALL */)
+    {
+    }
+
     private function dotBlackfireAsked()
     {
         return isset($_SERVER['REQUEST_METHOD']) && 'POST' === strtoupper($_SERVER['REQUEST_METHOD']) && false !== strpos($this->signedArgs['agentIds'], 'request-id-dot-blackfire');
