@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 1.35.0 (2023-04-06)
+
+ * Proper check of the probe feature for Octane integration
+
 * 1.34.0 (2023-04-05)
 
  * Update support URL
