@@ -31,8 +31,8 @@ class OctaneProfilerMiddleware
      */
     public function handle(Request $request, \Closure $next)
     {
-        if (!class_exists(\BlackfireProbe::class)) {
-            return $next($request);
+        if (!method_exists(\BlackfireProbe::class, 'setAttribute')) {
+            return;
         }
 
         try {

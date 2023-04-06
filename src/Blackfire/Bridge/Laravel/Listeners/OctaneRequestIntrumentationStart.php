@@ -20,7 +20,7 @@ class OctaneRequestIntrumentationStart
      */
     public function handle($event): void
     {
-        if (!class_exists(\BlackfireProbe::class)) {
+        if (!method_exists(\BlackfireProbe::class, 'startTransaction') || !method_exists(\BlackfireProbe::class, 'setAttribute')) {
             return;
         }
 
