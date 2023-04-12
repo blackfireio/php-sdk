@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.2.0",
+        "php": ">=5.3.0",
         "composer/ca-bundle": "^1.0"
     },
     "suggest": {
@@ -19,16 +19,13 @@
         "symfony/panther": "To use Symfony web test cases with Blackfire"
     },
     "autoload": {
-        "files": [
-            "src/autostart.php"
-        ],
         "psr-4": {
             "Blackfire\\": "src/Blackfire"
         }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.36-dev"
+            "dev-master": "2.0-dev"
         }
     },
     "require-dev": {
