@@ -22,9 +22,7 @@ class Configuration
     private $assertions;
     private $metrics;
     private $samples = 1;
-    private $reference;
     private $title = '';
-    private $isReference = false;
     private $metadata = array();
     private $layers = array();
     private $scenario;
@@ -67,38 +65,6 @@ class Configuration
         return $this;
     }
 
-    /**
-     * @return Build
-     *
-     * @deprecated since 1.14, to be removed in 2.0. Use method "getScenario" instead.
-     */
-    public function getBuild()
-    {
-        // BC: do not trigger the deprecation notice if the build has not been set,
-        // because the method is always called in \Blackfire\Client.
-        if (!$this->build) {
-            return;
-        }
-
-        @trigger_error('The method "getBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "getScenario" instead.', E_USER_DEPRECATED);
-
-        return $this->build;
-    }
-
-    /**
-     * @return $this
-     *
-     * @deprecated since 1.14, to be removed in 2.0. Use method "setScenario" instead.
-     */
-    public function setBuild(Build $build)
-    {
-        @trigger_error('The method "setBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "setScenario" instead.', E_USER_DEPRECATED);
-
-        $this->build = $build;
-
-        return $this;
-    }
-
     public function getScenario()
     {
         return $this->scenario;
@@ -125,70 +91,6 @@ class Configuration
     public function setRequestInfo(array $info)
     {
         $this->requestInfo = $info;
-
-        return $this;
-    }
-
-    /**
-     * @deprecated since 1.18, to be removed in 2.0.
-     */
-    public function getReference()
-    {
-        @trigger_error('The method "getReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
-
-        return $this->reference;
-    }
-
-    /**
-     * @internal
-     */
-    public function getReferenceInternal()
-    {
-        return $this->reference;
-    }
-
-    /**
-     * @return $this
-     *
-     * @deprecated since 1.18, to be removed in 2.0.
-     */
-    public function setReference($reference)
-    {
-        @trigger_error('The method "setReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
-
-        $this->reference = $reference;
-
-        return $this;
-    }
-
-    /**
-     * @deprecated since 1.18, to be removed in 2.0.
-     */
-    public function isNewReference()
-    {
-        @trigger_error('The method "isNewReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
-
-        return $this->isReference;
-    }
-
-    /**
-     * @internal
-     */
-    public function isNewReferenceInternal()
-    {
-        return $this->isReference;
-    }
-
-    /**
-     * @return $this
-     *
-     * @deprecated since 1.18, to be removed in 2.0.
-     */
-    public function setAsReference()
-    {
-        @trigger_error('The method "setAsReference" is deprecated since blackfire/php-sdk 1.18 and will be removed in 2.0.', E_USER_DEPRECATED);
-
-        $this->isReference = true;
 
         return $this;
     }

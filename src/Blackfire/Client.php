@@ -11,16 +11,13 @@
 
 namespace Blackfire;
 
-use Blackfire\Bridge\PhpUnit\TestConstraint as BlackfireConstraint;
 use Blackfire\Build\Scenario;
 use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
 use Blackfire\Exception\OfflineException;
-use Blackfire\Exception\ReferenceNotFoundException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\Util\NoProxyPattern;
 use Composer\CaBundle\CaBundle;
-use PHPUnit\Framework\TestCase;
 
 /**
  * The Blackfire Client.
@@ -158,86 +155,6 @@ class Client
     }
 
     /**
-     * Creates a Blackfire Scenario in a dedicated Build.
-     *
-     * @param string|null $env     The environment name (or null to use the one configured on the client)
-     * @param array       $options An array of Build options
-     *                             (title, metadata, trigger_name, external_id, external_parent_id)
-     *
-     * @return Build
-     *
-     * @deprecated since 1.14, to be removed in 2.0. Use method "startScenario" instead.
-     */
-    public function createBuild($env = null, $options = array())
-    {
-        @trigger_error('The method "createBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "startScenario" instead.', E_USER_DEPRECATED);
-
-        // BC layer
-        if (!\is_array($options)) {
-            $options = array('title' => $options);
-            if (\func_get_args() >= 3) {
-                $options['trigger_name'] = func_get_arg(2);
-            }
-            if (\func_get_args() >= 4) {
-                $options['metadata'] = (array) func_get_arg(3);
-            }
-        }
-
-        $env = $this->getEnvUuid(null === $env ? $this->config->getEnv() : $env);
-        $content = json_encode($options);
-        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
-
-        return new Build($env, $data);
-    }
-
-    /**
-     * Closes a Blackfire Scenario.
-     *
-     * @return Report
-     *
-     * @deprecated since 1.14, to be removed in 2.0. Use method "closeScenario" instead.
-     */
-    public function endBuild(Build $build)
-    {
-        @trigger_error('The method "endBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "closeScenario" instead.', E_USER_DEPRECATED);
-
-        $uuid = $build->getUuid();
-
-        $content = json_encode(array('nb_jobs' => $build->getJobCount()));
-        $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/build/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
-
-        return $this->getReport($uuid);
-    }
-
-    /**
-     * Profiles the callback and test the result against the given configuration.
-     *
-     * @deprecated since 1.4, to be removed in 2.0
-     */
-    public function assertPhpUnit(TestCase $testCase, ProfileConfiguration $config, $callback)
-    {
-        @trigger_error('The method "assertPhpUnit" is deprecated since blackfire/php-sdk 1.4 and will be removed in 2.0. Use method "assertBlackfire" of trait "\Blackfire\Bridge\PhpUnit\TestCaseTrait" instead.', E_USER_DEPRECATED);
-
-        if (!$config->hasMetadata('skip_timeline')) {
-            $config->setMetadata('skip_timeline', 'true');
-        }
-
-        try {
-            $probe = $this->createProbe($config);
-
-            $callback();
-
-            $profile = $this->endProbe($probe);
-
-            $testCase->assertThat($profile, new BlackfireConstraint());
-
-            return $profile;
-        } catch (Exception\ExceptionInterface $e) {
-            $testCase->markTestSkipped($e->getMessage());
-        }
-    }
-
-    /**
      * Returns a profile request.
      *
      * Retrieve the X-Blackfire-Query value with Request::getToken().
@@ -302,16 +219,6 @@ class Client
         return $this->doAddJobInScenario($config, $scenario);
     }
 
-    /**
-     * @deprecated since 1.14, to be removed in 2.0. Use method "addJobInScenario" instead.
-     */
-    public function addJobInBuild(ProfileConfiguration $config, Build $build)
-    {
-        @trigger_error('The method "addJobInBuild" is deprecated since blackfire/php-sdk 1.14 and will be removed in 2.0. Use method "addJobInScenario" instead.', E_USER_DEPRECATED);
-
-        return $this->doAddJobInScenario($config, $build);
-    }
-
     private function doAddJobInScenario(ProfileConfiguration $config, $scenario)
     {
         $body = $config->getRequestInfo();
@@ -365,20 +272,6 @@ class Client
                 throw ApiException::fromStatusCode(sprintf('Error while fetching profile from the API at "%s" using client "%s".', $url, $this->config->getClientId()), $e->getCode(), $e);
             }
         }
-    }
-
-    /**
-     * @param string $scenarioUuid A Scenario Report UUID
-     *
-     * @return Report
-     *
-     * @deprecated since 1.16, to be removed in 2.0. Use method "getScenarioReport" instead.
-     */
-    public function getReport($scenarioUuid)
-    {
-        @trigger_error('The method "getReport" is deprecated since blackfire/php-sdk 1.16 and will be removed in 2.0. Use method "getScenarioReport" instead.', E_USER_DEPRECATED);
-
-        return $this->getScenarioReport($scenarioUuid);
     }
 
     /**
@@ -453,15 +346,7 @@ class Client
         $content = json_encode($details = $this->getRequestDetails($config));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
-        $request = new Profile\Request($config, $data);
-
-        if ($config->getReferenceInternal() && $config->isNewReferenceInternal()) {
-            // promote the profile as being the new reference
-            $content = json_encode(array('request_id' => $request->getUuid(), 'slot_id' => $details['profileSlot']));
-            $this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$request->getUuid().'/promote-reference', 'POST', array('content' => $content), array('Content-Type: application/json'));
-        }
-
-        return $request;
+        return new Profile\Request($config, $data);
     }
 
     private function getCollabTokens()
@@ -549,31 +434,7 @@ class Client
         $personalCollabToken = $this->getPersonalCollabToken();
         $details['collabToken'] = $personalCollabToken['collabToken'];
 
-        $id = self::NO_REFERENCE_ID;
-        if ($config->getReferenceInternal() || $config->isNewReferenceInternal()) {
-            foreach ($envDetails['profileSlots'] as $profileSlot) {
-                if ($config->isNewReferenceInternal()) {
-                    if ($profileSlot['empty'] && self::NO_REFERENCE_ID !== $profileSlot['id']) {
-                        $id = $profileSlot['id'];
-
-                        break;
-                    }
-                } elseif ($config->getReferenceInternal() == $profileSlot['number'] || $config->getReferenceInternal() == $profileSlot['id']) {
-                    $id = $profileSlot['id'];
-
-                    break;
-                }
-            }
-
-            if (self::NO_REFERENCE_ID === $id) {
-                if ($config->isNewReferenceInternal()) {
-                    throw new ReferenceNotFoundException('Unable to create a new reference, your reference quota is reached.');
-                }
-                throw new ReferenceNotFoundException(sprintf('Unable to find the "%s" reference.', $config->getReferenceInternal()));
-            }
-        }
-
-        $details['profileSlot'] = $id;
+        $details['profileSlot'] = self::NO_REFERENCE_ID;
 
         return $details;
     }
