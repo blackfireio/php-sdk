@@ -1,6 +1,24 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.0.0 (2023-04-13)
+
+ * Drop support of PHP 5.2 fallback
+ * Remove deprecated methods of the version 1:
+   - Blackfire/Client::createBuild, replaced by Blackfire/Client::startScenario
+   - Blackfire/Client::endBuild, replaced by Blackfire/Client::closeScenario
+   - Blackfire/Client::assertPhpUnit
+   - Blackfire/Client::addJobInBuild, replaced by Blackfire/Client::addJobInScenario
+   - Blackfire/Client::getReport, replaced by Blackfire/Client::getScenarioReport
+   - Blackfire/LoopClient::promoteReferenceSignal
+   - Blackfire/LoopClient::attachReference
+   - Blackfire/Profile/Configuration::getBuild, replaced by Blackfire/Profile/Configuration::getScenario
+   - Blackfire/Profile/Configuration::setBuild, replaced by Blackfire/Profile/Configuration::setScenario
+   - Blackfire/Profile/Configuration::getReference
+   - Blackfire/Profile/Configuration::setReference
+   - Blackfire/Profile/Configuration::isNewReference
+   - Blackfire/Profile/Configuration::setAsReference
+
 * 1.35.0 (2023-04-06)
 
  * Proper check of the probe feature for Octane integration
