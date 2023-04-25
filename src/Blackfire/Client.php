@@ -406,9 +406,7 @@ class Client
     private function getRequestDetails(ProfileConfiguration $config)
     {
         $details = array();
-        if (!$scenario = $config->getScenario()) { // BC
-            $scenario = $config->getBuild();
-        }
+        $scenario = $config->getScenario();
         $envDetails = $this->getEnvDetails($scenario ? $scenario->getEnv() : $this->config->getEnv());
 
         if (null !== $config->getUuid()) {
