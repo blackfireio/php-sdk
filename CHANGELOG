@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.0.1 (2023-04-26)
+
+ * Remove call to removed method
+
 * 2.0.0 (2023-04-13)
 
  * Drop support of PHP 5.2 fallback
