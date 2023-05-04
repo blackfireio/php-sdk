@@ -72,6 +72,8 @@ class Configuration
     public function setScenario(Build\Scenario $scenario)
     {
         $this->scenario = $scenario;
+        $this->intention = 'build';
+        $this->buildUuid = $scenario->getBuild()->getUuid();
 
         return $this;
     }

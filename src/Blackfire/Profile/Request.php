@@ -19,6 +19,7 @@ namespace Blackfire\Profile;
  */
 class Request
 {
+    private $configuration;
     private $data;
 
     /**
@@ -26,6 +27,8 @@ class Request
      */
     public function __construct(Configuration $configuration, $data)
     {
+        $this->configuration = $configuration;
+
         if (!isset($data['query_string'])) {
             throw new \RuntimeException('The data returned by the signing API are not valid.');
         }
@@ -99,5 +102,13 @@ class Request
     public function getYaml()
     {
         return $this->data['yaml'];
+    }
+
+    /**
+     * @internal
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
     }
 }

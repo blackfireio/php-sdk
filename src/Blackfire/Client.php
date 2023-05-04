@@ -82,6 +82,22 @@ class Client
             $this->storeMetadata($request->getUuid(), $request->getUserMetadata());
         }
 
+        $config = $request->getConfiguration();
+        $scenario = $config->getScenario();
+        if ($scenario) {
+            // call getUrl to trigger the `initializeProfile` method and wait for the profile to be finished
+            $profile->getUrl();
+
+            $scenario->addStep(array(
+                'type' => 'request',
+                'status' => 'done',
+                'name' => $config->getTitle(),
+                'blackfire_profile_uuid' => $profile->getUuid(),
+            ));
+
+            $this->updateJsonView($scenario->getBuild());
+        }
+
         return $profile;
     }
 
@@ -112,8 +128,8 @@ class Client
     {
         $uuid = $build->getUuid();
 
-        $content = json_encode(array('closed' => true));
-        $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/builds/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
+        $build->setStatus('done');
+        $this->updateJsonView($build);
 
         return $this->getBuildReport($uuid);
     }
@@ -127,12 +143,12 @@ class Client
             $build = $this->startBuild();
         }
 
-        $content = json_encode($options);
-        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/builds/'.$build->getUuid(), 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+        $scenario = new Scenario($build, $options);
+        $build->addScenario($scenario);
 
-        $build->incScenario();
+        $this->updateJsonView($build);
 
-        return new Scenario($build, $data);
+        return $scenario;
     }
 
     /**
@@ -142,16 +158,12 @@ class Client
      */
     public function closeScenario(Scenario $scenario, array $errors = array())
     {
-        $uuid = $scenario->getUuid();
+        $scenario->setStatus('done');
+        $scenario->addErrors($errors);
 
-        $content = json_encode(array(
-            'nb_jobs' => $scenario->getJobCount(),
-            'errors' => $errors,
-        ));
+        $this->updateJsonView($scenario->getBuild());
 
-        $this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/'.$uuid, 'PUT', array('content' => $content), array('Content-Type: application/json'));
-
-        return $this->getScenarioReport($uuid);
+        return $this->getBuildReport($scenario->getBuild()->getUuid());
     }
 
     /**
@@ -216,22 +228,22 @@ class Client
 
     public function addJobInScenario(ProfileConfiguration $config, Scenario $scenario)
     {
-        return $this->doAddJobInScenario($config, $scenario);
-    }
+        @trigger_error('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
 
-    private function doAddJobInScenario(ProfileConfiguration $config, $scenario)
-    {
-        $body = $config->getRequestInfo();
-
-        $body['name'] = $config->getTitle();
+        $step = array();
+        $step['type'] = 'request';
+        $step['status'] = 'done';
+        $step['name'] = $config->getTitle();
 
         if ($config->getUuid()) {
-            $body['profile_uuid'] = $config->getUuid();
+            $step['blackfire_profile_uuid'] = $config->getUuid();
         }
 
-        $content = json_encode($body);
+        $scenario->addStep($step);
 
-        return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v2/scenarios/'.$scenario->getUuid().'/jobs', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
+        $this->updateJsonView($scenario->getBuild());
+
+        return $step;
     }
 
     /**
@@ -285,6 +297,8 @@ class Client
      */
     public function getScenarioReport($uuid)
     {
+        @trigger_error('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
+
         $self = $this;
 
         return new Report(function () use ($self, $uuid) {
@@ -302,14 +316,14 @@ class Client
         $self = $this;
 
         return new Report(function () use ($self, $uuid) {
-            return $self->doGetReport($uuid, 'build');
+            return $self->doGetReport($uuid);
         });
     }
 
     /**
      * @internal
      */
-    public function doGetReport($uuid, $type = 'scenario')
+    private function doGetReport($uuid, $type = 'build')
     {
         $retry = 0;
         $e = null;
@@ -347,7 +361,7 @@ class Client
 
     private function doCreateRequest(ProfileConfiguration $config)
     {
-        $content = json_encode($details = $this->getRequestDetails($config));
+        $content = json_encode($this->getRequestDetails($config));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
         return new Profile\Request($config, $data);
@@ -411,18 +425,10 @@ class Client
     {
         $details = array();
         $scenario = $config->getScenario();
-        $envDetails = $this->getEnvDetails($scenario ? $scenario->getEnv() : $this->config->getEnv());
+        $this->getEnvDetails($scenario ? $scenario->getEnv() : $this->config->getEnv());
 
         if (null !== $config->getUuid()) {
             $details['requestId'] = $config->getUuid();
-        }
-
-        if ($scenario) {
-            $data = $this->doAddJobInScenario($config, $scenario);
-
-            $scenario->incJob();
-
-            $details['requestId'] = $data['uuid'];
         }
 
         if ($intention = $config->getIntention()) {
@@ -663,5 +669,31 @@ class Client
         }
 
         return stream_context_create($options, $defaultParams);
+    }
+
+    private function updateJsonView(Build\Build $build)
+    {
+        $uuid = $build->getUuid();
+
+        $data = array(
+            'version' => $build->getNextVersion(),
+            'status' => $build->getStatus(),
+            'scenarios' => array(),
+        );
+        foreach ($build->getScenarios() as $scenario) {
+            $scenarioData = array(
+                'uuid' => $scenario->getUuid(),
+                'status' => $scenario->getStatus(),
+                'name' => $scenario->getName(),
+                'errors' => $scenario->getErrors(),
+                'steps' => $scenario->getSteps(),
+            );
+            $data['scenarios'][] = $scenarioData;
+        }
+
+        $content = json_encode($data);
+        $this->sendHttpRequest($this->config->getEndpoint().'/api/v3/builds/'.$uuid.'/update', 'POST', array('content' => $content), array('Content-Type: application/json'));
+
+        return $this->getBuildReport($uuid);
     }
 }

@@ -1,6 +1,16 @@
 PHP-SDK UPGRADE
 ===============
 
+To v2.3.0
+---------
+
+* Methods `Blackfire\Build::incScenario`, `Blackfire\Scenario::incJob` are
+  deprecated without replacement.
+* Method `Blackfire\Client::getScenarioReport` is deprecated. Use
+  `Blackfire\Client::getBuildReport` instead.
+* Method `Blackfire\Client::addJobInScenario` is deprecated. Set the scenario
+  with `Blackfire\Profile\Configuration::setScenario` then call `Blackfire\Client::endProbe`
+
 To v1.18.0
 ----------
 
