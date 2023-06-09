@@ -33,7 +33,7 @@ class AutoProfilingBlackfiredClient extends BlackfiredHttpClient
         return $this->profilingEnabled;
     }
 
-    public function enableProfiling(?Configuration $profilingConfig = null): self
+    public function enableProfiling(Configuration $profilingConfig = null): self
     {
         $this->profilingEnabled = true;
         $this->profilingConfig = $profilingConfig;

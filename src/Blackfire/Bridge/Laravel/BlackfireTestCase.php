@@ -19,7 +19,7 @@ use Tests\TestCase;
 abstract class BlackfireTestCase extends TestCase
 {
     /** @var string */
-    protected $blackfireScenarioTitle = null;
+    protected $blackfireScenarioTitle;
 
     /** @var bool */
     protected $profileAllRequests = true;
@@ -31,10 +31,10 @@ abstract class BlackfireTestCase extends TestCase
     private $request;
 
     /** @var ?string */
-    private $nextProfileTitle = null;
+    private $nextProfileTitle;
 
     /** @var ?BuildHelper */
-    private $buildHelper = null;
+    private $buildHelper;
 
     public static function tearDownAfterClass(): void
     {

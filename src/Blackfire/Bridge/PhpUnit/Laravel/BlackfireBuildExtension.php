@@ -19,7 +19,7 @@ final class BlackfireBuildExtension extends DefaultBlackfireBuildExtension
     public function __construct(
         string $blackfireEnvironmentId,
         string $buildTitle = 'Laravel Tests',
-        ?BuildHelper $buildHelper = null
+        BuildHelper $buildHelper = null
     ) {
         if (!$buildHelper) {
             $buildHelper = BuildHelper::getInstance();

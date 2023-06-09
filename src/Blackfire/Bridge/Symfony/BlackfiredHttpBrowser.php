@@ -57,7 +57,7 @@ class BlackfiredHttpBrowser extends HttpBrowser
         return $this->profilingEnabled;
     }
 
-    public function enableProfiling(?string $title = null): self
+    public function enableProfiling(string $title = null): self
     {
         $this->profilingEnabled = true;
         $this->profileTitle = $title;

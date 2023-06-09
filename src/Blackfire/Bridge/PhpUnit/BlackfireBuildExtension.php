@@ -38,7 +38,7 @@ class BlackfireBuildExtension implements BeforeFirstTestHook, AfterLastTestHook,
     public function __construct(
         string $blackfireEnvironmentId,
         string $buildTitle = 'Build from PHPUnit',
-        ?BuildHelper $buildHelper = null
+        BuildHelper $buildHelper = null
     ) {
         $this->blackfireEnvironmentId = $blackfireEnvironmentId;
         $this->buildTitle = $buildTitle;
