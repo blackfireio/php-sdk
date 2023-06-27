@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.1.0 (2023-06-27)
+
+ * Add build uuid to Configuration
+
 * 2.0.1 (2023-04-26)
 
  * Remove call to removed method
