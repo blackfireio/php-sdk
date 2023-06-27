@@ -424,6 +424,9 @@ class Client
         if ($intention = $config->getIntention()) {
             $details['intention'] = $intention;
         }
+        if ($buildUuid = $config->getBuildUuid()) {
+            $details['build'] = $buildUuid;
+        }
 
         if ($debug = $config->isDebug()) {
             $details['debug'] = $debug;

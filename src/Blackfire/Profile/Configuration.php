@@ -28,6 +28,7 @@ class Configuration
     private $scenario;
     private $requestInfo = array();
     private $intention;
+    private $buildUuid;
     private $debug = false;
 
     /**
@@ -189,6 +190,18 @@ class Configuration
     public function setSamples($samples)
     {
         $this->samples = (int) $samples;
+
+        return $this;
+    }
+
+    public function getBuildUuid()
+    {
+        return $this->buildUuid;
+    }
+
+    public function setBuildUuid($buildUuid)
+    {
+        $this->buildUuid = $buildUuid;
 
         return $this;
     }
