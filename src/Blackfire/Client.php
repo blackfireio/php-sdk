@@ -26,7 +26,7 @@ class Client
 {
     const MAX_RETRY = 60;
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
-    const VERSION = '2.0.1';
+    const VERSION = '2.1.0';
 
     private $config;
     private $collabTokens;
