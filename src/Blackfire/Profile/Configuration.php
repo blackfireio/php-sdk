@@ -31,11 +31,6 @@ class Configuration
     private $buildUuid;
     private $debug = false;
 
-    /**
-     * @deprecated since 1.14, to be removed in 2.0.
-     */
-    private $build;
-
     public function getUuid()
     {
         return $this->uuid;
