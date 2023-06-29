@@ -26,7 +26,7 @@ class ObservableJobProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (!class_exists(\BlackfireProbe::class)) {
+        if (!class_exists(\BlackfireProbe::class, false)) {
             return;
         }
 

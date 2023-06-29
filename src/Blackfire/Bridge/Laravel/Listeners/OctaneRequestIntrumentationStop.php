@@ -20,7 +20,7 @@ class OctaneRequestIntrumentationStop
      */
     public function handle($event): void
     {
-        if (!class_exists(\BlackfireProbe::class)) {
+        if (!class_exists(\BlackfireProbe::class, false)) {
             return;
         }
 

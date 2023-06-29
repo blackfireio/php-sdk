@@ -56,7 +56,7 @@ class OctaneProfiler
      */
     public function stop(Request $request, $response = null): bool
     {
-        if (!class_exists(\BlackfireProbe::class)) {
+        if (!class_exists(\BlackfireProbe::class, false)) {
             return false;
         }
 
