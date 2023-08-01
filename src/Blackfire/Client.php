@@ -205,12 +205,12 @@ class Client
      *
      * @return Profile
      */
-    public function getProfile($uuid)
+    public function getProfile($uuid, $retryCount = self::MAX_RETRY)
     {
         $self = $this;
 
-        return new Profile(function () use ($self, $uuid) {
-            return $self->doGetProfile($uuid);
+        return new Profile(function () use ($self, $uuid, $retryCount) {
+            return $self->doGetProfile($uuid, $retryCount);
         }, $uuid);
     }
 
@@ -237,8 +237,12 @@ class Client
     /**
      * @internal
      */
-    public function doGetProfile($uuid)
+    public function doGetProfile($uuid, $maxRetries)
     {
+        if ($maxRetries < 0) {
+            throw new \InvalidArgumentException('Max retries must be a positive integer');
+        }
+
         $retry = 0;
         $e = null;
         $url = $this->config->getEndpoint().'/api/v1/profiles/'.$uuid;
@@ -257,14 +261,14 @@ class Client
                 $code = $e->getCode();
                 $canBeRetried = \in_array($code, array(0, 404, 405), true) || $code >= 500;
 
-                if (!$canBeRetried || $retry > self::MAX_RETRY) {
+                if (!$canBeRetried || $retry > $maxRetries) {
                     throw $e;
                 }
             }
 
             usleep(++$retry * 50000);
 
-            if ($retry > self::MAX_RETRY) {
+            if ($retry > $maxRetries) {
                 if (null === $e) {
                     throw new ApiException('Profile is still in the queue.');
                 }
