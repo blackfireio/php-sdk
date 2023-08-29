@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.3.0 (2023-08-29)
+
+ * Add compatibility with version 2 of Blackfire builds, using "Json View"
+
 * 2.2.0 (2023-08-01)
 
  * Add maxRetries option to `getProfile()`
