@@ -16,6 +16,7 @@ use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
 use Blackfire\Exception\OfflineException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
+use Blackfire\Profile\Request;
 use Blackfire\Util\NoProxyPattern;
 use Composer\CaBundle\CaBundle;
 
@@ -99,6 +100,25 @@ class Client
         }
 
         return $profile;
+    }
+
+    public function addStep(Request $request)
+    {
+        $config = $request->getConfiguration();
+        $scenario = $config->getScenario();
+        if ($scenario) {
+            // wait for the profile to be finished by calling getProfile
+            $this->getProfile($request->getUuid());
+
+            $scenario->addStep(array(
+                'type' => 'request',
+                'status' => 'done',
+                'name' => $config->getTitle(),
+                'blackfire_profile_uuid' => $request->getUuid(),
+            ));
+
+            $this->updateJsonView($scenario->getBuild());
+        }
     }
 
     /**

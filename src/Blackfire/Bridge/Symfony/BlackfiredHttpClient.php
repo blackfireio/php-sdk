@@ -13,6 +13,7 @@ namespace Blackfire\Bridge\Symfony;
 
 use Blackfire\Client as BlackfireClient;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
+use Blackfire\Profile\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClientTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -41,6 +42,7 @@ class BlackfiredHttpClient implements HttpClientInterface
         // this normalizes HTTP headers and allows direct access to $options['headers']['x-blackfire-query']
         // without checking the header name case sensitivity
         [, $options] = self::prepareRequest($method, $url, $options, static::OPTIONS_DEFAULTS);
+        $profileRequest = null;
 
         if ($this->shouldAutoEnable() && !isset($options['extra']['blackfire'])) {
             $options['extra']['blackfire'] = new ProfileConfiguration();
@@ -75,7 +77,7 @@ class BlackfiredHttpClient implements HttpClientInterface
 
         $response = $this->client->request($method, $url, $options);
 
-        return $this->processResponse($method, $url, $options, $response);
+        return $this->processResponse($method, $url, $options, $response, $profileRequest);
     }
 
     public function stream($responses, float $timeout = null): ResponseStreamInterface
@@ -83,7 +85,7 @@ class BlackfiredHttpClient implements HttpClientInterface
         return $this->client->stream($responses, $timeout);
     }
 
-    private function processResponse($method, $url, array $options, ResponseInterface $response)
+    private function processResponse($method, $url, array $options, ResponseInterface $response, Request $request = null)
     {
         $headers = $response->getHeaders(false);
 
@@ -103,9 +105,13 @@ class BlackfiredHttpClient implements HttpClientInterface
         if (!isset($values['continue']) || 'true' !== $values['continue']) {
             if (null !== $this->logger) {
                 $this->logger->debug('Profile request succeeded.', array(
-                    'profile-uuid' => $headers['x-blackfire-profile-uuid'] ?? null,
-                    'profile-url' => $headers['x-blackfire-profile-url'] ?? null,
+                    'profile-uuid' => $headers['x-blackfire-profile-uuid'] ?? $request->getUuid() ?? null ?? null,
+                    'profile-url' => $headers['x-blackfire-profile-url'] ?? $request->getProfileUrl() ?? null,
                 ));
+            }
+
+            if ($request) {
+                $this->blackfire->addStep($request);
             }
 
             return $response;
