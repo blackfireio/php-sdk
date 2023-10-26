@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.3.2 (2023-10-26)
+
+ * Fix undefined array key error on bad Blackfire API response
+
 * 2.3.1 (2023-10-24)
 
  * Fix profile to build association when using a `BlackfiredHttpClient` instance
