@@ -359,7 +359,7 @@ class Client
                 }
 
                 if ('errored' === $data['status']['name']) {
-                    throw new ApiException($data['status']['failure_reason'] ? $data['status']['failure_reason'] : 'Build errored.');
+                    throw new ApiException(isset($data['status']['failure_reason']) ? $data['status']['failure_reason'] : 'Build errored.');
                 }
             } catch (ApiException $e) {
                 if (404 != $e->getCode() || $retry > self::MAX_RETRY) {
