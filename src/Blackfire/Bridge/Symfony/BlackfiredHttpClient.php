@@ -92,12 +92,12 @@ class BlackfiredHttpClient implements HttpClientInterface
         if (!isset($headers['x-blackfire-response'])) {
             if (null !== $this->logger) {
                 $this->logger->warning('Profile request failed.', array(
-                    'profile-uuid' => $headers['x-blackfire-profile-uuid'] ?? null,
-                    'profile-url' => $headers['x-blackfire-profile-url'] ?? null,
+                    'profile-uuid' => $request->getUuid() ?? null,
+                    'profile-url' => $request->getProfileUrl() ?? null,
                 ));
             }
 
-            return $response;
+            return new BlackfiredHttpResponse($response);
         }
 
         parse_str($headers['x-blackfire-response'][0], $values);
@@ -105,8 +105,8 @@ class BlackfiredHttpClient implements HttpClientInterface
         if (!isset($values['continue']) || 'true' !== $values['continue']) {
             if (null !== $this->logger) {
                 $this->logger->debug('Profile request succeeded.', array(
-                    'profile-uuid' => $headers['x-blackfire-profile-uuid'] ?? $request->getUuid() ?? null ?? null,
-                    'profile-url' => $headers['x-blackfire-profile-url'] ?? $request->getProfileUrl() ?? null,
+                    'profile-uuid' => $request->getUuid() ?? null,
+                    'profile-url' => $request->getProfileUrl() ?? null,
                 ));
             }
 
@@ -114,7 +114,7 @@ class BlackfiredHttpClient implements HttpClientInterface
                 $this->blackfire->addStep($request);
             }
 
-            return $response;
+            return new BlackfiredHttpResponse($response, $request);
         }
 
         return $this->request($method, $url, $options);
