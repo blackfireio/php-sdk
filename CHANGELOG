@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.3.4 (2023-10-30)
+
+ * Ensure profiles processing is complete before binding them to a build
+
 * 2.3.3 (2023-10-30)
 
  * provide the `X-Blackfire-Profile-Uuid` response header when using `BlackfiredHttpClient`
