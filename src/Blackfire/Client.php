@@ -107,8 +107,9 @@ class Client
         $config = $request->getConfiguration();
         $scenario = $config->getScenario();
         if ($scenario) {
-            // wait for the profile to be finished by calling getProfile
-            $this->getProfile($request->getUuid());
+            $profile = $this->getProfile($request->getUuid());
+            // call getUrl to trigger the `initializeProfile` method and wait for the profile to be finished
+            $profile->getUrl();
 
             $scenario->addStep(array(
                 'type' => 'request',
