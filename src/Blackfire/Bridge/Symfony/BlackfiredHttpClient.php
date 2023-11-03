@@ -13,7 +13,6 @@ namespace Blackfire\Bridge\Symfony;
 
 use Blackfire\Client as BlackfireClient;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
-use Blackfire\Profile\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClientTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -42,7 +41,11 @@ class BlackfiredHttpClient implements HttpClientInterface
         // this normalizes HTTP headers and allows direct access to $options['headers']['x-blackfire-query']
         // without checking the header name case sensitivity
         [, $options] = self::prepareRequest($method, $url, $options, static::OPTIONS_DEFAULTS);
-        $profileRequest = null;
+        if (!isset($options['extra'])) {
+            $options['extra'] = array();
+        }
+
+        $profileRequest = $options['extra']['profile_request'] ?? null;
 
         if ($this->shouldAutoEnable() && !isset($options['extra']['blackfire'])) {
             $options['extra']['blackfire'] = new ProfileConfiguration();
@@ -64,20 +67,22 @@ class BlackfiredHttpClient implements HttpClientInterface
                 throw new \InvalidArgumentException('blackfire must be true or an instance of \Blackfire\Profile\Configuration.');
             }
 
-            $profileRequest = $this->blackfire->createRequest($options['extra']['blackfire']);
+            if (!$profileRequest) {
+                $options['extra']['profile_request'] = $this->blackfire->createRequest($options['extra']['blackfire']);
+            }
 
             if (isset($probe)) {
                 $probe->enable();
             }
 
-            $options['headers']['X-Blackfire-Query'] = $profileRequest->getToken();
-            $options['headers']['X-Blackfire-Profile-Url'] = $profileRequest->getProfileUrl();
-            $options['headers']['X-Blackfire-Profile-Uuid'] = $profileRequest->getUuid();
+            $options['headers']['X-Blackfire-Query'] = $options['extra']['profile_request']->getToken();
+            $options['headers']['X-Blackfire-Profile-Url'] = $options['extra']['profile_request']->getProfileUrl();
+            $options['headers']['X-Blackfire-Profile-Uuid'] = $options['extra']['profile_request']->getUuid();
         }
 
         $response = $this->client->request($method, $url, $options);
 
-        return $this->processResponse($method, $url, $options, $response, $profileRequest);
+        return $this->processResponse($method, $url, $options, $response);
     }
 
     public function stream($responses, float $timeout = null): ResponseStreamInterface
@@ -85,9 +90,10 @@ class BlackfiredHttpClient implements HttpClientInterface
         return $this->client->stream($responses, $timeout);
     }
 
-    private function processResponse($method, $url, array $options, ResponseInterface $response, Request $request = null)
+    private function processResponse($method, $url, array $options, ResponseInterface $response)
     {
         $headers = $response->getHeaders(false);
+        $request = $options['extra']['profile_request'] ?? null;
 
         if (!isset($headers['x-blackfire-response'])) {
             if (null !== $this->logger) {
@@ -116,6 +122,8 @@ class BlackfiredHttpClient implements HttpClientInterface
 
             return new BlackfiredHttpResponse($response, $request);
         }
+
+        $options['extra']['profile_request'] = $request;
 
         return $this->request($method, $url, $options);
     }
