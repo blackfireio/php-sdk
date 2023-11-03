@@ -69,6 +69,11 @@ class Scenario
         if (!isset($step['uuid'])) {
             $step['uuid'] = self::generateUuid();
         }
+
+        if (!isset($step['name'])) {
+            $step['name'] = 'undefined';
+        }
+
         $this->steps[] = $step;
     }
 
