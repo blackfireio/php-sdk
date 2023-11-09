@@ -478,7 +478,7 @@ class Client
 
     private function sendHttpRequest($url, $method = 'GET', $context = array(), $headers = array())
     {
-        $userAgent = sprintf('Blackfire PHP SDK/%s%s', self::VERSION, $this->config->getUserAgentSuffix() ? ' - '.$this->config->getUserAgentSuffix() : '');
+        $userAgent = sprintf('Blackfire PHP SDK/%s%s%s', self::VERSION, ' - PHP/'.phpversion(), $this->config->getUserAgentSuffix() ? ' - '.$this->config->getUserAgentSuffix() : '');
 
         $headers[] = 'Authorization: Basic '.base64_encode($this->config->getClientId().':'.$this->config->getClientToken());
         $headers[] = 'X-Blackfire-User-Agent: '.$userAgent;
