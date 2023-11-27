@@ -8,12 +8,12 @@ Install the Blackfire PHP SDK via Composer:
 Blackfire Client
 ----------------
 
-See https://blackfire.io/docs/php/integrations/sdk
+See https://docs.blackfire.io/php/integrations/sdk
 
 PhpUnit Integration
 -------------------
 
-See https://blackfire.io/docs/php/integrations/phpunit
+See https://docs.blackfire.io/php/integrations/phpunit
 
 Proxy
 -----
