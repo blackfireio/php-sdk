@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.3.6 (2023-12-18)
+
+ * Send SDK version as part of the User Agent
+
 * 2.3.5 (2023-11-03)
 
  * enforce undefined step name when none is provided
