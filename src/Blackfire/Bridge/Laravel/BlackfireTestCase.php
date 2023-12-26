@@ -84,7 +84,7 @@ abstract class BlackfireTestCase extends TestCase
      * @param array       $server
      * @param string|null $content
      *
-     * @return \Illuminate\Testing\TestResponse
+     * @return TestResponse
      */
     public function call($method, $uri, $parameters = array(), $cookies = array(), $files = array(), $server = array(), $content = null)
     {
