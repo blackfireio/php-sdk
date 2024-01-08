@@ -1,6 +1,10 @@
 Blackfire PHP-SDK Changelog
 ===========================
 
+* 2.3.7 (2024-01-08)
+
+ * Fix CS
+
 * 2.3.6 (2023-12-18)
 
  * Send SDK version as part of the User Agent
