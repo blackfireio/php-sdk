@@ -194,7 +194,7 @@ class Client
      *
      * @param ProfileConfiguration|string $config The profile title or a ProfileConfiguration instance
      *
-     * @return Profile\Request
+     * @return Request
      */
     public function createRequest($config = null)
     {
@@ -385,7 +385,7 @@ class Client
         $content = json_encode($this->getRequestDetails($config));
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/signing', 'POST', array('content' => $content), array('Content-Type: application/json')), true);
 
-        return new Profile\Request($config, $data);
+        return new Request($config, $data);
     }
 
     private function getCollabTokens()
