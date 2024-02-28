@@ -57,7 +57,7 @@ class BlackfiredHttpBrowser extends HttpBrowser
         return $this->profilingEnabled;
     }
 
-    public function enableProfiling(string $title = null): self
+    public function enableProfiling(?string $title = null): self
     {
         $this->profilingEnabled = true;
         $this->profileTitle = $title;
@@ -73,7 +73,7 @@ class BlackfiredHttpBrowser extends HttpBrowser
         return $this;
     }
 
-    public function request(string $method, string $uri, array $parameters = array(), array $files = array(), array $server = array(), string $content = null, bool $changeHistory = true)
+    public function request(string $method, string $uri, array $parameters = array(), array $files = array(), array $server = array(), ?string $content = null, bool $changeHistory = true)
     {
         if ($this->isProfilingEnabled()) {
             $profileConfig = (new Configuration())->setTitle($this->profileTitle ?? sprintf('%s - %s', $uri, $method));

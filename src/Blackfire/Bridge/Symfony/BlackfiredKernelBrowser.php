@@ -33,7 +33,7 @@ class BlackfiredKernelBrowser extends KernelBrowser
 
     private $blackfireEnabled = false;
 
-    public function __construct(KernelInterface $kernel, array $server = array(), History $history = null, CookieJar $cookieJar = null)
+    public function __construct(KernelInterface $kernel, array $server = array(), ?History $history = null, ?CookieJar $cookieJar = null)
     {
         parent::__construct($kernel, $server, $history, $cookieJar);
 

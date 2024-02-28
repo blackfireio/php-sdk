@@ -15,19 +15,19 @@ class ApiException extends RuntimeException
 {
     private $headers;
 
-    public function __construct($message = '', $code = 0, \Exception $previous = null, $headers = array())
+    public function __construct($message = '', $code = 0, ?\Exception $previous = null, $headers = array())
     {
         parent::__construct($message, $code, $previous);
 
         $this->headers = $headers;
     }
 
-    public static function fromStatusCode($message, $code, \Exception $previous = null)
+    public static function fromStatusCode($message, $code, ?\Exception $previous = null)
     {
         return new static(sprintf('%s: %s', $code, $message), $code, $previous);
     }
 
-    public static function fromURL($method, $url, $message, $code, $context, $headers, \Exception $previous = null)
+    public static function fromURL($method, $url, $message, $code, $context, $headers, ?\Exception $previous = null)
     {
         return new static(sprintf('%s: %s while calling %s %s [context: %s]', $code, $message, $method, $url, var_export($context, true)), $code, $previous, $headers);
     }

@@ -66,7 +66,7 @@ class LoopClient
         $this->buildFactory = $buildFactory;
     }
 
-    public function startLoop(ProfileConfiguration $config = null)
+    public function startLoop(?ProfileConfiguration $config = null)
     {
         if ($this->signal) {
             pcntl_signal_dispatch();

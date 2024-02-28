@@ -32,7 +32,7 @@ class Client
     private $config;
     private $collabTokens;
 
-    public function __construct(ClientConfiguration $config = null)
+    public function __construct(?ClientConfiguration $config = null)
     {
         if (null === $config) {
             $config = new ClientConfiguration();
@@ -51,7 +51,7 @@ class Client
      *
      * @return Probe
      */
-    public function createProbe(ProfileConfiguration $config = null, $enable = true)
+    public function createProbe(?ProfileConfiguration $config = null, $enable = true)
     {
         if (null === $config) {
             $config = new ProfileConfiguration();
@@ -158,7 +158,7 @@ class Client
     /**
      * Creates a Blackfire Scenario.
      */
-    public function startScenario(Build\Build $build = null, $options = array())
+    public function startScenario(?Build\Build $build = null, $options = array())
     {
         if (null === $build) {
             $build = $this->startBuild();
@@ -213,7 +213,7 @@ class Client
     /**
      * @return bool True if the profile was successfully updated
      */
-    public function updateProfile($uuid, $title = null, array $metadata = null)
+    public function updateProfile($uuid, $title = null, ?array $metadata = null)
     {
         try {
             // be sure that the profile exist first

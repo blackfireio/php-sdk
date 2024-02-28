@@ -19,7 +19,7 @@ class BlackfireDriver extends BrowserKitDriver
 {
     private $buildHelper;
 
-    public function __construct(AbstractBrowser $client, string $baseUrl = null, BuildHelper $buildHelper = null)
+    public function __construct(AbstractBrowser $client, ?string $baseUrl = null, ?BuildHelper $buildHelper = null)
     {
         parent::__construct($client, $baseUrl);
 

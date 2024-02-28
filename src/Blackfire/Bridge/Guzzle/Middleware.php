@@ -31,7 +31,7 @@ class Middleware
     private $logger;
     private $autoEnable;
 
-    public function __construct(BlackfireClient $blackfire, callable $handler, LoggerInterface $logger = null, $autoEnable = true)
+    public function __construct(BlackfireClient $blackfire, callable $handler, ?LoggerInterface $logger = null, $autoEnable = true)
     {
         $this->blackfire = $blackfire;
         $this->handler = $handler;
@@ -39,7 +39,7 @@ class Middleware
         $this->autoEnable = (bool) $autoEnable;
     }
 
-    public static function create(BlackfireClient $blackfire, LoggerInterface $logger = null, $autoEnable = true)
+    public static function create(BlackfireClient $blackfire, ?LoggerInterface $logger = null, $autoEnable = true)
     {
         return function (callable $handler) use ($blackfire, $logger, $autoEnable) {
             return new self($blackfire, $handler, $logger, $autoEnable);

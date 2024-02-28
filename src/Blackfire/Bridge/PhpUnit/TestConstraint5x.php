@@ -14,7 +14,7 @@ class TestConstraint5x extends Constraint
         return $profile->isSuccessful();
     }
 
-    protected function fail($profile, $description, ComparisonFailure $comparisonFailure = null)
+    protected function fail($profile, $description, ?ComparisonFailure $comparisonFailure = null)
     {
         $this->doFail($profile, $description, $comparisonFailure);
     }

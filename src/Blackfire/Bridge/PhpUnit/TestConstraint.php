@@ -25,7 +25,7 @@ if (!class_exists(ExpectationFailedException::class) && class_exists(\PHPUnit_Fr
 
 trait BlackfireTestContraintTrait
 {
-    protected function doFail($profile, $description, ComparisonFailure $comparisonFailure = null)
+    protected function doFail($profile, $description, ?ComparisonFailure $comparisonFailure = null)
     {
         $failureDescription = sprintf('An error occurred when profiling the test. More information at %s', $profile->getUrl().'?settings%5BtabPane%5D=assertions');
 

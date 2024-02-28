@@ -194,7 +194,7 @@ class BuildHelper
         return $this->currentBuild;
     }
 
-    public function createScenario(string $scenarioTitle = null, ?string $scenarioKey = 'current'): Scenario
+    public function createScenario(?string $scenarioTitle = null, ?string $scenarioKey = 'current'): Scenario
     {
         if (!$this->enabled) {
             throw new \RuntimeException('Unable to create a Scenario because Blackfire build is globally disabled.');
@@ -287,14 +287,14 @@ class BuildHelper
         unset($this->scenarios[$scenarioKey]);
     }
 
-    public function createRequest(string $scenarioKey, string $title = null): Request
+    public function createRequest(string $scenarioKey, ?string $title = null): Request
     {
         return $this->getBlackfireClient()->createRequest(
             $this->getConfigurationForScenario($scenarioKey, $title)
         );
     }
 
-    public function createProbe(string $scenarioKey, string $title = null): Probe
+    public function createProbe(string $scenarioKey, ?string $title = null): Probe
     {
         return $this->getBlackfireClient()->createProbe(
             $this->getConfigurationForScenario($scenarioKey, $title)

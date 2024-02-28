@@ -21,7 +21,7 @@ class BlackfiredHttpResponse implements ResponseInterface
     /** @var Request */
     private $request;
 
-    public function __construct(ResponseInterface $response, Request $request = null)
+    public function __construct(ResponseInterface $response, ?Request $request = null)
     {
         $this->response = $response;
         $this->request = $request;
@@ -58,7 +58,7 @@ class BlackfiredHttpResponse implements ResponseInterface
         $this->response->cancel();
     }
 
-    public function getInfo(string $type = null): mixed
+    public function getInfo(?string $type = null): mixed
     {
         return $this->response->getInfo($type);
     }

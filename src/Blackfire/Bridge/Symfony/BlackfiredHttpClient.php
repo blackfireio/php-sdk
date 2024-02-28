@@ -28,7 +28,7 @@ class BlackfiredHttpClient implements HttpClientInterface
     private $logger;
     private $autoEnable;
 
-    public function __construct(HttpClientInterface $client, BlackfireClient $blackfire, LoggerInterface $logger = null, bool $autoEnable = true)
+    public function __construct(HttpClientInterface $client, BlackfireClient $blackfire, ?LoggerInterface $logger = null, bool $autoEnable = true)
     {
         $this->client = $client;
         $this->blackfire = $blackfire;
@@ -85,7 +85,7 @@ class BlackfiredHttpClient implements HttpClientInterface
         return $this->processResponse($method, $url, $options, $response);
     }
 
-    public function stream($responses, float $timeout = null): ResponseStreamInterface
+    public function stream($responses, ?float $timeout = null): ResponseStreamInterface
     {
         return $this->client->stream($responses, $timeout);
     }
