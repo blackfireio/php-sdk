@@ -1,59 +1,59 @@
-Blackfire PHP-SDK Changelog
-===========================
+CHANGELOG
+=========
 
 * 2.3.8 (2024-02-19)
 
- * Fix CS
+  - Fix CS
 
 * 2.3.7 (2024-01-08)
 
- * Fix CS
+  - Fix CS
 
 * 2.3.6 (2023-12-18)
 
- * Send SDK version as part of the User Agent
+  - Send SDK version as part of the User Agent
 
 * 2.3.5 (2023-11-03)
 
- * enforce undefined step name when none is provided
- * fix `BlackfiredHttpClient` sampling
+  - enforce undefined step name when none is provided
+  - fix `BlackfiredHttpClient` sampling
 
 * 2.3.4 (2023-10-30)
 
- * Ensure profiles processing is complete before binding them to a build
+  - Ensure profiles processing is complete before binding them to a build
 
 * 2.3.3 (2023-10-30)
 
- * provide the `X-Blackfire-Profile-Uuid` response header when using `BlackfiredHttpClient`
+  - provide the `X-Blackfire-Profile-Uuid` response header when using `BlackfiredHttpClient`
 
 * 2.3.2 (2023-10-26)
 
- * Fix undefined array key error on bad Blackfire API response
+  - Fix undefined array key error on bad Blackfire API response
 
 * 2.3.1 (2023-10-24)
 
- * Fix profile to build association when using a `BlackfiredHttpClient` instance
+  - Fix profile to build association when using a `BlackfiredHttpClient` instance
 
 * 2.3.0 (2023-08-29)
 
- * Add compatibility with version 2 of Blackfire builds, using "Json View"
+  - Add compatibility with version 2 of Blackfire builds, using "Json View"
 
 * 2.2.0 (2023-08-01)
 
- * Add maxRetries option to `getProfile()`
+  - Add maxRetries option to `getProfile()`
 
 * 2.1.0 (2023-06-27)
 
- * Add build uuid to Configuration
+  - Add build uuid to Configuration
 
 * 2.0.1 (2023-04-26)
 
- * Remove call to removed method
+  - Remove call to removed method
 
 * 2.0.0 (2023-04-13)
 
- * Drop support of PHP 5.2 fallback
- * Remove deprecated methods of the version 1:
+  - Drop support of PHP 5.2 fallback
+  - Remove deprecated methods of the version 1:
    - Blackfire/Client::createBuild, replaced by Blackfire/Client::startScenario
    - Blackfire/Client::endBuild, replaced by Blackfire/Client::closeScenario
    - Blackfire/Client::assertPhpUnit
@@ -70,147 +70,147 @@ Blackfire PHP-SDK Changelog
 
 * 1.35.0 (2023-04-06)
 
- * Proper check of the probe feature for Octane integration
+  - Proper check of the probe feature for Octane integration
 
 * 1.34.0 (2023-04-05)
 
- * Update support URL
- * Add BlackfireProbe::setAttribute signature
+  - Update support URL
+  - Add BlackfireProbe::setAttribute signature
 
 * 1.33.0 (2023-01-26)
 
- * Allow creating debug profile using PHP SDK
+  - Allow creating debug profile using PHP SDK
 
 * 1.32.0 (2023-01-16)
 
- * Use new intention feature when creating builds
- * Fix profile_title encoding
- * Update dependencies
+  - Use new intention feature when creating builds
+  - Fix profile_title encoding
+  - Update dependencies
 
 * 1.31.0 (2022-06-14)
 
- * Name transaction using latest API
- * Upgrade to PHP 8.1 to run functional tests
+  - Name transaction using latest API
+  - Upgrade to PHP 8.1 to run functional tests
 
 * 1.30.0 (2022-05-19)
 
- * Add Laravel Octane integration
- * Add an optional argument 'transactionName' to the 'startTransaction' method
+  - Add Laravel Octane integration
+  - Add an optional argument 'transactionName' to the 'startTransaction' method
 
 * 1.29.0 (2022-02-04)
 
- * Add the Laravel Tests integration
+  - Add the Laravel Tests integration
 
 * 1.28.0 (2021-12-17)
 
- * Provide support for monitoring Symfony commands
+  - Provide support for monitoring Symfony commands
 
 * 1.27.2 (2021-11-17)
 
- * Tweak exception messages
+  - Tweak exception messages
 
 * 1.27.1 (2021-11-02)
 
- * Fix Laravel integration
+  - Fix Laravel integration
 
 * 1.27.0 (2021-09-23)
 
- * Add a Symfony Messenger integration
- * Add Monitoring integration for Laravel Artisan commands and Consumers
- * Update default agent socket on arm64
+  - Add a Symfony Messenger integration
+  - Add Monitoring integration for Laravel Artisan commands and Consumers
+  - Update default agent socket on arm64
 
 * 1.26.0 (2021-07-06)
 
- * Retry HTTP request on specific cases
- * Scenarios should be closed after each test in manual start mode
+  - Retry HTTP request on specific cases
+  - Scenarios should be closed after each test in manual start mode
 
 * 1.25.1 (2021-03-18)
 
- * Behat Support bug fix: start a deferred build only if there is no current build running
+  - Behat Support bug fix: start a deferred build only if there is no current build running
 
 * 1.25.0 (2021-02-26)
 
- * Add Behat support
+  - Add Behat support
 
 * 1.24.0 (2021-02-05)
 
- * Enable the use of Symfony web test cases with Blackfire
+  - Enable the use of Symfony web test cases with Blackfire
 
 * 1.23.0 (2020-05-29)
 
- * Add Blackfire\Profile::getUuid() method
- * Fix some docblocks
+  - Add Blackfire\Profile::getUuid() method
+  - Fix some docblocks
 
 * 1.22.0 (2020-03-13)
 
- * Add "dot-blackfire" protocol feature support in the probe
- * Remove duplicated data from BlackfireSpan
- * Better unsuccessful profiles detection
- * Add Profile return to help with auto-complete in TestCaseTrait::assertBlackfire
+  - Add "dot-blackfire" protocol feature support in the probe
+  - Remove duplicated data from BlackfireSpan
+  - Better unsuccessful profiles detection
+  - Add Profile return to help with auto-complete in TestCaseTrait::assertBlackfire
 
 * 1.21.0 (2019-12-05)
 
- * Replace the "_server" header in fallback probe by "context"
+  - Replace the "_server" header in fallback probe by "context"
 
 * 1.20.0 (2019-11-18)
 
- * Add BlackfireSpan
+  - Add BlackfireSpan
 
 * 1.19.2 (2019-10-09)
 
- * Fix PHP 5.3 compatibility
+  - Fix PHP 5.3 compatibility
 
 * 1.19.1 (2019-08-14)
 
- * Fix invalid header name breaking the Guzzle middleware with recent guzzle/psr7
- * Modify subprofile ID generator so that it's only ever composed of alphanumerics
+  - Fix invalid header name breaking the Guzzle middleware with recent guzzle/psr7
+  - Modify subprofile ID generator so that it's only ever composed of alphanumerics
 
 * 1.19.0 (2019-08-02)
 
- * Add Symfony HttpClient bridge
- * Fix compatibility with PHP 5.3
- * Fix sub-profile id generation to be compatible with url encoding
+  - Add Symfony HttpClient bridge
+  - Fix compatibility with PHP 5.3
+  - Fix sub-profile id generation to be compatible with url encoding
 
 * 1.18.0 (2019-01-21)
 
- * Deprecate methods and classes related to references
+  - Deprecate methods and classes related to references
 
 * 1.17.6 (2018-12-17)
 
- * Fix PHPUnit bridge
+  - Fix PHPUnit bridge
 
 * 1.17.5 (2018-12-14)
 
- * Fix PHPUnit bridge
+  - Fix PHPUnit bridge
 
 * 1.17.4 (2018-12-14)
 
- * Fix profiling with Hoster environment
+  - Fix profiling with Hoster environment
 
 * 1.17.3 (2018-11-30)
 
- * [PHPunit Bridge] Fix compatibility with PHP 5.x
+  - [PHPunit Bridge] Fix compatibility with PHP 5.x
 
 * 1.17.3 (2018-11-30)
 
- * [PHPunit Bridge] Fix compatibility with PHP 5.x
+  - [PHPunit Bridge] Fix compatibility with PHP 5.x
 
 * 1.17.2 (2018-10-22)
 
- * Remove headers from Blackfire\Exception\ApiException's message
- * Add method "getHeaders()" to Blackfire\Exception\ApiException
+  - Remove headers from Blackfire\Exception\ApiException's message
+  - Add method "getHeaders()" to Blackfire\Exception\ApiException
 
 * 1.17.1 (2018-07-16)
 
- * Fix usage of PHPUnit Bridge without assertions
+  - Fix usage of PHPUnit Bridge without assertions
 
 * 1.17.0 (2018-07-11)
 
- * Add proper version in the User-Agent header
- * Add User-Agent header as well as the X-Blackfire-User-Agent one
- * Add possibility to suffix the User Agent header
+  - Add proper version in the User-Agent header
+  - Add User-Agent header as well as the X-Blackfire-User-Agent one
+  - Add possibility to suffix the User Agent header
 
 * 1.16.0 (2018-07-04)
 
- * Update to use the Build API version 2
- * Add a new method `getBuildReport()` to get the Report of a full Build
+  - Update to use the Build API version 2
+  - Add a new method `getBuildReport()` to get the Report of a full Build
