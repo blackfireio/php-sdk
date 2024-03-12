@@ -13,16 +13,17 @@ namespace Blackfire\Bridge\Behat\BlackfireExtension\ServiceContainer\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\MinkExtension\ServiceContainer\Driver\DriverFactory;
-use Blackfire\Bridge\Symfony\BlackfiredHttpBrowser;
+use Blackfire\Bridge\Symfony\BlackfiredKernelBrowser;
+use FriendsOfBehat\SymfonyExtension\Driver\SymfonyDriver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-class BlackfiredHttpBrowserFactory implements DriverFactory
+class BlackfiredKernelBrowserFactory implements DriverFactory
 {
     public function getDriverName()
     {
-        return 'blackfire';
+        return 'blackfire_symfony';
     }
 
     public function supportsJavascript()
@@ -37,11 +38,14 @@ class BlackfiredHttpBrowserFactory implements DriverFactory
     public function buildDriver(array $config)
     {
         if (!class_exists(BrowserKitDriver::class)) {
-            throw new \RuntimeException('Install "friends-of-behat/mink-browserkit-driver" (drop-in replacement for "behat/mink-browserkit-driver") in order to use the "blackfire" driver.');
+            throw new \RuntimeException('Install "friends-of-behat/mink-browserkit-driver" (drop-in replacement for "behat/mink-browserkit-driver") in order to use the "blackfire_symfony" driver.');
+        }
+        if (!class_exists(SymfonyDriver::class)) {
+            throw new \RuntimeException('Install "friends-of-behat/symfony-extension" (drop-in replacement for "behat/symfony2-extension") in order to use the "blackfire_symfony" driver.');
         }
 
-        return new Definition(BlackfireDriver::class, array(
-            new Reference(BlackfiredHttpBrowser::class),
+        return new Definition(BlackfireKernelBrowserDriver::class, array(
+            new Reference(BlackfiredKernelBrowser::class),
             '%mink.base_url%',
         ));
     }
