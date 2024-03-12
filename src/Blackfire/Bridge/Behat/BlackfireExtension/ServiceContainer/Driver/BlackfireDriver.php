@@ -12,17 +12,7 @@
 namespace Blackfire\Bridge\Behat\BlackfireExtension\ServiceContainer\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
-use Blackfire\Build\BuildHelper;
-use Symfony\Component\BrowserKit\AbstractBrowser;
 
 class BlackfireDriver extends BrowserKitDriver
 {
-    private $buildHelper;
-
-    public function __construct(AbstractBrowser $client, ?string $baseUrl = null, ?BuildHelper $buildHelper = null)
-    {
-        parent::__construct($client, $baseUrl);
-
-        $this->buildHelper = $buildHelper ?? BuildHelper::getInstance();
-    }
 }
