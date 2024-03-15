@@ -67,6 +67,10 @@ class BlackfiredKernelBrowser extends KernelBrowser
             }
 
             $_SERVER += array(
+                'SERVER_ADDR' => 'localhost',
+                'SERVER_SOFTWARE' => 'Blackfire',
+                'SERVER_PORT' => 80,
+                'HTTPS' => '',
                 'HTTP_HOST' => 'localhost',
                 'REQUEST_URI' => $request->getPathInfo(),
                 'HTTP_USER_AGENT' => 'BlackfireKernelBrowser',
