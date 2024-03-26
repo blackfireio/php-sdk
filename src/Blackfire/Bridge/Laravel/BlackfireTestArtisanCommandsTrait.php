@@ -38,7 +38,7 @@ trait BlackfireTestArtisanCommandsTrait
                     'run',
                     '--env='.$buildHelper->getBlackfireEnvironmentId(),
                     './artisan',
-                 ), explode(' ', $command)),
+                ), explode(' ', $command)),
                 null,
                 array(
                     'APP_ENV' => 'testing',
