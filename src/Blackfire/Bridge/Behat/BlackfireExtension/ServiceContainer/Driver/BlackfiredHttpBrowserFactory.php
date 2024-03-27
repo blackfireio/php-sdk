@@ -37,7 +37,7 @@ class BlackfiredHttpBrowserFactory implements DriverFactory
     public function buildDriver(array $config)
     {
         if (!class_exists(BrowserKitDriver::class)) {
-            throw new \RuntimeException('Install "friends-of-behat/mink-browserkit-driver" (drop-in replacement for "behat/mink-browserkit-driver") in order to use the "symfony" driver.');
+            throw new \RuntimeException('Install "friends-of-behat/mink-browserkit-driver" (drop-in replacement for "behat/mink-browserkit-driver") in order to use the "blackfire" driver.');
         }
 
         return new Definition(BlackfireDriver::class, array(

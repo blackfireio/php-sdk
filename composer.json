@@ -41,6 +41,7 @@
         "behat/behat": "^3.8",
         "friends-of-behat/mink-extension": "^2.5",
         "friends-of-behat/mink-browserkit-driver": "^1.4",
+        "friends-of-behat/symfony-extension": "^2",
         "illuminate/support": "^8.81",
         "illuminate/console": "^8.81",
         "illuminate/queue": "^8.81",

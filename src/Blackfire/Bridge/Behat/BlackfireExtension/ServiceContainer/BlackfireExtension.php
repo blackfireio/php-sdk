@@ -23,6 +23,7 @@ use Blackfire\Bridge\Behat\BlackfireExtension\ServiceContainer\Driver\Blackfired
 use Blackfire\Bridge\Symfony\BlackfiredHttpBrowser;
 use Blackfire\Bridge\Symfony\BlackfiredKernelBrowser;
 use Blackfire\Build\BuildHelper;
+use FriendsOfBehat\SymfonyExtension\Driver\SymfonyDriver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -78,10 +79,12 @@ class BlackfireExtension implements ExtensionInterface
             BlackfiredHttpBrowser::class,
             new Definition(BlackfiredHttpBrowser::class, array(new Reference(BuildHelper::class)))
         );
-        $container->setDefinition(
-            BlackfiredKernelBrowser::class,
-            new Definition(BlackfiredKernelBrowser::class, array(new Reference('fob_symfony.kernel')))
-        );
+        if (class_exists(SymfonyDriver::class)) {
+            $container->setDefinition(
+                BlackfiredKernelBrowser::class,
+                new Definition(BlackfiredKernelBrowser::class, array(new Reference('fob_symfony.kernel')))
+            );
+        }
 
         $container->setParameter('blackfire.environment', $config['blackfire_environment']);
         $container->setParameter('blackfire.build_name', $config['build_name']);
