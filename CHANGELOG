@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.4.0 (2024-04-09)
+
+  - Add Behat support for the Symfony kernel browser
+
 * v2.3.9 (2024-03-05)
 
   - Fix CS
