@@ -44,7 +44,7 @@ class Build
 
     public function incScenario()
     {
-        @trigger_error('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
 
         ++$this->scenarioCount;
     }

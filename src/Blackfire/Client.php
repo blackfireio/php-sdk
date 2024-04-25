@@ -249,7 +249,7 @@ class Client
 
     public function addJobInScenario(ProfileConfiguration $config, Scenario $scenario)
     {
-        @trigger_error('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
 
         $step = array();
         $step['type'] = 'request';
@@ -318,7 +318,7 @@ class Client
      */
     public function getScenarioReport($uuid)
     {
-        @trigger_error('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
 
         $self = $this;
 
