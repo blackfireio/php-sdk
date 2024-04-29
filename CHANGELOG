@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.4.1 (2024-04-29)
+
+  - Fix deprecation message formatting
+
 * v2.4.0 (2024-04-09)
 
   - Add Behat support for the Symfony kernel browser
