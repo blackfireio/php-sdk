@@ -121,7 +121,7 @@ namespace {
          * Creates a sub-query string to create a new profile linked to the current one.
          * This query must be set in the X-Blackire-Query HTTP header or in the BLACKFIRE_QUERY environment variable.
          *
-         * @return string|null the sub-query or null if the current profile is not the first sample or profiling is disabled
+         * @return string|null the sub-query or null if profiling is disabled
          */
         public function createSubProfileQuery()
         {
