@@ -21,7 +21,6 @@ class Configuration
     private $uuid;
     private $assertions;
     private $metrics;
-    private $samples = 1;
     private $title = '';
     private $metadata = array();
     private $layers = array();
@@ -178,7 +177,9 @@ class Configuration
 
     public function getSamples()
     {
-        return $this->samples;
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.5 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
+        return 1;
     }
 
     /**
@@ -186,7 +187,7 @@ class Configuration
      */
     public function setSamples($samples)
     {
-        $this->samples = (int) $samples;
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.5 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
 
         return $this;
     }

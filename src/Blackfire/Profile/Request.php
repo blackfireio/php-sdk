@@ -37,7 +37,7 @@ class Request
             $data['options'] = array();
         }
 
-        $data['options']['aggreg_samples'] = $configuration->getSamples();
+        $data['options']['aggreg_samples'] = 1;
         if ($configuration->getTitle()) {
             $data['options']['profile_title'] = $configuration->getTitle();
         }
@@ -60,8 +60,6 @@ class Request
 
         // if user has requested a debug profile
         if ($configuration->isDebug()) {
-            $data['options']['aggreg_samples'] = 1;
-
             // and user has actually access to the debug profile
             if (isset($data['options']['no_pruning'])) {
                 $data['options']['no_pruning'] = 1;
