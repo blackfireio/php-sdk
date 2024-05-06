@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.0 (2024-05-03)
+
+  - Deprecate the "samples" option
+
 * v2.4.1 (2024-04-29)
 
   - Fix deprecation message formatting
