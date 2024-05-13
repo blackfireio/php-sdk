@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.1 (2024-05-13)
+
+  - Remove documentation about samples feature
+
 * v2.5.0 (2024-05-03)
 
   - Deprecate the "samples" option
