@@ -27,6 +27,7 @@ class BlackfiredHttpClient implements HttpClientInterface
     private $blackfire;
     private $logger;
     private $autoEnable;
+    private $defaultOptions;
 
     public function __construct(HttpClientInterface $client, BlackfireClient $blackfire, ?LoggerInterface $logger = null, bool $autoEnable = true)
     {
@@ -34,6 +35,7 @@ class BlackfiredHttpClient implements HttpClientInterface
         $this->blackfire = $blackfire;
         $this->logger = $logger;
         $this->autoEnable = $autoEnable;
+        $this->defaultOptions = array();
     }
 
     public function request(string $method, string $url, array $options = array()): ResponseInterface
