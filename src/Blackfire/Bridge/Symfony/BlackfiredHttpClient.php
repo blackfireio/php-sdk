@@ -27,7 +27,7 @@ class BlackfiredHttpClient implements HttpClientInterface
     private $blackfire;
     private $logger;
     private $autoEnable;
-    private $defaultOptions;
+    private $defaultOptions = self::OPTIONS_DEFAULTS;
 
     public function __construct(HttpClientInterface $client, BlackfireClient $blackfire, ?LoggerInterface $logger = null, bool $autoEnable = true)
     {
@@ -35,14 +35,14 @@ class BlackfiredHttpClient implements HttpClientInterface
         $this->blackfire = $blackfire;
         $this->logger = $logger;
         $this->autoEnable = $autoEnable;
-        $this->defaultOptions = array();
     }
 
     public function request(string $method, string $url, array $options = array()): ResponseInterface
     {
         // this normalizes HTTP headers and allows direct access to $options['headers']['x-blackfire-query']
         // without checking the header name case sensitivity
-        [, $options] = self::prepareRequest($method, $url, $options, static::OPTIONS_DEFAULTS);
+        $options = self::mergeDefaultOptions($options, $this->defaultOptions, true);
+
         if (!isset($options['extra'])) {
             $options['extra'] = array();
         }
@@ -53,11 +53,11 @@ class BlackfiredHttpClient implements HttpClientInterface
             $options['extra']['blackfire'] = new ProfileConfiguration();
         }
 
-        if (!isset($options['headers']['x-blackfire-query']) && (!isset($options['extra']['blackfire']) || false === $options['extra']['blackfire'])) {
+        if (!isset($options['normalized_headers']['x-blackfire-query']) && (!isset($options['extra']['blackfire']) || false === $options['extra']['blackfire'])) {
             return $this->client->request($method, $url, $options);
         }
 
-        if (!isset($options['headers']['x-blackfire-query'])) {
+        if (!isset($options['normalized_headers']['x-blackfire-query'])) {
             if (\BlackfireProbe::isEnabled()) {
                 $probe = \BlackfireProbe::getMainInstance();
                 $probe->disable();
