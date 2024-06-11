@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+* v2.5.2 (2024-06-11)
+
+  - Add required defaultOption in BlackfiredHttpClient
+  - Fix HttpClient when calling a relative URL
+
 * v2.5.1 (2024-05-13)
 
   - Remove documentation about samples feature
