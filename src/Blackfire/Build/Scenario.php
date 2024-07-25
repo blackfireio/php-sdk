@@ -124,7 +124,7 @@ class Scenario
         if (function_exists('random_bytes')) {
             $uuid = bin2hex(random_bytes(16));
         } else {
-            $uuid = substr(sha1(uniqid()), 0, 32);
+            $uuid = substr(sha1(uniqid('', true)), 0, 32);
         }
 
         return sprintf('%08s-%04s-4%03s-%04x-%012s',
