@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.3 (2024-07-26)
+
+  - Minor perf improvment in uniqId generator
+
 * v2.5.2 (2024-06-11)
 
   - Add required defaultOption in BlackfiredHttpClient
