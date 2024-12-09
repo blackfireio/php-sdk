@@ -128,7 +128,11 @@ class Middleware
             return $response;
         }
 
-        Psr7\rewind_body($request);
+        if (method_exists(Psr7\Message::class, 'rewindBody')) {
+            Psr7\Message::rewindBody($request);
+        } elseif (function_exists('\GuzzleHttp\Psr7\rewind_body')) {
+            Psr7\rewind_body($request);
+        }
 
         /* @var PromiseInterface|ResponseInterface $promise */
         return $this($request, $options);

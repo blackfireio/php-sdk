@@ -14,6 +14,7 @@ namespace Blackfire\Bridge\Symfony;
 use Blackfire\Build\BuildHelper;
 use Blackfire\Profile\Configuration;
 use Symfony\Component\BrowserKit\HttpBrowser;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -73,7 +74,7 @@ class BlackfiredHttpBrowser extends HttpBrowser
         return $this;
     }
 
-    public function request(string $method, string $uri, array $parameters = array(), array $files = array(), array $server = array(), ?string $content = null, bool $changeHistory = true)
+    public function request(string $method, string $uri, array $parameters = array(), array $files = array(), array $server = array(), ?string $content = null, bool $changeHistory = true): Crawler
     {
         if ($this->isProfilingEnabled()) {
             $profileConfig = (new Configuration())->setTitle($this->profileTitle ?? sprintf('%s - %s', $uri, $method));
@@ -97,7 +98,7 @@ class BlackfiredHttpBrowser extends HttpBrowser
         return $crawler;
     }
 
-    public function getResponse()
+    public function getResponse(): object
     {
         // Transform BrowserKit\Response into HttpFoundation\Response
         $response = parent::getResponse();

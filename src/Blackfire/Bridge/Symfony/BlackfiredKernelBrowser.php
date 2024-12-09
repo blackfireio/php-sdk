@@ -17,6 +17,7 @@ use Blackfire\Profile\Configuration;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\CookieJar;
 use Symfony\Component\BrowserKit\History;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class BlackfiredKernelBrowser extends KernelBrowser
@@ -56,7 +57,7 @@ class BlackfiredKernelBrowser extends KernelBrowser
         return $this->blackfireEnabled;
     }
 
-    protected function doRequest($request)
+    protected function doRequest($request): Response
     {
         if ($this->blackfireEnabled) {
             $profileConfig = (new Configuration())

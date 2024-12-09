@@ -29,22 +29,22 @@
         }
     },
     "require-dev": {
-        "symfony/http-client": "^5.1",
-        "symfony/browser-kit": "^5.1",
-        "psr/http-message": "^1.0",
-        "guzzlehttp/psr7": "^1.6",
-        "symfony/panther": "^1.0",
-        "symfony/framework-bundle": "^5.1",
-        "symfony/messenger": "^5.1",
-        "symfony/phpunit-bridge": "^5.2",
-        "phpunit/phpunit": "^9.5",
         "behat/behat": "^3.8",
-        "friends-of-behat/mink-extension": "^2.5",
         "friends-of-behat/mink-browserkit-driver": "^1.4",
+        "friends-of-behat/mink-extension": "^2.5",
         "friends-of-behat/symfony-extension": "^2",
-        "illuminate/support": "^8.81",
-        "illuminate/console": "^8.81",
-        "illuminate/queue": "^8.81",
-        "laravel/octane": "^1.2"
+        "guzzlehttp/psr7": "^1.6 || ^2.0",
+        "illuminate/console": "^8.81 || ^9.0 || ^10.0 || ^11.0",
+        "illuminate/queue": "^8.81 || ^9.0 || ^10.0 || ^11.0",
+        "illuminate/support": "^8.81 || ^9.0 || ^10.0 || ^11.0",
+        "laravel/octane": "^1.2 || ^2.0",
+        "phpunit/phpunit": "^9.5",
+        "psr/http-message": "^1.0 || ^2.0",
+        "symfony/browser-kit": "^5.1 || ^6.0 || ^7.0",
+        "symfony/framework-bundle": "^5.1 || ^6.0 || ^7.0",
+        "symfony/http-client": "^5.1 || ^6.0 || ^7.0",
+        "symfony/messenger": "^5.1 || ^6.0 || ^7.0",
+        "symfony/panther": "^1.0 || ^2.0",
+        "symfony/phpunit-bridge": "^5.2 || ^6.0 || ^7.0"
     }
 }
