@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+* v2.5.5 (2024-12-23)
+
+  - Upgrade to PHP 8.4 to run functional tests
+  - Fix CS
+
 * v2.5.4 (2024-09-16)
 
   - Fix CS
