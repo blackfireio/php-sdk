@@ -15,6 +15,7 @@ use Blackfire\Build\Scenario;
 use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
 use Blackfire\Exception\OfflineException;
+use Blackfire\Exception\ProfileNotReadyException;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
 use Blackfire\Profile\Request;
 use Blackfire\Util\NoProxyPattern;
@@ -288,7 +289,7 @@ class Client
                         return $data;
                     }
 
-                    throw new ApiException($data['status']['failure_reason']);
+                    throw new ProfileNotReadyException($data['status']['failure_reason'] ?? 'Failed to fetch profile', $data['status']['code'] ?? 0);
                 }
             } catch (ApiException $e) {
                 $code = $e->getCode();
@@ -304,6 +305,10 @@ class Client
             if ($retry > $maxRetries) {
                 if (null === $e) {
                     throw new ApiException('Profile is still in the queue.');
+                }
+
+                if ($e instanceof ProfileNotReadyException) {
+                    throw $e;
                 }
 
                 throw ApiException::fromStatusCode(sprintf('Error while fetching profile from the API at "%s" using client "%s".', $url, $this->config->getClientId()), $e->getCode(), $e);
