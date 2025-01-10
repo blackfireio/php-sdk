@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.6 (2025-01-10)
+
+  - [sdk] implement ProfileNotReadyException
+
 * v2.5.5 (2024-12-23)
 
   - Upgrade to PHP 8.4 to run functional tests
