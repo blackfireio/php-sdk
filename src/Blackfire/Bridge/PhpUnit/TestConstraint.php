@@ -61,7 +61,9 @@ trait BlackfireTestContraintTrait
     }
 }
 
-if (\PHP_VERSION_ID > 70100) {
+if (class_exists('PHPUnit\Runner\Version') && version_compare(\PHPUnit\Runner\Version::id(), '11.0.0', '>=')) {
+    class_alias('Blackfire\Bridge\PhpUnit\TestConstraint11x', 'Blackfire\Bridge\PhpUnit\TestConstraint');
+} elseif (\PHP_VERSION_ID > 70100) {
     class_alias('Blackfire\Bridge\PhpUnit\TestConstraint71', 'Blackfire\Bridge\PhpUnit\TestConstraint');
 } else {
     class_alias('Blackfire\Bridge\PhpUnit\TestConstraint5x', 'Blackfire\Bridge\PhpUnit\TestConstraint');
