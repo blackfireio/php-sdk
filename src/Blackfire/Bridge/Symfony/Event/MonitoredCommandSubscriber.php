@@ -69,7 +69,7 @@ class MonitoredCommandSubscriber implements EventSubscriberInterface
         return $command instanceof MonitorableCommandInterface;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return array(
             ConsoleCommandEvent::class => 'onConsoleCommand',
