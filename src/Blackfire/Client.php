@@ -278,9 +278,9 @@ class Client
         }
 
         $retry = 0;
-        $e = null;
         $url = $this->config->getEndpoint().'/api/v1/profiles/'.$uuid;
         while (true) {
+            $e = null;
             try {
                 $data = json_decode($this->sendHttpRequest($url), true);
 
