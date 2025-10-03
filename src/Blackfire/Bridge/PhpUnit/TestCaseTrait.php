@@ -16,14 +16,18 @@ use Blackfire\ClientConfiguration;
 use Blackfire\Exception\ExceptionInterface;
 use Blackfire\Profile;
 use Blackfire\Profile\Configuration as ProfileConfiguration;
+use PHPUnit\Framework\Attributes\Before;
 
 trait TestCaseTrait
 {
     private static $blackfire;
 
     /**
+     * use both doc and attribute to support older versions of php.
+     *
      * @before
      */
+    #[Before]
     protected function createBlackfire()
     {
         if (!self::$blackfire) {
