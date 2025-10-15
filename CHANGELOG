@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.9 (2025-10-15)
+
+  - Prevent committing debug code
+
 * v2.5.8 (2025-08-13)
 
   - Fix Client's retry logic
