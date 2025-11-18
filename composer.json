@@ -46,5 +46,10 @@
         "symfony/messenger": "^5.1 || ^6.0 || ^7.0",
         "symfony/panther": "^1.0 || ^2.0",
         "symfony/phpunit-bridge": "^5.2 || ^6.0 || ^7.0"
+    },
+    "config": {
+        "audit": {
+            "block-insecure": false
+        }
     }
 }
