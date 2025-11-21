@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.10 (2025-11-21)
+
+  - Internal releasing changes
+
 * v2.5.9 (2025-10-15)
 
   - Prevent committing debug code
