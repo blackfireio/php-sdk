@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.11 (2026-01-08)
+
+  - Add FrankenPHP profiler and subscriber for Symfony Runtime
+
 * v2.5.10 (2025-11-21)
 
   - Internal releasing changes
