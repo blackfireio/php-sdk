@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.5.12 (2026-01-09)
+
+  - Support PHPUnit 10+
+
 * v2.5.11 (2026-01-08)
 
   - Add FrankenPHP profiler and subscriber for Symfony Runtime
