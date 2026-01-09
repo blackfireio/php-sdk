@@ -11,20 +11,25 @@
 
 namespace Blackfire\Bridge\PhpUnit\Laravel;
 
-use Blackfire\Bridge\PhpUnit\BlackfireBuildExtension as DefaultBlackfireBuildExtension;
 use Blackfire\Build\BuildHelper;
 
-final class BlackfireBuildExtension extends DefaultBlackfireBuildExtension
-{
-    public function __construct(
-        string $blackfireEnvironmentId,
-        string $buildTitle = 'Laravel Tests',
-        ?BuildHelper $buildHelper = null,
-    ) {
-        if (!$buildHelper) {
-            $buildHelper = BuildHelper::getInstance();
-        }
+if (class_exists('PHPUnit\Runner\Version') && version_compare(\PHPUnit\Runner\Version::id(), '10.0.0', '>=')) {
+    class BlackfireBuildExtension extends \Blackfire\Bridge\PhpUnit\BlackfireBuildExtension10
+    {
+    }
+} else {
+    class BlackfireBuildExtension extends \Blackfire\Bridge\PhpUnit\BlackfireBuildExtension9
+    {
+        public function __construct(
+            string $blackfireEnvironmentId,
+            string $buildTitle = 'Laravel Tests',
+            ?BuildHelper $buildHelper = null,
+        ) {
+            if (!$buildHelper) {
+                $buildHelper = BuildHelper::getInstance();
+            }
 
-        parent::__construct($blackfireEnvironmentId, $buildTitle, $buildHelper);
+            parent::__construct($blackfireEnvironmentId, $buildTitle, $buildHelper);
+        }
     }
 }
