@@ -21,6 +21,9 @@ use Blackfire\Build\BuildHelper;
 use Blackfire\Exception\ApiException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 class ScenarioSubscriber implements EventSubscriberInterface
 {
     private $buildHelper;
@@ -28,6 +31,8 @@ class ScenarioSubscriber implements EventSubscriberInterface
 
     public function __construct(BuildHelper $buildHelper, Mink $mink)
     {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __CLASS__), E_USER_DEPRECATED);
+
         $this->buildHelper = $buildHelper;
         $this->mink = $mink;
     }

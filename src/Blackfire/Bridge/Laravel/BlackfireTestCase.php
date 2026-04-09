@@ -16,6 +16,9 @@ use Illuminate\Testing\TestResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\TestCase;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 abstract class BlackfireTestCase extends TestCase
 {
     /** @var string */
@@ -130,6 +133,8 @@ abstract class BlackfireTestCase extends TestCase
 
     protected function setUp(): void
     {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', static::class), E_USER_DEPRECATED);
+
         parent::setUp();
 
         $this->profileNextRequest = $this->profileAllRequests;

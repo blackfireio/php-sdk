@@ -17,6 +17,9 @@ use Blackfire\Build\BuildHelper;
 use Blackfire\Exception\ApiException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 class BuildSubscriber implements EventSubscriberInterface
 {
     private $printer;
@@ -28,6 +31,8 @@ class BuildSubscriber implements EventSubscriberInterface
 
     public function __construct(Formatter $formatter, BuildHelper $buildHelper, string $blackfireEnvironmentId, string $buildTitle = 'Build from Behat')
     {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __CLASS__), E_USER_DEPRECATED);
+
         $this->printer = $formatter->getOutputPrinter();
         $this->blackfireEnvironmentId = $blackfireEnvironmentId;
         $this->buildTitle = $buildTitle;

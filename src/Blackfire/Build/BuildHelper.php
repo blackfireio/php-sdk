@@ -17,6 +17,9 @@ use Blackfire\Profile\Configuration;
 use Blackfire\Profile\Request;
 use Blackfire\Report;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 class BuildHelper
 {
     /** @var BuildHelper */
@@ -50,9 +53,13 @@ class BuildHelper
 
     /**
      * @return BuildHelper
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public static function getInstance()
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if (!isset(self::$instance)) {
             self::$instance = new self();
         }
@@ -78,9 +85,13 @@ class BuildHelper
      * @return Build
      *
      * @throws \RuntimeException
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function startBuild($blackfireEnvironment, $buildTitle, $externalId = null, $externalParentId = null, $triggerName = 'Build SDK')
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if ($this->hasCurrentBuild()) {
             throw new \RuntimeException('A Blackfire build was already started.');
         }
@@ -115,9 +126,13 @@ class BuildHelper
      * @param string      $triggerName          Name of the build trigger
      *
      * @throws \RuntimeException
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function deferBuild($blackfireEnvironment, $buildTitle, $externalId = null, $externalParentId = null, $triggerName = 'Build SDK')
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if ($this->hasCurrentBuild()) {
             throw new \RuntimeException('A Blackfire build was already started.');
         }
@@ -142,9 +157,13 @@ class BuildHelper
      * @return Build
      *
      * @throws \RuntimeException
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function startDeferredBuild()
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if (!$this->buildDeferred) {
             throw new \RuntimeException('There is no deferred build to start.');
         }
@@ -165,9 +184,13 @@ class BuildHelper
 
     /**
      * @return Report
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function endCurrentBuild()
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if (!$this->hasCurrentBuild()) {
             throw new \RuntimeException('A Blackfire build must be started to be able to end it.');
         }
@@ -194,8 +217,13 @@ class BuildHelper
         return $this->currentBuild;
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function createScenario(?string $scenarioTitle = null, ?string $scenarioKey = 'current'): Scenario
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if (!$this->enabled) {
             throw new \RuntimeException('Unable to create a Scenario because Blackfire build is globally disabled.');
         }
@@ -220,8 +248,13 @@ class BuildHelper
         return $this->scenarios[$scenarioKey] = $this->blackfire->startScenario($this->currentBuild, $options);
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function endCurrentScenario()
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if (!$this->hasCurrentScenario()) {
             throw new \RuntimeException('A Blackfire scenario must be started to be able to end it.');
         }
@@ -279,35 +312,60 @@ class BuildHelper
         return $this->scenarios[$scenarioKey];
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function endScenario(string $scenarioKey): void
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $scenario = $this->getScenario($scenarioKey);
         $this->getBlackfireClient()->closeScenario($scenario);
 
         unset($this->scenarios[$scenarioKey]);
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function createRequest(string $scenarioKey, ?string $title = null): Request
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         return $this->getBlackfireClient()->createRequest(
             $this->getConfigurationForScenario($scenarioKey, $title)
         );
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function createProbe(string $scenarioKey, ?string $title = null): Probe
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         return $this->getBlackfireClient()->createProbe(
             $this->getConfigurationForScenario($scenarioKey, $title)
         );
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function endProbe(Probe $probe): void
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $this->getBlackfireClient()->endProbe($probe);
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function getConfigurationForScenario(string $scenarioKey, $title = null): Configuration
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         return (new Configuration())
             ->setScenario($this->getScenario($scenarioKey))
             ->setMetadata('skip_timeline', 'true')
@@ -320,8 +378,13 @@ class BuildHelper
         return !empty($this->scenarios);
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function endAllScenarios(): void
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         foreach (array_keys($this->scenarios) as $scenarioKey) {
             $this->endScenario($scenarioKey);
         }

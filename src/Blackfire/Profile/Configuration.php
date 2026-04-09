@@ -67,9 +67,13 @@ class Configuration
 
     /**
      * @return $this
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function setScenario(Build\Scenario $scenario)
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $this->scenario = $scenario;
         $this->intention = 'build';
         $this->buildUuid = $scenario->getBuild()->getUuid();
@@ -197,8 +201,13 @@ class Configuration
         return $this->buildUuid;
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function setBuildUuid($buildUuid)
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $this->buildUuid = $buildUuid;
 
         return $this;

@@ -103,8 +103,13 @@ class Client
         return $profile;
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function addStep(Request $request)
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $config = $request->getConfiguration();
         $scenario = $config->getScenario();
         if ($scenario) {
@@ -131,9 +136,13 @@ class Client
      *                             (title, metadata, trigger_name, external_id, external_parent_id)
      *
      * @return Build\Build
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function startBuild($env = null, $options = array())
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $env = $this->getEnvUuid(null === $env ? $this->config->getEnv() : $env);
         $content = json_encode($options);
         $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v2/builds/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
@@ -145,9 +154,13 @@ class Client
      * Closes a build.
      *
      * @return Report
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function closeBuild(Build\Build $build)
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $uuid = $build->getUuid();
 
         $build->setStatus('done');
@@ -158,9 +171,13 @@ class Client
 
     /**
      * Creates a Blackfire Scenario.
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function startScenario(?Build\Build $build = null, $options = array())
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         if (null === $build) {
             $build = $this->startBuild();
         }
@@ -177,9 +194,13 @@ class Client
      * Closes a Blackfire Scenario.
      *
      * @return Report
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function closeScenario(Scenario $scenario, array $errors = array())
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $scenario->setStatus('done');
         $scenario->addErrors($errors);
 
@@ -336,9 +357,13 @@ class Client
      * @param string $uuid A Build Report UUID
      *
      * @return Report
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function getBuildReport($uuid)
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $self = $this;
 
         return new Report(function () use ($self, $uuid) {

@@ -13,6 +13,9 @@ namespace Blackfire\Build;
 
 use http\Exception\InvalidArgumentException;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 class Build
 {
     private $env;
@@ -24,6 +27,8 @@ class Build
 
     public function __construct($env, $data)
     {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __CLASS__), E_USER_DEPRECATED);
+
         $this->env = $env;
         $this->data = $data;
         $this->scenarioCount = 0;

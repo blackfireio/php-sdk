@@ -14,6 +14,9 @@ namespace Blackfire\Bridge\Laravel;
 use Blackfire\Build\BuildHelper;
 use Symfony\Component\Process\Process;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 trait BlackfireTestArtisanCommandsTrait
 {
     /**
@@ -25,9 +28,13 @@ trait BlackfireTestArtisanCommandsTrait
      * @return int
      *
      * @throws \Symfony\Component\Console\Exception\CommandNotFoundException
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function call($command, array $parameters = array(), $outputBuffer = null)
     {
+        @trigger_error(sprintf('The trait "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', BlackfireTestArtisanCommandsTrait::class), E_USER_DEPRECATED);
+
         if ('testing' === env('APP_ENV') && array_key_exists('blackfire-laravel-tests', $parameters)) {
             $buildHelper = BuildHelper::getInstance();
 

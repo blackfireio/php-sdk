@@ -11,6 +11,9 @@
 
 namespace Blackfire\Build;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 class Scenario
 {
     private $uuid;
@@ -23,6 +26,8 @@ class Scenario
 
     public function __construct(Build $build, array $data = array())
     {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __CLASS__), E_USER_DEPRECATED);
+
         $this->uuid = self::generateUuid();
         $this->build = $build;
         $this->data = $data + array('title' => null);

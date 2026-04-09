@@ -18,6 +18,8 @@ use Blackfire\Exception\ApiException;
  * Shared logic for PHPUnit 10+ event subscribers.
  *
  * @internal
+ *
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
  */
 final class BlackfireBuildSubscriber
 {
@@ -41,6 +43,8 @@ final class BlackfireBuildSubscriber
         string $buildTitle = 'Build from PHPUnit',
         ?BuildHelper $buildHelper = null,
     ) {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __CLASS__), E_USER_DEPRECATED);
+
         $this->blackfireEnvironmentId = $blackfireEnvironmentId;
         $this->buildTitle = $buildTitle;
         $this->externalId = $this->getEnv('BLACKFIRE_EXTERNAL_ID');

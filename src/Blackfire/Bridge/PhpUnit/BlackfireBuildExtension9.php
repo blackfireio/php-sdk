@@ -18,6 +18,9 @@ use PHPUnit\Runner\AfterTestHook;
 use PHPUnit\Runner\BeforeFirstTestHook;
 use PHPUnit\Util\Color;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 class BlackfireBuildExtension9 implements BeforeFirstTestHook, AfterLastTestHook, AfterTestHook
 {
     /** @var BuildHelper */
@@ -40,6 +43,8 @@ class BlackfireBuildExtension9 implements BeforeFirstTestHook, AfterLastTestHook
         string $buildTitle = 'Build from PHPUnit',
         ?BuildHelper $buildHelper = null,
     ) {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __CLASS__), E_USER_DEPRECATED);
+
         $this->blackfireEnvironmentId = $blackfireEnvironmentId;
         $this->buildTitle = $buildTitle;
         $this->externalId = $this->getEnv('BLACKFIRE_EXTERNAL_ID');

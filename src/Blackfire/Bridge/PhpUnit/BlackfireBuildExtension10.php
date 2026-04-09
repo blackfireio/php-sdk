@@ -23,6 +23,9 @@ use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
 use PHPUnit\TextUI\Configuration\Configuration;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 class BlackfireBuildExtension10 implements Extension
 {
     public function bootstrap(
@@ -30,6 +33,8 @@ class BlackfireBuildExtension10 implements Extension
         Facade $facade,
         ParameterCollection $parameters,
     ): void {
+        @trigger_error(sprintf('The class "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __CLASS__), E_USER_DEPRECATED);
+
         $blackfireEnvironmentId = $parameters->get('blackfireEnvironmentId');
         $buildTitle = $parameters->has('buildTitle')
             ? $parameters->get('buildTitle')

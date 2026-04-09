@@ -15,6 +15,9 @@ use Blackfire\Bridge\Symfony\BlackfiredHttpBrowser;
 use Blackfire\Build\BuildHelper;
 use Symfony\Component\Panther\WebTestAssertionsTrait;
 
+/**
+ * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+ */
 trait BlackfireTestCaseTrait
 {
     use WebTestAssertionsTrait;
@@ -35,6 +38,8 @@ trait BlackfireTestCaseTrait
 
     public static function setUpBeforeClass(): void
     {
+        @trigger_error(sprintf('The trait "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __TRAIT__), E_USER_DEPRECATED);
+
         parent::setUpBeforeClass();
         $buildHelper = BuildHelper::getInstance();
         if (self::isBlackfireScenarioAutoStart() && $buildHelper->isEnabled()) {

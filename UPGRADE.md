@@ -1,6 +1,40 @@
 PHP-SDK UPGRADE
 ===============
 
+To v2.6.0
+---------
+
+The entire **Build** feature is deprecated and will be removed in 3.0.
+Migrate to [Blackfire Player](https://docs.blackfire.io/builds-cookbooks/synthetic-monitoring) with `--report` before the end of May 2026.
+
+> This Synthetic Monitoring build was triggered by a deprecated method. Migrate to Blackfire Player with --report before the end of May 2026.
+
+The following classes are deprecated:
+* `Blackfire\Build\Build`
+* `Blackfire\Build\Scenario`
+* `Blackfire\Build\BuildHelper`
+* `Blackfire\Bridge\PhpUnit\BlackfireBuildExtension`
+* `Blackfire\Bridge\PhpUnit\BlackfireBuildExtension9`
+* `Blackfire\Bridge\PhpUnit\BlackfireBuildExtension10`
+* `Blackfire\Bridge\PhpUnit\BlackfireBuildSubscriber`
+* `Blackfire\Bridge\PhpUnit\BlackfireTestCaseTrait`
+* `Blackfire\Bridge\PhpUnit\Laravel\BlackfireBuildExtension`
+* `Blackfire\Bridge\Laravel\BlackfireTestCase`
+* `Blackfire\Bridge\Laravel\BlackfireTestArtisanCommandsTrait`
+* `Blackfire\Bridge\Behat\BlackfireExtension\Event\BuildSubscriber`
+* `Blackfire\Bridge\Behat\BlackfireExtension\Event\ScenarioSubscriber`
+
+The following methods are deprecated:
+* `Blackfire\Client::startBuild()`
+* `Blackfire\Client::closeBuild()`
+* `Blackfire\Client::startScenario()`
+* `Blackfire\Client::closeScenario()`
+* `Blackfire\Client::getBuildReport()`
+* `Blackfire\Client::addStep()`
+* `Blackfire\Profile\Configuration::setScenario()`
+* `Blackfire\Profile\Configuration::setBuildUuid()`
+* `Blackfire\LoopClient::generateBuilds()`
+
 To v2.3.0
 ---------
 

@@ -59,9 +59,13 @@ class LoopClient
     /**
      * @param string|null   $env          The environment name (or null to use the one configured on the client)
      * @param callable|null $buildFactory An optional factory callable that creates build instances
+     *
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
      */
     public function generateBuilds($env = null, $buildFactory = null)
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         $this->env = $env;
         $this->buildFactory = $buildFactory;
     }
