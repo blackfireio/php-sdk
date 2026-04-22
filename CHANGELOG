@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+* v2.5.13 (2026-04-21)
+
+  - Display deprecation message about build in Sdk
+  - Change the brand in versions and licenses
+
 * v2.5.12 (2026-01-09)
 
   - Support PHPUnit 10+
