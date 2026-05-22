@@ -33,6 +33,7 @@ The following methods are deprecated:
 * `Blackfire\Client::addStep()`
 * `Blackfire\Profile\Configuration::setScenario()`
 * `Blackfire\Profile\Configuration::setBuildUuid()`
+* `Blackfire\Profile\Request::getStoreUrl()`
 * `Blackfire\LoopClient::generateBuilds()`
 
 To v2.3.0

@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v2.6.0 (2026-05-22)
+
+  - Deprecate the _links.store usage in SDK
+
 * v2.5.13 (2026-04-21)
 
   - Display deprecation message about build in Sdk
