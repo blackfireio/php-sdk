@@ -82,8 +82,13 @@ class Request
         return $this->data['_links']['profile']['href'];
     }
 
+    /**
+     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
+     */
     public function getStoreUrl()
     {
+        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
+
         return $this->data['_links']['store']['href'];
     }
 
