@@ -11,7 +11,6 @@
 
 namespace Blackfire;
 
-use Blackfire\Build\Scenario;
 use Blackfire\Exception\ApiException;
 use Blackfire\Exception\EnvNotFoundException;
 use Blackfire\Exception\OfflineException;
@@ -84,129 +83,7 @@ class Client
             $this->storeMetadata($request->getUuid(), $request->getUserMetadata());
         }
 
-        $config = $request->getConfiguration();
-        $scenario = $config->getScenario();
-        if ($scenario) {
-            // call getUrl to trigger the `initializeProfile` method and wait for the profile to be finished
-            $profile->getUrl();
-
-            $scenario->addStep(array(
-                'type' => 'request',
-                'status' => 'done',
-                'name' => $config->getTitle(),
-                'blackfire_profile_uuid' => $profile->getUuid(),
-            ));
-
-            $this->updateJsonView($scenario->getBuild());
-        }
-
         return $profile;
-    }
-
-    /**
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function addStep(Request $request)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $config = $request->getConfiguration();
-        $scenario = $config->getScenario();
-        if ($scenario) {
-            $profile = $this->getProfile($request->getUuid());
-            // call getUrl to trigger the `initializeProfile` method and wait for the profile to be finished
-            $profile->getUrl();
-
-            $scenario->addStep(array(
-                'type' => 'request',
-                'status' => 'done',
-                'name' => $config->getTitle(),
-                'blackfire_profile_uuid' => $request->getUuid(),
-            ));
-
-            $this->updateJsonView($scenario->getBuild());
-        }
-    }
-
-    /**
-     * Creates a Blackfire Build.
-     *
-     * @param string|null $env     The environment name (or null to use the one configured on the client)
-     * @param array       $options An array of Build options
-     *                             (title, metadata, trigger_name, external_id, external_parent_id)
-     *
-     * @return Build\Build
-     *
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function startBuild($env = null, $options = array())
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $env = $this->getEnvUuid(null === $env ? $this->config->getEnv() : $env);
-        $content = json_encode($options);
-        $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v2/builds/env/'.$env, 'POST', array('content' => $content), array('Content-Type: application/json')), true);
-
-        return new Build\Build($env, $data);
-    }
-
-    /**
-     * Closes a build.
-     *
-     * @return Report
-     *
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function closeBuild(Build\Build $build)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $uuid = $build->getUuid();
-
-        $build->setStatus('done');
-        $this->updateJsonView($build);
-
-        return $this->getBuildReport($uuid);
-    }
-
-    /**
-     * Creates a Blackfire Scenario.
-     *
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function startScenario(?Build\Build $build = null, $options = array())
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        if (null === $build) {
-            $build = $this->startBuild();
-        }
-
-        $scenario = new Scenario($build, $options);
-        $build->addScenario($scenario);
-
-        $this->updateJsonView($build);
-
-        return $scenario;
-    }
-
-    /**
-     * Closes a Blackfire Scenario.
-     *
-     * @return Report
-     *
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function closeScenario(Scenario $scenario, array $errors = array())
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $scenario->setStatus('done');
-        $scenario->addErrors($errors);
-
-        $this->updateJsonView($scenario->getBuild());
-
-        return $this->getBuildReport($scenario->getBuild()->getUuid());
     }
 
     /**
@@ -269,26 +146,6 @@ class Client
         }, $uuid);
     }
 
-    public function addJobInScenario(ProfileConfiguration $config, Scenario $scenario)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $step = array();
-        $step['type'] = 'request';
-        $step['status'] = 'done';
-        $step['name'] = $config->getTitle();
-
-        if ($config->getUuid()) {
-            $step['blackfire_profile_uuid'] = $config->getUuid();
-        }
-
-        $scenario->addStep($step);
-
-        $this->updateJsonView($scenario->getBuild());
-
-        return $step;
-    }
-
     /**
      * @internal
      */
@@ -333,79 +190,6 @@ class Client
                 }
 
                 throw ApiException::fromStatusCode(sprintf('Error while fetching profile from the API at "%s" using client "%s".', $url, $this->config->getClientId()), $e->getCode(), $e);
-            }
-        }
-    }
-
-    /**
-     * @param string $uuid A Scenario Report UUID
-     *
-     * @return Report
-     */
-    public function getScenarioReport($uuid)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.3 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $self = $this;
-
-        return new Report(function () use ($self, $uuid) {
-            return $self->doGetReport($uuid, 'scenario');
-        });
-    }
-
-    /**
-     * @param string $uuid A Build Report UUID
-     *
-     * @return Report
-     *
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function getBuildReport($uuid)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $self = $this;
-
-        return new Report(function () use ($self, $uuid) {
-            return $self->doGetReport($uuid);
-        });
-    }
-
-    /**
-     * @internal
-     */
-    private function doGetReport($uuid, $type = 'build')
-    {
-        $retry = 0;
-        $e = null;
-        $path = 'build' === $type ? '/api/v2/builds/'.$uuid : '/api/v2/scenarios/'.$uuid;
-        $url = $this->config->getEndpoint().$path;
-
-        while (true) {
-            try {
-                $data = json_decode($this->sendHttpRequest($url), true);
-
-                if ('finished' === $data['status']['name']) {
-                    return $data;
-                }
-
-                if ('errored' === $data['status']['name']) {
-                    throw new ApiException(isset($data['status']['failure_reason']) ? $data['status']['failure_reason'] : 'Build errored.');
-                }
-            } catch (ApiException $e) {
-                if (404 != $e->getCode() || $retry > self::MAX_RETRY) {
-                    throw $e;
-                }
-            }
-
-            usleep(++$retry * 50000);
-
-            if ($retry > self::MAX_RETRY) {
-                if (null === $e) {
-                    throw new ApiException('Report is still in the queue.');
-                }
-
-                throw ApiException::fromStatusCode(sprintf('Error while fetching report from the API at "%s" using client "%s".', $url, $this->config->getClientId()), $e->getCode(), $e);
             }
         }
     }
@@ -475,8 +259,7 @@ class Client
     private function getRequestDetails(ProfileConfiguration $config)
     {
         $details = array();
-        $scenario = $config->getScenario();
-        $this->getEnvDetails($scenario ? $scenario->getEnv() : $this->config->getEnv());
+        $this->getEnvDetails($this->config->getEnv());
 
         if (null !== $config->getUuid()) {
             $details['requestId'] = $config->getUuid();
@@ -484,9 +267,6 @@ class Client
 
         if ($intention = $config->getIntention()) {
             $details['intention'] = $intention;
-        }
-        if ($buildUuid = $config->getBuildUuid()) {
-            $details['build'] = $buildUuid;
         }
 
         if ($debug = $config->isDebug()) {
@@ -720,31 +500,5 @@ class Client
         }
 
         return stream_context_create($options, $defaultParams);
-    }
-
-    private function updateJsonView(Build\Build $build)
-    {
-        $uuid = $build->getUuid();
-
-        $data = array(
-            'version' => $build->getNextVersion(),
-            'status' => $build->getStatus(),
-            'scenarios' => array(),
-        );
-        foreach ($build->getScenarios() as $scenario) {
-            $scenarioData = array(
-                'uuid' => $scenario->getUuid(),
-                'status' => $scenario->getStatus(),
-                'name' => $scenario->getName(),
-                'errors' => $scenario->getErrors(),
-                'steps' => $scenario->getSteps(),
-            );
-            $data['scenarios'][] = $scenarioData;
-        }
-
-        $content = json_encode($data);
-        $this->sendHttpRequest($this->config->getEndpoint().'/api/v3/builds/'.$uuid.'/update', 'POST', array('content' => $content), array('Content-Type: application/json'));
-
-        return $this->getBuildReport($uuid);
     }
 }

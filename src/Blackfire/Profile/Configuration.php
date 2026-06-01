@@ -11,8 +11,6 @@
 
 namespace Blackfire\Profile;
 
-use Blackfire\Build;
-
 /**
  * Configures a Blackfire profile.
  */
@@ -24,10 +22,8 @@ class Configuration
     private $title = '';
     private $metadata = array();
     private $layers = array();
-    private $scenario;
     private $requestInfo = array();
     private $intention;
-    private $buildUuid;
     private $debug = false;
 
     public function getUuid()
@@ -56,27 +52,6 @@ class Configuration
     public function setTitle($title)
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    public function getScenario()
-    {
-        return $this->scenario;
-    }
-
-    /**
-     * @return $this
-     *
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function setScenario(Build\Scenario $scenario)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $this->scenario = $scenario;
-        $this->intention = 'build';
-        $this->buildUuid = $scenario->getBuild()->getUuid();
 
         return $this;
     }
@@ -175,40 +150,6 @@ class Configuration
     public function defineMetric(Metric $metric)
     {
         $this->metrics[] = $metric;
-
-        return $this;
-    }
-
-    public function getSamples()
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.5 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        return 1;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setSamples($samples)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.5 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        return $this;
-    }
-
-    public function getBuildUuid()
-    {
-        return $this->buildUuid;
-    }
-
-    /**
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function setBuildUuid($buildUuid)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $this->buildUuid = $buildUuid;
 
         return $this;
     }

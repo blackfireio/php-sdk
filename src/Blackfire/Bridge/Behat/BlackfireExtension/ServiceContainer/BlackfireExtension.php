@@ -11,18 +11,13 @@
 
 namespace Blackfire\Bridge\Behat\BlackfireExtension\ServiceContainer;
 
-use Behat\Behat\EventDispatcher\ServiceContainer\EventDispatcherExtension;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
-use Behat\Testwork\Output\ServiceContainer\OutputExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
-use Blackfire\Bridge\Behat\BlackfireExtension\Event\BuildSubscriber;
-use Blackfire\Bridge\Behat\BlackfireExtension\Event\ScenarioSubscriber;
 use Blackfire\Bridge\Behat\BlackfireExtension\ServiceContainer\Driver\BlackfiredHttpBrowserFactory;
 use Blackfire\Bridge\Behat\BlackfireExtension\ServiceContainer\Driver\BlackfiredKernelBrowserFactory;
 use Blackfire\Bridge\Symfony\BlackfiredHttpBrowser;
 use Blackfire\Bridge\Symfony\BlackfiredKernelBrowser;
-use Blackfire\Build\BuildHelper;
 use FriendsOfBehat\SymfonyExtension\Driver\SymfonyDriver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -60,10 +55,6 @@ class BlackfireExtension implements ExtensionInterface
                     ->isRequired()
                     ->info('The Blackfire environment name or its UUID.')
                 ->end()
-                ->scalarNode('build_name')
-                    ->defaultValue('Behat Build')
-                    ->info('Name for the build, as it appears in the Blackfire Build Dashboard.')
-                ->end()
             ->end()
         ->end();
     }
@@ -71,13 +62,8 @@ class BlackfireExtension implements ExtensionInterface
     public function load(ContainerBuilder $container, array $config)
     {
         $container->setDefinition(
-            BuildHelper::class,
-            (new Definition(BuildHelper::class))
-                ->setFactory(BuildHelper::class.'::getInstance')
-        );
-        $container->setDefinition(
             BlackfiredHttpBrowser::class,
-            new Definition(BlackfiredHttpBrowser::class, array(new Reference(BuildHelper::class)))
+            new Definition(BlackfiredHttpBrowser::class)
         );
         if (class_exists(SymfonyDriver::class)) {
             $container->setDefinition(
@@ -87,30 +73,5 @@ class BlackfireExtension implements ExtensionInterface
         }
 
         $container->setParameter('blackfire.environment', $config['blackfire_environment']);
-        $container->setParameter('blackfire.build_name', $config['build_name']);
-
-        $this->registerSubscribers($container);
-    }
-
-    private function registerSubscribers(ContainerBuilder $container)
-    {
-        $buildSubscriberDef = new Definition(BuildSubscriber::class, array(
-            new Reference(OutputExtension::FORMATTER_TAG.'.pretty'),
-            new Reference(BuildHelper::class),
-            '%blackfire.environment%',
-            '%blackfire.build_name%',
-        ));
-        $buildSubscriberDef->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
-        $container->setDefinition(
-            BuildSubscriber::class,
-            $buildSubscriberDef
-        );
-
-        $scenarioSubscriberDef = new Definition(ScenarioSubscriber::class, array(
-            new Reference(BuildHelper::class),
-            new Reference(MinkExtension::MINK_ID),
-        ));
-        $scenarioSubscriberDef->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
-        $container->setDefinition(ScenarioSubscriber::class, $scenarioSubscriberDef);
     }
 }

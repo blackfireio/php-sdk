@@ -11,7 +11,6 @@
 
 namespace Blackfire\Bridge\Symfony;
 
-use Blackfire\Build\BuildHelper;
 use Blackfire\Client as BlackfireClient;
 use Blackfire\Profile\Configuration;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -23,11 +22,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class BlackfiredKernelBrowser extends KernelBrowser
 {
     /**
-     * @var BuildHelper
-     */
-    private $buildHelper;
-
-    /**
      * @var BlackfireClient
      */
     private $blackfire;
@@ -38,8 +32,7 @@ class BlackfiredKernelBrowser extends KernelBrowser
     {
         parent::__construct($kernel, $server, $history, $cookieJar);
 
-        $this->buildHelper = BuildHelper::getInstance();
-        $this->blackfire = $this->buildHelper->getBlackfireClient();
+        $this->blackfire = new BlackfireClient();
     }
 
     public function enableBlackfire(): void
@@ -63,9 +56,6 @@ class BlackfiredKernelBrowser extends KernelBrowser
             $profileConfig = (new Configuration())
                 ->setMetadata('skip_timeline', 'false')
                 ->setTitle(sprintf('%s - %s', $request->getPathInfo(), $request->getMethod()));
-            if ($this->buildHelper->hasCurrentScenario()) {
-                $profileConfig->setScenario($this->buildHelper->getCurrentScenario());
-            }
 
             $_SERVER += array(
                 'HTTP_HOST' => 'localhost',

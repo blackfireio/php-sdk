@@ -11,7 +11,7 @@
 
 namespace Blackfire\Bridge\Symfony;
 
-use Blackfire\Build\BuildHelper;
+use Blackfire\Client;
 use Blackfire\Profile\Configuration;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -21,12 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 class BlackfiredHttpBrowser extends HttpBrowser
 {
     /**
-     * @var BuildHelper
-     */
-    private $buildHelper;
-
-    /**
-     * @var \Blackfire\Client
+     * @var Client
      */
     private $blackfire;
 
@@ -39,11 +34,10 @@ class BlackfiredHttpBrowser extends HttpBrowser
 
     private $profileTitle;
 
-    public function __construct(BuildHelper $buildHelper)
+    public function __construct()
     {
-        $this->buildHelper = $buildHelper;
-        $this->profilingEnabled = $buildHelper->isEnabled();
-        $this->blackfire = $buildHelper->getBlackfireClient();
+        $this->profilingEnabled = true;
+        $this->blackfire = new Client();
 
         if (!class_exists(HttpClient::class)) {
             throw new \RuntimeException('symfony/http-client is required to use the BlackfiredHttpBrowser, please add it to your composer dependencies.');
@@ -78,9 +72,6 @@ class BlackfiredHttpBrowser extends HttpBrowser
     {
         if ($this->isProfilingEnabled()) {
             $profileConfig = (new Configuration())->setTitle($this->profileTitle ?? sprintf('%s - %s', $uri, $method));
-            if ($this->buildHelper->hasCurrentScenario()) {
-                $profileConfig->setScenario($this->buildHelper->getCurrentScenario());
-            }
 
             $this->blackfiredHttpClient->enableProfiling($profileConfig);
         } else {

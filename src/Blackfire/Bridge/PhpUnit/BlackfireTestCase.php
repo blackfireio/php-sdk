@@ -12,10 +12,11 @@
 namespace Blackfire\Bridge\PhpUnit;
 
 use Symfony\Component\Panther\PantherTestCase;
+use Symfony\Component\Panther\WebTestAssertionsTrait;
 
 class BlackfireTestCase extends PantherTestCase
 {
-    use BlackfireTestCaseTrait;
+    use WebTestAssertionsTrait;
 
     public function tearDown(): void
     {

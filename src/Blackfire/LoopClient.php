@@ -24,10 +24,6 @@ class LoopClient
     private $signal = false;
     private $enabled = true;
     private $running = false;
-    private $build;
-    private $scenario;
-    private $buildFactory;
-    private $env = false;
 
     /**
      * @param int $maxIterations The number of iterations
@@ -54,20 +50,6 @@ class LoopClient
 
         $this->signal = true;
         $this->enabled = false;
-    }
-
-    /**
-     * @param string|null   $env          The environment name (or null to use the one configured on the client)
-     * @param callable|null $buildFactory An optional factory callable that creates build instances
-     *
-     * @deprecated since blackfire/php-sdk 2.6, will be removed in 3.0.
-     */
-    public function generateBuilds($env = null, $buildFactory = null)
-    {
-        @trigger_error(sprintf('The method "%s" is deprecated since blackfire/php-sdk 2.6 and will be removed in 3.0.', __METHOD__), E_USER_DEPRECATED);
-
-        $this->env = $env;
-        $this->buildFactory = $buildFactory;
     }
 
     public function startLoop(?ProfileConfiguration $config = null)
@@ -128,13 +110,6 @@ class LoopClient
             $config = clone $config;
         }
 
-        $config->setSamples($this->maxIterations);
-
-        if (false !== $this->env) {
-            $this->scenario = $this->client->startScenario();
-            $config->setScenario($this->scenario);
-        }
-
         return $this->client->createProbe($config, false);
     }
 
@@ -146,22 +121,6 @@ class LoopClient
             $this->enabled = false;
         }
 
-        $profile = $this->client->endProbe($this->probe);
-
-        if (null !== $this->scenario) {
-            $this->client->closeScenario($this->scenario);
-            $this->client->closeBuild($this->build);
-
-            $this->scenario = null;
-            $this->build = null;
-        }
-
-        if (null !== $this->build) {
-            $this->client->endBuild($this->build);
-
-            $this->build = null;
-        }
-
-        return $profile;
+        return $this->client->endProbe($this->probe);
     }
 }
