@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v3.0.0 (2026-06-01)
+
+ - Remove deprecated function of the version 2.0
+
 * v2.6.0 (2026-05-22)
 
   - Deprecate the _links.store usage in SDK
