@@ -29,6 +29,11 @@ class Client
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
     const VERSION = '3.0.0';
 
+    // Mirrors ProfileLinks::PROFILE_UUID_PLACEHOLDER in api.blackfire.io: the
+    // agent discovery endpoint returns endpoint links carrying this literal in
+    // their path, to be replaced with the real profile uuid.
+    const PROFILE_UUID_PLACEHOLDER = 'profile-uuid-placeholder';
+
     private $config;
     private $collabTokens;
 
@@ -75,7 +80,7 @@ class Client
     {
         $probe->close();
 
-        $profile = $this->getProfile($probe->getRequest()->getUuid());
+        $profile = $this->getProfile($probe->getRequest()->getUuid(), self::MAX_RETRY, $probe->getAgentUuid());
 
         $request = $probe->getRequest();
 
@@ -137,37 +142,79 @@ class Client
      *
      * @return Profile
      */
-    public function getProfile($uuid, $retryCount = self::MAX_RETRY)
+    public function getProfile($uuid, $retryCount = self::MAX_RETRY, $agentUuid = null)
     {
         $self = $this;
 
-        return new Profile(function () use ($self, $uuid, $retryCount) {
-            return $self->doGetProfile($uuid, $retryCount);
+        return new Profile(function () use ($self, $uuid, $retryCount, $agentUuid) {
+            return $self->doGetProfile($uuid, $retryCount, $agentUuid);
         }, $uuid);
     }
 
     /**
      * @internal
      */
-    public function doGetProfile($uuid, $maxRetries)
+    public function doGetProfile($uuid, $maxRetries, $agentUuid = null)
     {
         if ($maxRetries < 0) {
             throw new \InvalidArgumentException('Max retries must be a positive integer');
         }
 
+        // When the handling agent is known, resolve the real (possibly
+        // regionalized) profile endpoint and keep the central API as the last
+        // fallback. Each attempt gets the full retry budget; an endpoint that
+        // is unreachable/unauthorized falls through to the next one, while a
+        // failed/not-ready profile is endpoint-independent and propagates.
+        $attempts = $this->resolveProfileAttempts($uuid, $agentUuid);
+        $lastException = null;
+        foreach ($attempts as $i => $attempt) {
+            $isLast = ($i === \count($attempts) - 1);
+            try {
+                return $this->pollProfile($attempt['url'], $attempt['token'], $maxRetries);
+            } catch (ProfileNotReadyException $e) {
+                // A failed/not-ready profile is endpoint-independent: do not
+                // retry it against another endpoint.
+                throw $e;
+            } catch (ApiException $e) {
+                $lastException = $e;
+                if ($isLast) {
+                    throw $e;
+                }
+            } catch (OfflineException $e) {
+                // The (possibly regionalized) endpoint is unreachable: fall
+                // through to the next attempt (e.g. the central API).
+                $lastException = $e;
+                if ($isLast) {
+                    throw $e;
+                }
+            }
+        }
+
+        throw $lastException ?? new ApiException('Profile is still in the queue.');
+    }
+
+    private function pollProfile($url, $bearerToken, $maxRetries)
+    {
         $retry = 0;
-        $url = $this->config->getEndpoint().'/api/v1/profiles/'.$uuid;
         while (true) {
             $e = null;
             try {
-                $data = json_decode($this->sendHttpRequest($url), true);
+                $data = json_decode($this->sendHttpRequest($url, 'GET', array(), array(), $bearerToken), true);
 
-                if ($data['status']['code'] > 0) {
-                    if ('finished' == $data['status']['name']) {
+                if (isset($data['profile'])) {
+                    $data = $data['profile'];
+                } elseif (isset($data['status'])) {
+                    $data['status_code'] = $data['status']['code'];
+                    $data['status_name'] = $data['status']['name'];
+                    $data['failure_reason'] = $data['status']['failure_reason'] ?? null;
+                }
+
+                if ($data['status_code'] > 0) {
+                    if ('finished' == $data['status_name']) {
                         return $data;
                     }
 
-                    throw new ProfileNotReadyException($data['status']['failure_reason'] ?? 'Failed to fetch profile', $data['status']['code'] ?? 0);
+                    throw new ProfileNotReadyException($data['failure_reason'] ?? 'Failed to fetch profile', $data['status_code']);
                 }
             } catch (ApiException $e) {
                 $code = $e->getCode();
@@ -192,6 +239,77 @@ class Client
                 throw ApiException::fromStatusCode(sprintf('Error while fetching profile from the API at "%s" using client "%s".', $url, $this->config->getClientId()), $e->getCode(), $e);
             }
         }
+    }
+
+    /**
+     * Builds the ordered list of endpoints to poll for a profile's data. When
+     * the handling agent is known, the agent discovery endpoint
+     * (GET /api/v3/agents/{agentUuid}) is queried for the real, possibly
+     * regionalized, endpoint: web_profile (with the discovery bearer token)
+     * first, then the basic profile link. The central API is always kept last
+     * as a fallback. Discovery failures degrade silently to the central API.
+     *
+     * @return array<int, array{url: string, token: string|null}>
+     */
+    private function resolveProfileAttempts($uuid, $agentUuid)
+    {
+        $central = array('url' => $this->config->getEndpoint().'/api/v1/profiles/'.$uuid, 'token' => null);
+
+        if (empty($agentUuid)) {
+            return array($central);
+        }
+
+        try {
+            $data = json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v3/agents/'.rawurlencode($agentUuid)), true);
+        } catch (ApiException $e) {
+            return array($central);
+        } catch (OfflineException $e) {
+            return array($central);
+        }
+
+        return $this->buildProfileAttempts($uuid, \is_array($data) ? $data : array(), $central);
+    }
+
+    /**
+     * Pure attempt-builder from a decoded agent discovery response. Kept
+     * separate from the HTTP call so the ordering/token logic is testable.
+     *
+     * @param array                                  $discovery the decoded GET /api/v3/agents/{uuid} body
+     * @param array{url: string, token: string|null} $central   the central API fallback attempt
+     *
+     * @return array<int, array{url: string, token: string|null}>
+     */
+    private function buildProfileAttempts($uuid, array $discovery, array $central)
+    {
+        $links = isset($discovery['_links']) && \is_array($discovery['_links']) ? $discovery['_links'] : array();
+        $token = isset($discovery['token']) ? $discovery['token'] : null;
+
+        $attempts = array();
+        $webHref = $this->resolveEndpointHref(isset($links['web_profile']['href']) ? $links['web_profile']['href'] : null, $uuid);
+        if (null !== $token && null !== $webHref) {
+            $attempts[] = array('url' => $webHref, 'token' => $token);
+        }
+        $basicHref = $this->resolveEndpointHref(isset($links['profile']['href']) ? $links['profile']['href'] : null, $uuid);
+        if (null !== $basicHref) {
+            $attempts[] = array('url' => $basicHref, 'token' => null);
+        }
+        $attempts[] = $central;
+
+        return $attempts;
+    }
+
+    /**
+     * Substitutes the profile uuid into a discovery link. Returns null when the
+     * link is missing or does not contain the placeholder, so the caller skips
+     * it. Mirrors ProfileLinks::PROFILE_UUID_PLACEHOLDER in api.blackfire.io.
+     */
+    private function resolveEndpointHref($href, $uuid)
+    {
+        if (!\is_string($href) || false === strpos($href, self::PROFILE_UUID_PLACEHOLDER)) {
+            return null;
+        }
+
+        return str_replace(self::PROFILE_UUID_PLACEHOLDER, $uuid, $href);
     }
 
     private function doCreateRequest(ProfileConfiguration $config)
@@ -286,11 +404,15 @@ class Client
         return json_decode($this->sendHttpRequest($this->config->getEndpoint().'/api/v1/profiles/'.$uuid.'/store', 'PUT', array('content' => json_encode($metadata)), array('Content-Type: application/json')), true);
     }
 
-    private function sendHttpRequest($url, $method = 'GET', $context = array(), $headers = array())
+    private function sendHttpRequest($url, $method = 'GET', $context = array(), $headers = array(), $bearerToken = null)
     {
         $userAgent = sprintf('Blackfire PHP SDK/%s%s%s', self::VERSION, ' - PHP/'.phpversion(), $this->config->getUserAgentSuffix() ? ' - '.$this->config->getUserAgentSuffix() : '');
 
-        $headers[] = 'Authorization: Basic '.base64_encode($this->config->getClientId().':'.$this->config->getClientToken());
+        if (null !== $bearerToken) {
+            $headers[] = 'Authorization: Bearer '.$bearerToken;
+        } else {
+            $headers[] = 'Authorization: Basic '.base64_encode($this->config->getClientId().':'.$this->config->getClientToken());
+        }
         $headers[] = 'X-Blackfire-User-Agent: '.$userAgent;
         $headers[] = 'User-Agent: '.$userAgent;
 

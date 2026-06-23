@@ -67,7 +67,34 @@ class Probe
 
     public function close()
     {
-        return $this->probe->close();
+        $ret = $this->probe->close();
+
+        $this->captureAgentUuid();
+
+        return $ret;
+    }
+
+    /**
+     * The uuid of the agent that handled the profile, decoded from the probe
+     * response line (the X-Blackfire-Response payload). Null when unknown.
+     */
+    public function getAgentUuid()
+    {
+        return $this->request->getAgentUuid();
+    }
+
+    private function captureAgentUuid()
+    {
+        $response = $this->probe->getResponseLine();
+        $prefix = 'Blackfire-Response: ';
+        if (!is_string($response) || 0 !== strpos($response, $prefix)) {
+            return;
+        }
+
+        parse_str(substr($response, strlen($prefix)), $values);
+        if (!empty($values['agent_uuid'])) {
+            $this->request->setAgentUuid($values['agent_uuid']);
+        }
     }
 
     private function checkError()

@@ -119,6 +119,9 @@ class BlackfiredHttpClient implements HttpClientInterface
             }
 
             if ($request) {
+                if (!empty($values['agent_uuid'])) {
+                    $request->setAgentUuid($values['agent_uuid']);
+                }
                 $this->blackfire->addStep($request);
             }
 

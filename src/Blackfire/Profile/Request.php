@@ -21,6 +21,7 @@ class Request
 {
     private $configuration;
     private $data;
+    private $agentUuid;
 
     /**
      * @internal
@@ -90,6 +91,26 @@ class Request
     public function getUuid()
     {
         return $this->data['uuid'];
+    }
+
+    /**
+     * The uuid of the agent that handled the profile, decoded from the
+     * X-Blackfire-Response header. Used to resolve a possibly regionalized
+     * profile endpoint. Null when unknown.
+     *
+     * @internal
+     */
+    public function setAgentUuid($agentUuid)
+    {
+        $this->agentUuid = $agentUuid;
+    }
+
+    /**
+     * @internal
+     */
+    public function getAgentUuid()
+    {
+        return $this->agentUuid;
     }
 
     public function getYaml()
