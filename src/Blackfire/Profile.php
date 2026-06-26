@@ -78,7 +78,9 @@ class Profile
             $this->initializeProfile();
         }
 
-        return isset($this->data['report']['state']) && 'errored' === $this->data['report']['state'];
+        $report = self::normalizeReport(isset($this->data['report']) ? $this->data['report'] : null);
+
+        return null !== $report && $report['errored'];
     }
 
     /**
@@ -94,7 +96,9 @@ class Profile
             $this->initializeProfile();
         }
 
-        return isset($this->data['report']['state']) && 'successful' === $this->data['report']['state'];
+        $report = self::normalizeReport(isset($this->data['report']) ? $this->data['report'] : null);
+
+        return null !== $report && $report['passing'];
     }
 
     /**
@@ -112,16 +116,7 @@ class Profile
             $this->initializeProfile();
         }
 
-        if (!isset($this->data['report']['tests'])) {
-            return $this->tests = array();
-        }
-
-        $this->tests = array();
-        foreach ($this->data['report']['tests'] as $test) {
-            $this->tests[] = new Test($test['name'], $test['state'], isset($test['failures']) ? $test['failures'] : array());
-        }
-
-        return $this->tests;
+        return $this->tests = self::buildTests(self::normalizeReport(isset($this->data['report']) ? $this->data['report'] : null));
     }
 
     /**
@@ -139,16 +134,17 @@ class Profile
             $this->initializeProfile();
         }
 
-        if (!isset($this->data['recommendations']['tests'])) {
-            return $this->recommendations = array();
+        // The canonical format exposes the recommendation detail under
+        // "recommendations_details" (a numeric "recommendations" count sits alongside it).
+        // Legacy api.blackfire.io responses expose the detail directly under "recommendations".
+        $detail = null;
+        if (isset($this->data['recommendations_details'])) {
+            $detail = $this->data['recommendations_details'];
+        } elseif (isset($this->data['recommendations']) && is_array($this->data['recommendations'])) {
+            $detail = $this->data['recommendations'];
         }
 
-        $this->recommendations = array();
-        foreach ($this->data['recommendations']['tests'] as $test) {
-            $this->recommendations[] = new Test($test['name'], $test['state'], isset($test['failures']) ? $test['failures'] : array());
-        }
-
-        return $this->recommendations;
+        return $this->recommendations = self::buildTests(self::normalizeReport($detail));
     }
 
     /**
@@ -244,5 +240,90 @@ class Profile
     private function initializeProfile()
     {
         $this->data = call_user_func($this->initializeProfileCallback);
+    }
+
+    /**
+     * Reports come in two shapes depending on the endpoint that served the profile:
+     *   - admin.pipeline.blackfire.io returns the canonical
+     *     {empty, errored, passing, constraints} report
+     *   - api.blackfire.io (legacy) returns {state, tests}
+     * Normalize the legacy shape to the canonical one so the SDK only deals with one format.
+     *
+     * @internal
+     *
+     * @param array|null $report
+     *
+     * @return array|null
+     */
+    private static function normalizeReport($report)
+    {
+        if (!is_array($report)) {
+            return null;
+        }
+
+        // Already in the canonical { constraints } format.
+        if (isset($report['constraints'])) {
+            return $report;
+        }
+
+        $tests = isset($report['tests']) ? $report['tests'] : array();
+        $constraints = array();
+        foreach ($tests as $test) {
+            $assertions = array();
+            foreach (isset($test['failures']) ? $test['failures'] : array() as $expression) {
+                $assertions[] = array('expression' => $expression, 'passing' => false);
+            }
+
+            $constraints[] = array(
+                'name' => isset($test['name']) ? $test['name'] : null,
+                'errored' => isset($test['state']) && 'errored' === $test['state'],
+                'passing' => isset($test['state']) && 'successful' === $test['state'],
+                'assertions' => $assertions,
+            );
+        }
+
+        return array(
+            'empty' => 0 === count($tests),
+            'errored' => isset($report['state']) && 'errored' === $report['state'],
+            'passing' => isset($report['state']) && 'successful' === $report['state'],
+            'constraints' => $constraints,
+        );
+    }
+
+    /**
+     * Builds the list of Test value objects from a canonical report.
+     *
+     * @internal
+     *
+     * @param array|null $report
+     *
+     * @return Test[]
+     */
+    private static function buildTests($report)
+    {
+        if (!is_array($report) || !isset($report['constraints'])) {
+            return array();
+        }
+
+        $tests = array();
+        foreach ($report['constraints'] as $constraint) {
+            $state = 'failed';
+            if (!empty($constraint['errored'])) {
+                $state = 'errored';
+            } elseif (!empty($constraint['passing'])) {
+                $state = 'successful';
+            }
+
+            $failures = array();
+            foreach (isset($constraint['assertions']) ? $constraint['assertions'] : array() as $assertion) {
+                if (empty($assertion['passing']) && isset($assertion['expression'])) {
+                    $failures[] = $assertion['expression'];
+                }
+            }
+
+            $tests[] = new Test(isset($constraint['name']) ? $constraint['name'] : null, $state, $failures);
+        }
+
+        return $tests;
     }
 }
