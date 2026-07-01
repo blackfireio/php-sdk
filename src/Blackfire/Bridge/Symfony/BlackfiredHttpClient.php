@@ -78,7 +78,6 @@ class BlackfiredHttpClient implements HttpClientInterface
             }
 
             $options['headers']['X-Blackfire-Query'] = $options['extra']['profile_request']->getToken();
-            $options['headers']['X-Blackfire-Profile-Url'] = $options['extra']['profile_request']->getProfileUrl();
             $options['headers']['X-Blackfire-Profile-Uuid'] = $options['extra']['profile_request']->getUuid();
         }
 
@@ -101,7 +100,6 @@ class BlackfiredHttpClient implements HttpClientInterface
             if (null !== $this->logger) {
                 $this->logger->warning('Profile request failed.', array(
                     'profile-uuid' => $request->getUuid() ?? null,
-                    'profile-url' => $request->getProfileUrl() ?? null,
                 ));
             }
 
@@ -114,7 +112,6 @@ class BlackfiredHttpClient implements HttpClientInterface
             if (null !== $this->logger) {
                 $this->logger->debug('Profile request succeeded.', array(
                     'profile-uuid' => $request->getUuid() ?? null,
-                    'profile-url' => $request->getProfileUrl() ?? null,
                 ));
             }
 

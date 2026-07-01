@@ -78,6 +78,12 @@ class Request
         return $this->data['query_string'].'&'.http_build_query($this->data['options'], '', '&');
     }
 
+    /**
+     * @deprecated since 3.x, will be removed in 4.0. The profile URL is not
+     *             needed to trigger a profile (the signed query carries
+     *             everything) and the resulting URL is better resolved from the
+     *             profile resource via Client::getProfile()->getUrl().
+     */
     public function getProfileUrl()
     {
         return $this->data['_links']['profile']['href'];

@@ -81,7 +81,6 @@ class Middleware
 
             $request = $request
                 ->withHeader('X-Blackfire-Query', $profileRequest->getToken())
-                ->withHeader('X-Blackfire-Profile-Url', $profileRequest->getProfileUrl())
                 ->withHeader('X-Blackfire-Profile-Uuid', $profileRequest->getUuid())
             ;
         }
@@ -101,14 +100,12 @@ class Middleware
     {
         $response = $response
             ->withHeader('X-Blackfire-Profile-Uuid', $request->getHeader('X-Blackfire-Profile-Uuid'))
-            ->withHeader('X-Blackfire-Profile-Url', $request->getHeader('X-Blackfire-Profile-Url'))
         ;
 
         if (!$response->hasHeader('X-Blackfire-Response')) {
             if (null !== $this->logger) {
                 $this->logger->warning('Profile request failed.', array(
                     'profile-uuid' => $request->getHeader('X-Blackfire-Profile-Uuid'),
-                    'profile-url' => $request->getHeader('X-Blackfire-Profile-Url'),
                 ));
             }
 
@@ -121,7 +118,6 @@ class Middleware
             if (null !== $this->logger) {
                 $this->logger->debug('Profile request succeeded.', array(
                     'profile-uuid' => $request->getHeader('X-Blackfire-Profile-Uuid'),
-                    'profile-url' => $request->getHeader('X-Blackfire-Profile-Url'),
                 ));
             }
 
