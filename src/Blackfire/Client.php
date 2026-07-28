@@ -27,7 +27,7 @@ class Client
 {
     const MAX_RETRY = 60;
     const NO_REFERENCE_ID = '00000000-0000-0000-0000-000000000000';
-    const VERSION = '3.0.0';
+    const VERSION = '3.0.1';
 
     // Mirrors ProfileLinks::PROFILE_UUID_PLACEHOLDER in api.blackfire.io: the
     // agent discovery endpoint returns endpoint links carrying this literal in
