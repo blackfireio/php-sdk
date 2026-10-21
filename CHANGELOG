@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v3.0.2 (2026-10-21)
+
+  - Point support links to support.blackfire.upsun.com
+
 * v3.0.1 (2026-07-28)
 
   - Deprecate the Profile.getProfileUrl method
