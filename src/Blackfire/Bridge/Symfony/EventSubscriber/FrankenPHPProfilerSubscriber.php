@@ -19,6 +19,10 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated since 3.x, will be removed in 4.0. The PHP Probe profiles each
+ *             FrankenPHP worker request on its own since v2026.8.2.
+ */
 class FrankenPHPProfilerSubscriber implements EventSubscriberInterface
 {
     /**

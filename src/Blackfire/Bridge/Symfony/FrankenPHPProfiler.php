@@ -14,6 +14,10 @@ namespace Blackfire\Bridge\Symfony;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated since 3.x, will be removed in 4.0. The PHP Probe profiles each
+ *             FrankenPHP worker request on its own since v2026.8.2.
+ */
 class FrankenPHPProfiler
 {
     /**
