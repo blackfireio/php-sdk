@@ -11,6 +11,7 @@
 
 namespace Blackfire\Bridge\Laravel;
 
+use Blackfire\Util\Transaction;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Console\Events\ScheduledTaskFailed;
@@ -66,11 +67,27 @@ class ObservableCommandProvider extends ServiceProvider
         Event::listen(
             array(
                 CommandFinished::class,
+            ),
+            function (CommandFinished $event) {
+                Transaction::stop($event->exitCode);
+            }
+        );
+
+        Event::listen(
+            array(
                 ScheduledTaskFinished::class,
+            ),
+            function (ScheduledTaskFinished $event) {
+                Transaction::stop($event->task->exitCode);
+            }
+        );
+
+        Event::listen(
+            array(
                 ScheduledTaskFailed::class,
             ),
             function () {
-                \BlackfireProbe::stopTransaction();
+                Transaction::stop(1);
             }
         );
     }

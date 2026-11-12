@@ -12,6 +12,7 @@
 namespace Blackfire\Bridge\Symfony\Event;
 
 use Blackfire\Bridge\Symfony\MonitorableCommandInterface;
+use Blackfire\Util\Transaction;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
@@ -61,7 +62,7 @@ class MonitoredCommandSubscriber implements EventSubscriberInterface
             return;
         }
 
-        \BlackfireProbe::stopTransaction();
+        Transaction::stop($event->getExitCode());
     }
 
     private function isTracingEnabled(Command $command)

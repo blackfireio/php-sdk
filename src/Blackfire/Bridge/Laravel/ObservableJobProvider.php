@@ -11,6 +11,7 @@
 
 namespace Blackfire\Bridge\Laravel;
 
+use Blackfire\Util\Transaction;
 use Illuminate\Queue\Events\JobExceptionOccurred;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
@@ -41,11 +42,11 @@ class ObservableJobProvider extends ServiceProvider
         });
 
         Queue::after(function (JobProcessed $event) {
-            \BlackfireProbe::stopTransaction();
+            Transaction::stop($event->job->hasFailed() ? 1 : null);
         });
 
         Queue::exceptionOccurred(function (JobExceptionOccurred $event) {
-            \BlackfireProbe::stopTransaction();
+            Transaction::stop(1);
         });
     }
 }

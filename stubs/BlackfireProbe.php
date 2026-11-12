@@ -138,7 +138,15 @@ namespace {
         {
         }
 
-        public static function stopTransaction()
+        /**
+         * Stops the current transaction.
+         *
+         * @param int|null $exitCode The exit code of the transaction, a non-zero value reports it as failed.
+         *                           Like a process exit code, only its low byte is kept: 300 becomes 44,
+         *                           256 becomes 0 and -1 becomes 255.
+         *                           Defaults to the exit status of the process.
+         */
+        public static function stopTransaction($exitCode = null)
         {
         }
 
