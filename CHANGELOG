@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+* v3.1.0 (2026-11-18)
+
+  - [php-probe] Report the exit code of CLI transactions
+
 * v3.0.3 (2026-11-04)
 
   - Deprecate FrankenPHP subscriber and profiler
