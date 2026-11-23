@@ -154,7 +154,17 @@ namespace {
         {
         }
 
-        public static function getBrowserProbe($withTags = true)
+        /**
+         * Returns the browser probe snippet.
+         *
+         * @param bool        $withTags Whether to return a <script> tag or the JavaScript loader code only
+         * @param string|null $nonce    The CSP nonce to add to the <script> tag. With null, it is read from the
+         *                              Content-Security-Policy header already set by PHP. An empty string adds none.
+         *                              Ignored without tags.
+         *
+         * @throws \ValueError When $nonce contains a null byte (PHP 8+)
+         */
+        public static function getBrowserProbe($withTags = true, $nonce = null)
         {
         }
     }
